@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Universe</string>
+    <string name="common_base_error">Oops! Something went wrong.</string>
+    <string name="news_title">News</string>
+</resources>

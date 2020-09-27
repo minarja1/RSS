@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimary">#006064</color>
+    <color name="colorAccent">#466c80</color>
+    <color name="colorOnPrimary">#ffffff</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimaryLight">#62727b</color>
+
+    <color name="colorBackground">#000</color>
+    <color name="colorOnBackground">#FFFFFF</color>
+
+    <color name="colorSurface">#1b1b1b</color>
+    <color name="colorOnSurface">#FFFFFF</color>
+
+    <color name="colorToolbar">#000</color>
+
+    <color name="colorOverlay">#CCffffff</color>
+
+    <color name="divider">#1fFFFFFF</color>
+
+    <color name="textColorPrimary">#EEFFFFFF</color>
+    <color name="textColorSecondary">#99FFFFFF</color>
+    <color name="textColorTertiary">#66FFFFFF</color>\
+
+    <color name="green">#00BC42</color>
+
+</resources>
