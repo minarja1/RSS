@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sourceCard"
+    style="@style/MaterialCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp">
+
+    <LinearLayout
+        android:id="@+id/sourceBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:background="?selectableItemBackground"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/sourceImageView"
+            android:layout_width="32dp"
+            android:layout_height="32dp" />
+
+        <TextView
+            android:id="@+id/sourceNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:ellipsize="end"
+            android:lines="3"
+            android:maxLines="3"
+            android:minLines="1"
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/TextAppearance.Subtitle"
+            android:textColor="@color/textColorPrimary"
+            tools:text="Space.com | NASA, Space Exploration and Astronpace Exploration and Astronpace Exploration and Astronpace Exploration and Astronomy News" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

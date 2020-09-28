@@ -2,12 +2,15 @@ package cz.minarik.nasapp.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
+import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 
 @Database(
     entities = [
-        ReadArticleEntity::class
+        ReadArticleEntity::class,
+        RSSSourceEntity::class,
     ],
     version = UniverseDatabase.Version
 )
@@ -19,4 +22,5 @@ abstract class UniverseDatabase : RoomDatabase() {
     }
 
     abstract fun readArticleDao(): ReadArticleDao
+    abstract fun rssSourceDao(): RSSSourceDao
 }

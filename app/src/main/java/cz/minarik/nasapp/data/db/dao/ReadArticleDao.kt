@@ -14,5 +14,4 @@ interface ReadArticleDao : BaseDao<ReadArticleEntity> {
     @Query("Select * From ReadArticleEntity Where guid = :guid")
     suspend fun getByGuid(guid: String): ReadArticleEntity?
 
-
 }

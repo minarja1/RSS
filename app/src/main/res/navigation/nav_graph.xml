@@ -2,11 +2,11 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/newsFragment">
+    app:startDestination="@id/articlesFragment">
 
     <fragment
-        android:id="@+id/newsFragment"
-        android:name="cz.minarik.nasapp.ui.news.NewsFragment"
-        android:label="@string/news_title" />
+        android:id="@+id/articlesFragment"
+        android:name="cz.minarik.nasapp.ui.news.ArticlesFragment"
+        android:label="@string/articles_title" />
 
 </navigation>

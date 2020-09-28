@@ -2,7 +2,9 @@ package cz.minarik.nasapp.di
 
 import androidx.room.Room
 import cz.minarik.nasapp.data.db.UniverseDatabase
-import cz.minarik.nasapp.ui.news.NewsFragmentViewModel
+import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
+import cz.minarik.nasapp.ui.news.ArticlesFragmentViewModel
+import cz.minarik.nasapp.utils.UniversePrefManager
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -14,10 +16,20 @@ val appModule = module {
     //todo prefManager
 
     viewModel {
-        NewsFragmentViewModel(
+        ArticlesFragmentViewModel(
             androidContext(),
-            get()
+            get(),
+            get(),
+            get(),
+            get(),
         )
+    }
+
+    single {
+        UniversePrefManager(androidContext())
+    }
+    single {
+        RSSSourceRepository(androidContext(), get())
     }
 }
 
@@ -38,6 +50,8 @@ val dbModule = module {
 
     // Dao
     single { get<UniverseDatabase>().readArticleDao() }
+    single { get<UniverseDatabase>().rssSourceDao() }
+
 }
 
 val allModules = listOf(appModule, dbModule)

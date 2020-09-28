@@ -2,4 +2,8 @@
 <resources>
 
     <dimen name="rounded_corner">4dp</dimen>
+    <dimen name="dialog_rounded_corner">8dp</dimen>
+
+    <dimen name="dialog_min_height">500dp</dimen>
+    <dimen name="dialog_width">300dp</dimen>
 </resources>

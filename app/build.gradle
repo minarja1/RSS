@@ -3,9 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'kotlin-kapt'
-//todo az bude google
-//apply plugin: 'com.google.gms.google-services'
-
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
@@ -48,8 +46,9 @@ dependencies {
 
     implementation 'com.github.minarja1:Base:v1.0.3'
     implementation 'com.prof.rssparser:rssparser:3.1.1'
-    //todo az bude Google
-//    implementation "com.google.android.gms:play-services-base:17.4.0"
+
+    implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
+
     implementation "androidx.browser:browser:1.2.0"
 
     //ROOM
@@ -58,5 +57,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
+
+    implementation 'com.google.firebase:firebase-database-ktx:19.4.0'
 
 }

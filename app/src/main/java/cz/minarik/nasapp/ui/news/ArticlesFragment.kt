@@ -9,13 +9,18 @@ import cz.minarik.base.common.extensions.initToolbar
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.dialog.ArticlesSourceSelectionDialogFragment
 import cz.minarik.nasapp.utils.openCustomTabs
-import kotlinx.android.synthetic.main.fragment_news.*
+import kotlinx.android.synthetic.main.fragment_articles.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class NewsFragment : BaseFragment(R.layout.fragment_news) {
+class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
 
-    override val viewModel by viewModel<NewsFragmentViewModel>()
+    companion object {
+        const val sourcesDialogTag = "sourcesDialogTag"
+    }
+
+    override val viewModel by viewModel<ArticlesFragmentViewModel>()
 
     private val articlesAdapter by lazy {
         ArticlesAdapter { article, imageView, position ->
@@ -26,7 +31,7 @@ class NewsFragment : BaseFragment(R.layout.fragment_news) {
                 requireContext().openCustomTabs(it, builder)
                 viewModel.markArticleAsRead(article)
                 article.read = true
-                recyclerView.adapter?.notifyItemChanged(position)
+                articlesRecyclerView.adapter?.notifyItemChanged(position)
             }
         }
     }
@@ -49,15 +54,51 @@ class NewsFragment : BaseFragment(R.layout.fragment_news) {
     }
 
     private fun initViews() {
-        initToolbar(toolbar)
-        recyclerView.dividerMedium()
-        recyclerView.adapter = articlesAdapter
+        initToolbar()
+        articlesRecyclerView.dividerMedium()
+        articlesRecyclerView.adapter = articlesAdapter
     }
 
+    private fun initToolbar() {
+        initToolbar(toolbar)
+        toolbar.inflateMenu(R.menu.menu_articles_fragment)
+        toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.searchAction -> {
+                    true
+                }//todo
+                R.id.filterAction -> {
+                    showFilterDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun showFilterDialog() {
+        activity?.run {
+            supportFragmentManager.let { fragmentManager ->
+                val transaction = fragmentManager.beginTransaction()
+                transaction.addToBackStack(sourcesDialogTag)
+                ArticlesSourceSelectionDialogFragment.newInstance(viewModel.getSources())
+                    .show(transaction, sourcesDialogTag)
+                ArticlesSourceSelectionDialogFragment.onSouurceSelected = {
+                    viewModel.onSourceSelected(it)
+                }
+            }
+        }
+    }
 
     private fun initObserve() {
         viewModel.articles.observe {
             articlesAdapter.submitList(it)
+        }
+
+        viewModel.sourceRepository.state.observe {
+            if (it == NetworkState.SUCCESS) {
+                viewModel.updateSourcesAndReload()
+            }
         }
     }
 
@@ -67,7 +108,7 @@ class NewsFragment : BaseFragment(R.layout.fragment_news) {
         }
 
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadNews()
+            viewModel.forceReload()
         }
     }
 
