@@ -1,13 +1,14 @@
 package cz.minarik.nasapp.model
 
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
+import java.io.Serializable
 
 data class RSSSourceDTO(
     val title: String? = null,
     val url: String? = null,
     val imageUrl: String? = null,
     var selected: Boolean = false,
-) {
+) : Serializable {
     companion object {
         fun fromEntity(
             source: RSSSourceEntity,
