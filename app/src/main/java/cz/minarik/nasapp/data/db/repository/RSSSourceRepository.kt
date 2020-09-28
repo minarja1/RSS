@@ -61,11 +61,16 @@ class RSSSourceRepository(
                 feed.url?.let {
                     try {
                         val channel = parser.getChannel(it)
-                        val entity = RSSSourceEntity(
-                            url = it,
-                            title = channel.title,
-                            imageUrl = channel.image?.url
-                        )
+
+                        var entity = dao.getByUrl(it)
+
+                        if (entity == null) {
+                            entity = RSSSourceEntity(
+                                url = it,
+                                title = channel.title,
+                                imageUrl = channel.image?.url
+                            )
+                        }
 
                         dao.insert(entity)
                     } catch (e: Exception) {

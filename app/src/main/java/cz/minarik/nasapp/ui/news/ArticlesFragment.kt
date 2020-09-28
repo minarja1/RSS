@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
 import cz.minarik.base.data.NetworkState
@@ -99,7 +100,15 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
             if (it == NetworkState.SUCCESS) {
                 viewModel.updateSourcesAndReload()
             }
+
+            //no Items and downloading sources-> show progressBar
+            showProgressBar(it == NetworkState.LOADING && articlesAdapter.itemCount == 0)
         }
+    }
+
+    fun showProgressBar(show: Boolean) {
+        progressBar.isVisible = show
+        articlesRecyclerView.isVisible = !show
     }
 
     private fun initSwipeToRefresh() {

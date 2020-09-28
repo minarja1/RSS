@@ -33,7 +33,6 @@ class ArticlesFragmentViewModel(
     private val allSources: MutableList<RSSSourceDTO> = mutableListOf()
 
     init {
-        //todo vylepsit inicializaci
         sourceRepository.updateRSSSourcesFromRealtimeDB()
         updateSourcesAndReload()
     }
