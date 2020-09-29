@@ -3,7 +3,8 @@ package cz.minarik.nasapp.di
 import androidx.room.Room
 import cz.minarik.nasapp.data.db.UniverseDatabase
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
-import cz.minarik.nasapp.ui.news.ArticlesFragmentViewModel
+import cz.minarik.nasapp.ui.articles.ArticlesFragmentViewModel
+import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.utils.UniversePrefManager
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -20,6 +21,13 @@ val appModule = module {
             androidContext(),
             get(),
             get(),
+            get(),
+        )
+    }
+
+    single {
+        SourceSelectionViewModel(
+            androidContext(),
             get(),
             get(),
         )

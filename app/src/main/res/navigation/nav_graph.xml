@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/articlesFragment"
-        android:name="cz.minarik.nasapp.ui.news.ArticlesFragment"
+        android:name="cz.minarik.nasapp.ui.articles.ArticlesFragment"
         android:label="@string/articles_title" />
 
 </navigation>

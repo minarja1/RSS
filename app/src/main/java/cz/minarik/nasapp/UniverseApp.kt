@@ -5,9 +5,11 @@ import coil.Coil
 import coil.ImageLoader
 import coil.util.CoilUtils
 import cz.minarik.nasapp.di.allModules
+import cz.minarik.nasapp.utils.TimberReleaseTree
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import timber.log.Timber
 
 
 class UniverseApp : Application() {
@@ -20,6 +22,15 @@ class UniverseApp : Application() {
             modules(allModules)
         }
         initCoilImageLoader()
+        initTimber()
+    }
+
+    private fun initTimber() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(TimberReleaseTree())
+        }
     }
 
     private fun initCoilImageLoader() {

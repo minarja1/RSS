@@ -9,6 +9,11 @@ data class RSSSourceDTO(
     val imageUrl: String? = null,
     var selected: Boolean = false,
 ) : Serializable {
+
+    //todo update when lists added
+    val isList: Boolean
+        get() = url == null
+
     companion object {
         fun fromEntity(
             source: RSSSourceEntity,

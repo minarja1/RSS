@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.ui.news
+package cz.minarik.nasapp.ui.articles
 
 import android.view.LayoutInflater
 import android.view.View

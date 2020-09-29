@@ -5,14 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import coil.api.load
 import cz.minarik.base.common.extensions.toast
 import cz.minarik.nasapp.R
+import timber.log.Timber
 import java.util.*
 
 fun ImageView.loadImageWithDefaultSettings(
@@ -50,7 +53,7 @@ fun Context.openCustomTabs(uri: Uri, customTabsBuilder: CustomTabsIntent.Builder
         }
         intent.launchUrl(this, uri)
     } catch (e: ActivityNotFoundException) {
-        //todo timber
+        Timber.e(e)
         toast(R.string.common_base_error)
     }
 }
@@ -73,4 +76,17 @@ fun getCustomTabsPackages(context: Context, uri: Uri): ArrayList<ResolveInfo>? {
         }
     }
     return packagesSupportingCustomTabs
+}
+
+
+//todo do base
+fun Drawable.tint(context: Context, color: Int): Drawable {
+    val wrapDrawable: Drawable? = DrawableCompat.wrap(this)
+    return wrapDrawable?.let {
+        DrawableCompat.setTint(
+            it,
+            ContextCompat.getColor(context, color)
+        )
+        it
+    } ?: this
 }

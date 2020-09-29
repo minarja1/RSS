@@ -13,6 +13,7 @@ import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
 import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.nio.charset.Charset
 
 class RSSSourceRepository(
@@ -72,9 +73,12 @@ class RSSSourceRepository(
                             )
                         }
 
+                        entity.title = channel.title
+                        entity.imageUrl = channel.image?.url
+
                         dao.insert(entity)
                     } catch (e: Exception) {
-                        //todo timber and handle exception
+                        Timber.e(e)
                         state.postValue(NetworkState.error(e.message))
                     }
                 }
@@ -92,7 +96,7 @@ class RSSSourceRepository(
     }
 
     override fun onCancelled(error: DatabaseError) {
-        //todo timber
+        Timber.e(error.message)
         state.postValue(NetworkState.Companion.error(context.getString(R.string.common_base_error)))
     }
 

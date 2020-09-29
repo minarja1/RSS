@@ -11,6 +11,7 @@ import coil.api.load
 import com.google.android.material.card.MaterialCardView
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.model.RSSSourceDTO
+import cz.minarik.nasapp.utils.tint
 
 
 class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
@@ -33,7 +34,22 @@ class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
     fun set(source: RSSSourceDTO) {
         sourceNameTextView.text = source.title
 
-        sourceImageView.load(source.imageUrl)
+        when {
+            !source.imageUrl.isNullOrEmpty() -> {
+                sourceImageView.load(source.imageUrl){
+                    fallback(R.drawable.ic_baseline_filter_list_24)
+                }
+            }
+            source.isList -> {
+                sourceImageView.load(R.drawable.ic_baseline_filter_list_24)
+            }
+            else -> {
+                val drawable = ContextCompat.getDrawable(context, R.drawable.comet_24px)
+                drawable?.tint(context, R.color.textColorPrimary)
+                sourceImageView.load(drawable)
+            }
+        }
+
         sourceCard.setCardBackgroundColor(
             ContextCompat.getColor(
                 context,
