@@ -6,11 +6,13 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.utils.openCustomTabs
 import kotlinx.android.synthetic.main.fragment_articles.*
@@ -45,7 +47,7 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState == null) {
             initObserve()
-            initViews()
+            initViews(view)
             initSwipeToRefresh()
         }
     }
@@ -58,11 +60,33 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         //todo
     }
 
-    private fun initViews() {
+    private fun initViews(view: View) {
         initToolbar()
         articlesRecyclerView.dividerMedium()
         articlesRecyclerView.adapter = articlesAdapter
         setupDrawerNavigation()
+        setupFilters(view)
+    }
+
+    private fun setupFilters(view: View) {
+        filterChipGroup.isVisible = viewModel.prefManager.showArticleFilters
+        viewModel.prefManager.getArticleFilter().let {
+            view.findViewById<Chip>(it.chipId)?.isChecked = true
+        }
+
+        //todo actually filter
+        filterALl.setOnCheckedChangeListener { _, checked ->
+            if (checked)
+                viewModel.prefManager.setArticleFilter(ArticleFilterType.All)
+        }
+        filterStarred.setOnCheckedChangeListener { _, checked ->
+            if (checked)
+                viewModel.prefManager.setArticleFilter(ArticleFilterType.Starred)
+        }
+        filterUnread.setOnCheckedChangeListener { _, checked ->
+            if (checked)
+                viewModel.prefManager.setArticleFilter(ArticleFilterType.Unread)
+        }
     }
 
     private fun setupDrawerNavigation() {
@@ -93,18 +117,8 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
     }
 
     private fun showFilterViews() {
-        //todo filter by ALL, UNREAD, STARRED
-//        activity?.run {
-//            supportFragmentManager.let { fragmentManager ->
-//                val transaction = fragmentManager.beginTransaction()
-//                transaction.addToBackStack(sourcesDialogTag)
-//                ArticlesSourceSelectionDialogFragment.newInstance(viewModel.getSources())
-//                    .show(transaction, sourcesDialogTag)
-//                ArticlesSourceSelectionDialogFragment.onSouurceSelected = {
-//                    viewModel.onSourceSelected(it)
-//                }
-//            }
-//        }
+        filterChipGroup.isVisible = !filterChipGroup.isVisible
+        viewModel.prefManager.showArticleFilters = filterChipGroup.isVisible
     }
 
     private fun initObserve() {

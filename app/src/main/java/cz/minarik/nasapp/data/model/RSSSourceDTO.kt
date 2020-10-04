@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.model
+package cz.minarik.nasapp.data.model
 
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import java.io.Serializable

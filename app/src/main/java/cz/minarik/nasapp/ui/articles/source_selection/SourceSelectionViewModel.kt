@@ -6,7 +6,7 @@ import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
-import cz.minarik.nasapp.model.RSSSourceDTO
+import cz.minarik.nasapp.data.model.RSSSourceDTO
 import kotlinx.coroutines.launch
 
 class SourceSelectionViewModel(

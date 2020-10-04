@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.model.RSSSourceDTO
+import cz.minarik.nasapp.data.model.RSSSourceDTO
 import cz.minarik.nasapp.ui.custom.SourceSelectionItemView
 
 class ArticleSourceAdapter(

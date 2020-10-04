@@ -6,4 +6,7 @@
     <string name="action_search">Search</string>
     <string name="all_articles">All articles</string>
     <string name="updating_sources">Updating sources…</string>
+    <string name="all">All</string>
+    <string name="unread">Unread</string>
+    <string name="starred">Starred</string>
 </resources>

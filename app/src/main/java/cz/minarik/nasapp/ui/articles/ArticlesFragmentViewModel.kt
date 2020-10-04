@@ -18,7 +18,7 @@ import java.nio.charset.Charset
 class ArticlesFragmentViewModel(
     private val context: Context,
     private val readArticleDao: ReadArticleDao,
-    private val prefManager: UniversePrefManager,
+    val prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
 ) : BaseViewModel() {
 

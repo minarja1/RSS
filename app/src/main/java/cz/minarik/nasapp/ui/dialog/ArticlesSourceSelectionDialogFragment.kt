@@ -8,7 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.model.RSSSourceDTO
+import cz.minarik.nasapp.data.model.RSSSourceDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
 import kotlinx.android.synthetic.main.dialog_articles_source_selection.*
 import org.koin.core.KoinComponent

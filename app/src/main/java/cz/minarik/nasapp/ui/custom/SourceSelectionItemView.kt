@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat
 import coil.api.load
 import com.google.android.material.card.MaterialCardView
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.model.RSSSourceDTO
+import cz.minarik.nasapp.data.model.RSSSourceDTO
 import cz.minarik.nasapp.utils.tint
 
 

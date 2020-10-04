@@ -109,7 +109,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
                 height = if (expanded) LayoutParams.WRAP_CONTENT else 110.dpToPx
             }
 
-            expandImageView.load(if(expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
+            expandImageView.load(if (expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
             invalidate()
             requestLayout()
         }
@@ -132,6 +132,7 @@ data class ArticleDTO(
     var read: Boolean = false,
     var expanded: Boolean = false,
     var expandable: Boolean = true,
+    var starred: Boolean = false,
     var domain: String? = null,
 ) {
     val isValid: Boolean
