@@ -23,6 +23,8 @@
     <color name="textColorSecondary">#99FFFFFF</color>
     <color name="textColorTertiary">#66FFFFFF</color>\
 
+    <color name="semiTransparentBlack">#80000000</color>
+
     <color name="green">#00BC42</color>
 
 </resources>

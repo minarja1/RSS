@@ -109,6 +109,9 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
 
     private fun initObserve() {
         viewModel.articles.observe {
+            if (!it.isNullOrEmpty()) {
+                showProgressBar(false)
+            }
             articlesAdapter.submitList(it)
         }
 
@@ -119,7 +122,6 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
             toolbar.subtitle = it
         }
 
-        //todo tohle spatne
         sourcesViewModel.sourceRepository.state.observe {
             if (it == NetworkState.SUCCESS) {
                 sourcesViewModel.updateSources()
@@ -131,7 +133,7 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         }
     }
 
-    fun showProgressBar(show: Boolean) {
+    private fun showProgressBar(show: Boolean) {
         progressBar.isVisible = show
         articlesRecyclerView.isVisible = !show
     }

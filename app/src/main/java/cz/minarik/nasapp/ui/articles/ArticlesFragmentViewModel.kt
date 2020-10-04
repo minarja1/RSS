@@ -76,6 +76,11 @@ class ArticlesFragmentViewModel(
                 it.date
             }
 
+            mappedArticles.firstOrNull()?.run {
+                expanded = true
+                expandable = false
+            }
+
             articles.postValue(mappedArticles)
             state.postValue(NetworkState.SUCCESS)
         }

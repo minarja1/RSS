@@ -11,9 +11,11 @@ import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
 import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
+import cz.minarik.nasapp.utils.getFavIcon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.net.URL
 import java.nio.charset.Charset
 
 class RSSSourceRepository(
@@ -53,7 +55,7 @@ class RSSSourceRepository(
                 if (!allServerUrls.contains(dbUrl)) {
                     allDB.find { it.url == dbUrl }?.let {
                         dao.delete(it)
-                    }
+                    }   
                 }
             }
 
@@ -64,17 +66,17 @@ class RSSSourceRepository(
                         val channel = parser.getChannel(it)
 
                         var entity = dao.getByUrl(it)
-
+                        val url = URL(it)
                         if (entity == null) {
                             entity = RSSSourceEntity(
                                 url = it,
                                 title = channel.title,
-                                imageUrl = channel.image?.url
+                                imageUrl = url.getFavIcon()
                             )
                         }
 
                         entity.title = channel.title
-                        entity.imageUrl = channel.image?.url
+                        entity.imageUrl = url.getFavIcon()
 
                         dao.insert(entity)
                     } catch (e: Exception) {

@@ -5,17 +5,22 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.net.toUri
 import coil.api.load
 import cz.minarik.base.common.extensions.toast
 import cz.minarik.nasapp.R
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import timber.log.Timber
+import java.net.URL
 import java.util.*
 
 fun ImageView.loadImageWithDefaultSettings(
@@ -31,7 +36,10 @@ fun ImageView.loadImageWithDefaultSettings(
 
 private const val CHROME_PACKAGE = "com.android.chrome"
 
-fun Context.openCustomTabs(uri: Uri, customTabsBuilder: CustomTabsIntent.Builder) {
+fun Context.openCustomTabs(
+    uri: Uri,
+    customTabsBuilder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
+) {
     try {
         customTabsBuilder.setToolbarColor(
             ContextCompat.getColor(
@@ -89,4 +97,38 @@ fun Drawable.tint(context: Context, color: Int): Drawable {
         )
         it
     } ?: this
+}
+
+fun URL.getFavIcon(): String {
+    return "https://www.google.com/s2/favicons?sz=64&domain_url=$host"
+}
+
+val Int.pxToDp: Int
+    get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+
+val Int.dpToPx: Float
+    get() = (this * Resources.getSystem().displayMetrics.density)
+
+
+fun TextView.handleHTML(context: Context) {
+    movementMethod = BetterLinkMovementMethod.newInstance().apply {
+        setOnLinkClickListener { _, url ->
+            context.openCustomTabs(url.toUri())
+            true
+        }
+        setOnLinkLongClickListener { textView, url ->
+            // Handle long-click or return false to let the framework handle this link.
+            false
+        }
+    }
+}
+
+fun String.getHostFromUrl(): String? {
+    return try {
+        val url = URL(this)
+        url.host.replace("www.", "")
+    } catch (e: Exception) {
+        Timber.e(e)
+        null
+    }
 }
