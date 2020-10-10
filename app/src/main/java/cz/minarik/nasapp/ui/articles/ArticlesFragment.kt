@@ -9,12 +9,16 @@ import androidx.core.view.isVisible
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
+import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.data.NetworkState
+import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
+import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.openCustomTabs
+import cz.minarik.nasapp.utils.scrollToTop
 import kotlinx.android.synthetic.main.fragment_articles.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -28,6 +32,8 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
     override val viewModel by viewModel<ArticlesFragmentViewModel>()
 
     private val sourcesViewModel: SourceSelectionViewModel by inject()
+
+    private val viewState = ViewState()
 
     private val articlesAdapter by lazy {
         ArticlesAdapter { article, imageView, position ->
@@ -66,6 +72,7 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         articlesRecyclerView.adapter = articlesAdapter
         setupDrawerNavigation()
         setupFilters(view)
+        stateView.attacheContentView(articlesRecyclerView)
     }
 
     private fun setupFilters(view: View) {
@@ -74,18 +81,20 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
             view.findViewById<Chip>(it.chipId)?.isChecked = true
         }
 
-        //todo actually filter
-        filterALl.setOnCheckedChangeListener { _, checked ->
-            if (checked)
-                viewModel.prefManager.setArticleFilter(ArticleFilterType.All)
+        filterAll.setOnCheckedChangeListener { _, checked ->
+            if (checked) {
+                viewModel.filterArticles(ArticleFilterType.All)
+            }
         }
         filterStarred.setOnCheckedChangeListener { _, checked ->
-            if (checked)
-                viewModel.prefManager.setArticleFilter(ArticleFilterType.Starred)
+            if (checked) {
+                viewModel.filterArticles(ArticleFilterType.Starred)
+            }
         }
         filterUnread.setOnCheckedChangeListener { _, checked ->
-            if (checked)
-                viewModel.prefManager.setArticleFilter(ArticleFilterType.Unread)
+            if (checked) {
+                viewModel.filterArticles(ArticleFilterType.Unread)
+            }
         }
     }
 
@@ -122,15 +131,17 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
     }
 
     private fun initObserve() {
+        viewModel.state.observe {
+            //todo drzet si v NetworkState i exception a rozlisovat noInternet od jinych
+            viewState.loadingArticlesState = it
+        }
+
         viewModel.articles.observe {
-            if (!it.isNullOrEmpty()) {
-                showProgressBar(false)
-            }
-            articlesAdapter.submitList(it)
+            viewState.articles = it
         }
 
         sourcesViewModel.selectedSource.observe {
-            viewModel.loadNews()
+            viewModel.loadArticles(scrollToTop = true)
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbar.subtitle = it
@@ -139,17 +150,10 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         sourcesViewModel.sourceRepository.state.observe {
             if (it == NetworkState.SUCCESS) {
                 sourcesViewModel.updateSources()
-                viewModel.loadNews()
+                viewModel.loadArticles()
             }
-
-            //no Items and downloading sources-> show progressBar
-            showProgressBar(it == NetworkState.LOADING && !sourcesViewModel.hasData())
+            viewState.loadingSourcesState = it
         }
-    }
-
-    private fun showProgressBar(show: Boolean) {
-        progressBar.isVisible = show
-        articlesRecyclerView.isVisible = !show
     }
 
     private fun initSwipeToRefresh() {
@@ -158,8 +162,60 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         }
 
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadNews()
+            viewModel.loadArticles(true)
         }
     }
 
+    private fun updateViews() {
+        val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
+        val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
+        val isError = viewState.loadingArticlesState?.status == Status.FAILED
+        val articlesEmpty = viewState.articles.isEmpty()
+        val loadingMessage = viewState.loadingArticlesState?.message
+
+        articlesAdapter.submitList(viewState.articles) {
+            if (viewModel.shouldScrollToTop) {
+                articlesRecyclerView.scrollToTop()
+            }
+        }
+
+        if (articlesEmpty && !isError && !loadingArticles) {
+            stateView.empty(true)
+        } else if (loadingSources && articlesEmpty && !isError) {
+            stateView.loading(true, getString(R.string.updating_sources))
+        } else if (isError) {
+            if (articlesEmpty) {
+                //full-screen error
+                stateView.error(show = true, message = loadingMessage) {
+                    viewModel.loadArticles()
+                }
+            } else {
+                showToast(requireContext(), loadingMessage ?: getString(R.string.common_base_error))
+            }
+        } else {
+            stateView.loading(false)
+        }
+    }
+
+    inner class ViewState {
+        var loadingArticlesState: NetworkState? = null
+            set(value) {
+                if (field != value) {
+                    field = value
+                    updateViews()
+                }
+            }
+        var loadingSourcesState: NetworkState? = null
+            set(value) {
+                if (field != value) {
+                    field = value
+                    updateViews()
+                }
+            }
+        var articles: List<ArticleDTO> = emptyList()
+            set(value) {
+                field = value
+                updateViews()
+            }
+    }
 }

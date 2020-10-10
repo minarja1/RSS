@@ -31,4 +31,17 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/textColorSecondary</item>
     </style>
+
+
+    <style name="OutlinedButton" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:theme">@style/AppTheme</item>
+        <item name="android:textAppearance">@style/TextAppearance.Button</item>
+        <item name="iconTint">?attr/colorSecondary</item>
+        <item name="android:minWidth">24dp</item>
+    </style>
+
+    <style name="TextAppearance.Button" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

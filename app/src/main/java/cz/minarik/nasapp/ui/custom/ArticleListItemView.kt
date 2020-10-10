@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.util.AttributeSet
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -13,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
 import androidx.core.view.isVisible
 import coil.api.load
-import com.google.android.material.card.MaterialCardView
 import com.prof.rssparser.Article
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.toDateFromRSS
@@ -23,6 +21,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.utils.getHostFromUrl
 import cz.minarik.nasapp.utils.handleHTML
 import cz.minarik.nasapp.utils.loadImageWithDefaultSettings
+import kotlinx.android.synthetic.main.article_list_item.view.*
 import java.util.*
 
 
@@ -30,32 +29,11 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs) {
 
     private var article: ArticleDTO? = null
-
-    private val expandLayout: ViewGroup
-    private val cardView: MaterialCardView
-    val articleImageView: ImageView
-    val expandImageView: ImageView
-    private val articleFullImageView: ImageView
-    private val titleTextView: TextView
-    private val dateTextView: TextView
-    private val subtitleTextView: TextView
-    private val domainTextView: TextView
-    private val domainDividerTextView: TextView
+    var articleImageView: ImageView
 
     init {
         inflate(context, R.layout.article_list_item, this)
-
-        expandLayout = findViewById(R.id.expandLayout)
         articleImageView = findViewById(R.id.articleImageView)
-        expandImageView = findViewById(R.id.expandImageView)
-        articleFullImageView = findViewById(R.id.articleFullImageView)
-        titleTextView = findViewById(R.id.titleTextView)
-        dateTextView = findViewById(R.id.dateTextView)
-        subtitleTextView = findViewById(R.id.subtitleTextView)
-        domainTextView = findViewById(R.id.domainTextView)
-        domainDividerTextView = findViewById(R.id.domainDividerTextView)
-        cardView = findViewById(R.id.cardView)
-
         subtitleTextView.handleHTML(context)
     }
 
@@ -68,6 +46,12 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         }
 
         titleTextView.setTypeface(null, if (article.read) Typeface.NORMAL else Typeface.BOLD)
+        subtitleTextView.setTextColor(
+            ContextCompat.getColor(
+                context,
+                if (article.read) R.color.textColorSecondary else R.color.textColorPrimary
+            )
+        )
         cardView.setCardBackgroundColor(
             ContextCompat.getColor(
                 context,
@@ -96,6 +80,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
+        subtitleTextView.setOnClickListener(l) // because it can be html and consumes touches
         cardView.setOnClickListener(l)
     }
 
@@ -188,6 +173,7 @@ data class ArticleDTO(
         if (sourceUrl != other.sourceUrl) return false
         if (categories != other.categories) return false
         if (domain != other.domain) return false
+        if (expandable != other.expandable) return false
 
         return true
     }

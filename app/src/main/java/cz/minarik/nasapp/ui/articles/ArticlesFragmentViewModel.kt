@@ -9,8 +9,11 @@ import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
+import cz.minarik.nasapp.data.model.ArticleFilterType
+import cz.minarik.nasapp.data.model.exception.NoConnectionException
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
+import cz.minarik.nasapp.utils.isInternetAvailable
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.nio.charset.Charset
@@ -22,47 +25,61 @@ class ArticlesFragmentViewModel(
     private val sourceDao: RSSSourceDao,
 ) : BaseViewModel() {
 
+    private val parser
+        get() = Parser.Builder()
+            .context(context)
+            .charset(Charset.forName("UTF-8"))
+            .cacheExpirationMillis(cacheExpirationMillis)
+            .build()
+
     companion object {
         const val cacheExpirationMillis = 1000L * 60L * 60L // 1 hour
     }
 
     val articles: MutableLiveData<List<ArticleDTO>> = MutableLiveData()
+    var shouldScrollToTop: Boolean = false
 
     init {
-        loadNews()
+        loadArticles(true)
     }
 
-    fun loadNews() {
+    private suspend fun loadArticlesFromUrl(
+        url: String,
+        flushCache: Boolean,
+        result: MutableList<Article>
+    ) {
+        Timber.i("Loading articles for url: $url")
+        if (flushCache) {
+            Timber.i("flushing cache for url: $url")
+            parser.flushCache(url)
+        }
+        val channel = parser.getChannel(url)
+        result.addAll(channel.articles)
+    }
+
+    fun loadArticles(force: Boolean = false, scrollToTop: Boolean = false) {
         defaultScope.launch {
+            if (!context.isInternetAvailable) {
+                state.postValue(NetworkState.Companion.error(NoConnectionException()))
+                return@launch
+            }
+            Timber.i("loading articles, force = $force")
             state.postValue(NetworkState.LOADING)
 
             val allArticles = mutableListOf<Article>()
-
-            val parser = Parser.Builder()
-                .context(context)
-                .charset(Charset.forName("UTF-8"))
-                .cacheExpirationMillis(cacheExpirationMillis)
-                .build()
 
             val selectedSource = sourceDao.getSelected()
 
             //todo something more sophisticated like lists etc.
             //user selected article source
             if (selectedSource != null) {
-                val channel = parser.getChannel(selectedSource.url)
-                allArticles.addAll(channel.articles)
+                loadArticlesFromUrl(selectedSource.url, force, allArticles)
             }  //load all sources
             else for (feed in sourceDao.getAll()) {
-                try {
-                    val channel = parser.getChannel(feed.url)
-                    allArticles.addAll(channel.articles)
-                } catch (e: Exception) {
-                    //todo handle exception
-                    Timber.e(e)
-                }
+                loadArticlesFromUrl(feed.url, force, allArticles)
             }
 
-            val mappedArticles = allArticles.map { article ->
+            var mappedArticles = allArticles.map { article ->
                 ArticleDTO.fromApi(article).apply {
                     guid?.let {
                         read = readArticleDao.getByGuid(it) != null
@@ -71,6 +88,8 @@ class ArticlesFragmentViewModel(
             }.filter {
                 it.isValid
             }.toMutableList()
+
+            mappedArticles = applyArticleFilters(mappedArticles)
 
             mappedArticles.sortByDescending {
                 it.date
@@ -81,10 +100,28 @@ class ArticlesFragmentViewModel(
                 expandable = false
             }
 
+            shouldScrollToTop = scrollToTop
+
             articles.postValue(mappedArticles)
             state.postValue(NetworkState.SUCCESS)
         }
 
+    }
+
+    private fun applyArticleFilters(articles: MutableList<ArticleDTO>): MutableList<ArticleDTO> {
+        return when (prefManager.getArticleFilter()) {
+            ArticleFilterType.Unread -> {
+                articles.filter {
+                    !it.read
+                }.toMutableList()
+            }
+            ArticleFilterType.Starred -> {
+                articles.filter {
+                    it.starred
+                }.toMutableList()
+            }
+            else -> articles
+        }
     }
 
     fun markArticleAsRead(article: ArticleDTO) {
@@ -96,4 +133,10 @@ class ArticlesFragmentViewModel(
             }
         }
     }
+
+    fun filterArticles(filterType: ArticleFilterType) {
+        prefManager.setArticleFilter(filterType)
+        loadArticles()
+    }
+
 }

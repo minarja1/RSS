@@ -7,7 +7,10 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.Build
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
@@ -15,9 +18,11 @@ import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTI
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import cz.minarik.base.common.extensions.toast
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.utils.Constants.Companion.RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import timber.log.Timber
 import java.net.URL
@@ -112,13 +117,16 @@ val Int.dpToPx: Float
 
 fun TextView.handleHTML(context: Context) {
     movementMethod = BetterLinkMovementMethod.newInstance().apply {
-        setOnLinkClickListener { _, url ->
+        setOnLinkClickListener { textView, url ->
             context.openCustomTabs(url.toUri())
             true
         }
         setOnLinkLongClickListener { textView, url ->
             // Handle long-click or return false to let the framework handle this link.
             false
+        }
+        setOnClickListener {
+
         }
     }
 }
@@ -132,3 +140,44 @@ fun String.getHostFromUrl(): String? {
         null
     }
 }
+
+fun RecyclerView.scrollToTop(smooth: Boolean = false) {
+    val smoothScroll = smooth && computeVerticalScrollOffset() > RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
+    if (smoothScroll) {
+        smoothScrollToPosition(0);
+    } else {
+        scrollToPosition(0)
+    }
+}
+
+
+val Context.isInternetAvailable: Boolean
+    get() {
+        var result = false
+        val connectivityManager =
+            this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            result = when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            connectivityManager.run {
+                connectivityManager.activeNetworkInfo?.run {
+                    result = when (type) {
+                        ConnectivityManager.TYPE_WIFI -> true
+                        ConnectivityManager.TYPE_MOBILE -> true
+                        ConnectivityManager.TYPE_ETHERNET -> true
+                        else -> false
+                    }
+
+                }
+            }
+        }
+        return result
+    }

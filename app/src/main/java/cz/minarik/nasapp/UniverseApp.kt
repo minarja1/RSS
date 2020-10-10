@@ -1,6 +1,8 @@
 package cz.minarik.nasapp
 
 import android.app.Application
+import android.content.Context
+import android.content.res.Resources
 import coil.Coil
 import coil.ImageLoader
 import coil.util.CoilUtils
@@ -13,6 +15,18 @@ import timber.log.Timber
 
 
 class UniverseApp : Application() {
+
+    init {
+        sharedInstance = this
+    }
+
+    companion object {
+        lateinit var sharedInstance: UniverseApp
+            private set
+
+        val applicationContext: Context
+            get() = sharedInstance.applicationContext
+    }
 
     override fun onCreate() {
         super.onCreate()
