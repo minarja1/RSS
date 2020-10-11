@@ -11,7 +11,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.ArticleListItemView
 
-class ArticlesAdapter(private var onItemClicked: (article: ArticleDTO, imageView: ImageView, position: Int) -> Unit) :
+class ArticlesAdapter(private var onItemClicked: (imageView: ImageView, position: Int) -> Unit) :
     ListAdapter<ArticleDTO, RecyclerView.ViewHolder>(diffCallback) {
 
     companion object {
@@ -27,7 +27,6 @@ class ArticlesAdapter(private var onItemClicked: (article: ArticleDTO, imageView
         }
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return VideoViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.row_article_item, parent, false)
@@ -35,21 +34,25 @@ class ArticlesAdapter(private var onItemClicked: (article: ArticleDTO, imageView
     }
 
     class VideoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val articleItem: ArticleListItemView = view.findViewById(R.id.articleListItem)
+        private val articleItemView: ArticleListItemView = view.findViewById(R.id.articleListItem)
 
         fun bind(
-            video: ArticleDTO?,
-            onItemClicked: (video: ArticleDTO, imageView: ImageView, position: Int) -> Unit
+            article: ArticleDTO?,
+            onItemClicked: (imageView: ImageView, position: Int) -> Unit
         ) {
-            if (video == null) return
-            articleItem.set(video)
-            articleItem.setOnClickListener {
-                onItemClicked(video, articleItem.articleImageView, adapterPosition)
+            if (article == null) return
+            articleItemView.set(article)
+            articleItemView.setOnClickListener {
+                onItemClicked(articleItemView.articleImageView, adapterPosition)
             }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as VideoViewHolder).bind(getItem(position), onItemClicked)
+    }
+
+    public fun getItemAtPosition(position: Int): ArticleDTO? {
+        return getItem(position)
     }
 }

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
+import android.graphics.Canvas
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -18,6 +20,7 @@ import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTI
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import cz.minarik.base.common.extensions.toast
@@ -181,3 +184,95 @@ val Context.isInternetAvailable: Boolean
         }
         return result
     }
+
+fun getSwipeActionItemTouchHelperCallback(
+    colorDrawableBackground: ColorDrawable,
+    icon: Drawable,
+    callback: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Unit)
+) =
+    object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            viewHolder2: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDirection: Int) {
+            callback.invoke(viewHolder.adapterPosition, viewHolder)
+        }
+
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
+            val itemView = viewHolder.itemView
+            val iconMarginVertical =
+                (viewHolder.itemView.height - icon.intrinsicHeight) / 2
+
+            if (dX > 0) {
+                colorDrawableBackground.setBounds(
+                    itemView.left,
+                    itemView.top,
+                    dX.toInt(),
+                    itemView.bottom
+                )
+                icon.setBounds(
+                    itemView.left + iconMarginVertical,
+                    itemView.top + iconMarginVertical,
+                    itemView.left + iconMarginVertical + icon.intrinsicWidth,
+                    itemView.bottom - iconMarginVertical
+                )
+            } else {
+                colorDrawableBackground.setBounds(
+                    itemView.right + dX.toInt(),
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
+                )
+                icon.setBounds(
+                    itemView.right - iconMarginVertical - icon.intrinsicWidth,
+                    itemView.top + iconMarginVertical,
+                    itemView.right - iconMarginVertical,
+                    itemView.bottom - iconMarginVertical
+                )
+                icon.level = 0
+            }
+
+            colorDrawableBackground.draw(c)
+
+            c.save()
+
+            if (dX > 0)
+                c.clipRect(itemView.left, itemView.top, dX.toInt(), itemView.bottom)
+            else
+                c.clipRect(
+                    itemView.right + dX.toInt(),
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
+                )
+
+            icon.draw(c)
+
+            c.restore()
+
+            super.onChildDraw(
+                c,
+                recyclerView,
+                viewHolder,
+                dX,
+                dY,
+                actionState,
+                isCurrentlyActive
+            )
+        }
+    }
+

@@ -1,11 +1,15 @@
 package cz.minarik.nasapp.ui.articles
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
@@ -17,6 +21,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.utils.getSwipeActionItemTouchHelperCallback
 import cz.minarik.nasapp.utils.openCustomTabs
 import cz.minarik.nasapp.utils.scrollToTop
 import kotlinx.android.synthetic.main.fragment_articles.*
@@ -25,10 +30,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
 
-    companion object {
-        const val sourcesDialogTag = "sourcesDialogTag"
-    }
-
     override val viewModel by viewModel<ArticlesFragmentViewModel>()
 
     private val sourcesViewModel: SourceSelectionViewModel by inject()
@@ -36,15 +37,19 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
     private val viewState = ViewState()
 
     private val articlesAdapter by lazy {
-        ArticlesAdapter { article, imageView, position ->
-            article.link?.toUri()?.let {
-                val builder = CustomTabsIntent.Builder()
-                //todo ikonka
+        ArticlesAdapter { imageView, position ->
+            (articlesRecyclerView.adapter as? ArticlesAdapter)?.run {
+                getItemAtPosition(position)?.run {
+                    read = true
+                    viewModel.markArticleAsRead(this)
+                    link?.toUri()?.let {
+                        val builder = CustomTabsIntent.Builder()
+                        //todo ikonka
 //                builder.setActionButton(icon, description, pendingIntent, tint);
-                requireContext().openCustomTabs(it, builder)
-                viewModel.markArticleAsRead(article)
-                article.read = true
-                articlesRecyclerView.adapter?.notifyItemChanged(position)
+                        requireContext().openCustomTabs(it, builder)
+                    }
+                }
+                notifyItemChanged(position)
             }
         }
     }
@@ -73,6 +78,29 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         setupDrawerNavigation()
         setupFilters(view)
         stateView.attacheContentView(articlesRecyclerView)
+        initSwipeGestures()
+    }
+
+    private fun initSwipeGestures() {
+        val icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_star_24)!!
+        icon.setTint(ContextCompat.getColor(requireContext(), R.color.yellow))
+        val itemTouchHelper = ItemTouchHelper(
+            getSwipeActionItemTouchHelperCallback(
+                ColorDrawable(ContextCompat.getColor(requireContext(), R.color.colorBackground)),
+                icon,
+                ::starItem
+            )
+        )
+        itemTouchHelper.attachToRecyclerView(articlesRecyclerView)
+    }
+
+    private fun starItem(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) {
+        val article = articlesAdapter.getItemAtPosition(adapterPosition)
+        article?.let {
+            it.starred = true
+            articlesAdapter.notifyItemChanged(adapterPosition)
+            viewModel.markArticleAsStarred(it)
+        }
     }
 
     private fun setupFilters(view: View) {
@@ -137,6 +165,11 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         }
 
         viewModel.articles.observe {
+            articlesAdapter.submitList(it) {
+                if (viewModel.shouldScrollToTop) {
+                    articlesRecyclerView.scrollToTop()
+                }
+            }
             viewState.articles = it
         }
 
@@ -173,13 +206,7 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         val articlesEmpty = viewState.articles.isEmpty()
         val loadingMessage = viewState.loadingArticlesState?.message
 
-        articlesAdapter.submitList(viewState.articles) {
-            if (viewModel.shouldScrollToTop) {
-                articlesRecyclerView.scrollToTop()
-            }
-        }
-
-        if (articlesEmpty && !isError && !loadingArticles) {
+        if (articlesEmpty && !isError && !loadingArticles && !loadingSources) {
             stateView.empty(true)
         } else if (loadingSources && articlesEmpty && !isError) {
             stateView.loading(true, getString(R.string.updating_sources))
@@ -200,17 +227,13 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
     inner class ViewState {
         var loadingArticlesState: NetworkState? = null
             set(value) {
-                if (field != value) {
-                    field = value
-                    updateViews()
-                }
+                field = value
+                updateViews()
             }
         var loadingSourcesState: NetworkState? = null
             set(value) {
-                if (field != value) {
-                    field = value
-                    updateViews()
-                }
+                field = value
+                updateViews()
             }
         var articles: List<ArticleDTO> = emptyList()
             set(value) {

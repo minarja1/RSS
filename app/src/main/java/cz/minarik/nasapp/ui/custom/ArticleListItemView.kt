@@ -103,7 +103,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
 
 data class ArticleDTO(
     var guid: String? = null,
-    val title: String? = null,
+    var title: String? = null,
     val image: String? = null,
     val date: Date? = null,
     var link: String? = null,
@@ -120,6 +120,57 @@ data class ArticleDTO(
     var starred: Boolean = false,
     var domain: String? = null,
 ) {
+
+    override fun toString(): String {
+        return title?: super.toString()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ArticleDTO
+
+        if (guid != other.guid) return false
+        if (title != other.title) return false
+        if (image != other.image) return false
+        if (date != other.date) return false
+        if (link != other.link) return false
+        if (description != other.description) return false
+        if (content != other.content) return false
+        if (audio != other.audio) return false
+        if (video != other.video) return false
+        if (sourceName != other.sourceName) return false
+        if (sourceUrl != other.sourceUrl) return false
+        if (categories != other.categories) return false
+        if (read != other.read) return false
+        if (expandable != other.expandable) return false
+        if (starred != other.starred) return false
+        if (domain != other.domain) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = guid?.hashCode() ?: 0
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (image?.hashCode() ?: 0)
+        result = 31 * result + (date?.hashCode() ?: 0)
+        result = 31 * result + (link?.hashCode() ?: 0)
+        result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + (content?.hashCode() ?: 0)
+        result = 31 * result + (audio?.hashCode() ?: 0)
+        result = 31 * result + (video?.hashCode() ?: 0)
+        result = 31 * result + (sourceName?.hashCode() ?: 0)
+        result = 31 * result + (sourceUrl?.hashCode() ?: 0)
+        result = 31 * result + categories.hashCode()
+        result = 31 * result + read.hashCode()
+        result = 31 * result + expandable.hashCode()
+        result = 31 * result + starred.hashCode()
+        result = 31 * result + (domain?.hashCode() ?: 0)
+        return result
+    }
+
     val isValid: Boolean
         get() {
             return !link.isNullOrEmpty() && !title.isNullOrEmpty()
@@ -154,46 +205,6 @@ data class ArticleDTO(
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ArticleDTO
-
-        if (guid != other.guid) return false
-        if (title != other.title) return false
-        if (image != other.image) return false
-        if (date != other.date) return false
-        if (link != other.link) return false
-        if (description != other.description) return false
-        if (content != other.content) return false
-        if (audio != other.audio) return false
-        if (video != other.video) return false
-        if (sourceName != other.sourceName) return false
-        if (sourceUrl != other.sourceUrl) return false
-        if (categories != other.categories) return false
-        if (domain != other.domain) return false
-        if (expandable != other.expandable) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = guid?.hashCode() ?: 0
-        result = 31 * result + (title?.hashCode() ?: 0)
-        result = 31 * result + (image?.hashCode() ?: 0)
-        result = 31 * result + (date?.hashCode() ?: 0)
-        result = 31 * result + (link?.hashCode() ?: 0)
-        result = 31 * result + (description?.hashCode() ?: 0)
-        result = 31 * result + (content?.hashCode() ?: 0)
-        result = 31 * result + (audio?.hashCode() ?: 0)
-        result = 31 * result + (video?.hashCode() ?: 0)
-        result = 31 * result + (sourceName?.hashCode() ?: 0)
-        result = 31 * result + (sourceUrl?.hashCode() ?: 0)
-        result = 31 * result + categories.hashCode()
-        result = 31 * result + (domain?.hashCode() ?: 0)
-        return result
-    }
 
 
 }

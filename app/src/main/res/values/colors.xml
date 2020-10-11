@@ -26,5 +26,6 @@
     <color name="semiTransparentBlack">#80000000</color>
 
     <color name="green">#00BC42</color>
+    <color name="yellow">#FFEB3B</color>
 
 </resources>

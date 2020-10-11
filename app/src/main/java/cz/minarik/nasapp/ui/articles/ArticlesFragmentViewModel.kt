@@ -14,6 +14,8 @@ import cz.minarik.nasapp.data.model.exception.NoConnectionException
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
 import cz.minarik.nasapp.utils.isInternetAvailable
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.nio.charset.Charset
@@ -32,11 +34,18 @@ class ArticlesFragmentViewModel(
             .cacheExpirationMillis(cacheExpirationMillis)
             .build()
 
+    private var currentArticleLoadingJob: Job? = null
+
     companion object {
         const val cacheExpirationMillis = 1000L * 60L * 60L // 1 hour
     }
 
+    //all articles (without active filters)
+    private val allArticles: MutableList<ArticleDTO> = mutableListOf()
+
+    //shown articles (may be filtered)
     val articles: MutableLiveData<List<ArticleDTO>> = MutableLiveData()
+
     var shouldScrollToTop: Boolean = false
 
     init {
@@ -58,7 +67,8 @@ class ArticlesFragmentViewModel(
     }
 
     fun loadArticles(force: Boolean = false, scrollToTop: Boolean = false) {
-        defaultScope.launch {
+        currentArticleLoadingJob?.cancel()
+        currentArticleLoadingJob = defaultScope.launch {
             if (!context.isInternetAvailable) {
                 state.postValue(NetworkState.Companion.error(NoConnectionException()))
                 return@launch
@@ -66,20 +76,22 @@ class ArticlesFragmentViewModel(
             Timber.i("loading articles, force = $force")
             state.postValue(NetworkState.LOADING)
 
-            val allArticles = mutableListOf<Article>()
+            val allArticleList = mutableListOf<Article>()
 
+            ensureActive()
             val selectedSource = sourceDao.getSelected()
 
             //todo something more sophisticated like lists etc.
             //user selected article source
             if (selectedSource != null) {
-                loadArticlesFromUrl(selectedSource.url, force, allArticles)
+                loadArticlesFromUrl(selectedSource.url, force, allArticleList)
             }  //load all sources
             else for (feed in sourceDao.getAll()) {
-                loadArticlesFromUrl(feed.url, force, allArticles)
+                ensureActive()
+                loadArticlesFromUrl(feed.url, force, allArticleList)
             }
 
-            var mappedArticles = allArticles.map { article ->
+            val mappedArticles = allArticleList.map { article ->
                 ArticleDTO.fromApi(article).apply {
                     guid?.let {
                         read = readArticleDao.getByGuid(it) != null
@@ -88,44 +100,69 @@ class ArticlesFragmentViewModel(
             }.filter {
                 it.isValid
             }.toMutableList()
+            ensureActive()
 
-            mappedArticles = applyArticleFilters(mappedArticles)
 
-            mappedArticles.sortByDescending {
-                it.date
-            }
-
-            mappedArticles.firstOrNull()?.run {
-                expanded = true
-                expandable = false
-            }
-
-            shouldScrollToTop = scrollToTop
-
-            articles.postValue(mappedArticles)
-            state.postValue(NetworkState.SUCCESS)
+            allArticles.clear()
+            allArticles.addAll(mappedArticles)
+            applyFiltersAndPostResult(scrollToTop)
         }
-
     }
 
+    private fun applyFiltersAndPostResult(scrollToTop: Boolean = false) {
+        this.shouldScrollToTop = scrollToTop
+        val result = applyArticleFilters(allArticles)
+
+        result.sortByDescending {
+            it.date
+        }
+
+        result.forEachIndexed { index, articleDTO ->
+            if (index == 0) {
+                articleDTO.expanded = true
+                articleDTO.expandable = false
+            } else {
+                articleDTO.expandable = true
+            }
+        }
+
+        articles.postValue(result)
+        state.postValue(NetworkState.SUCCESS)
+    }
+
+
+    /**
+     * Returns new list containing new instances of items with applied filters.
+     *
+     * creating copies of objects to ensure diffCallback always points to different objects
+     */
     private fun applyArticleFilters(articles: MutableList<ArticleDTO>): MutableList<ArticleDTO> {
-        return when (prefManager.getArticleFilter()) {
+        val result = mutableListOf<ArticleDTO>()
+        when (prefManager.getArticleFilter()) {
             ArticleFilterType.Unread -> {
                 articles.filter {
                     !it.read
-                }.toMutableList()
+                }.forEach {
+                    result.add(it.copy())
+                }
             }
             ArticleFilterType.Starred -> {
                 articles.filter {
                     it.starred
-                }.toMutableList()
+                }.forEach {
+                    result.add(it.copy())
+                }
             }
-            else -> articles
+            else -> articles.forEach {
+                result.add(it.copy())
+            }
         }
+        return result
     }
 
     fun markArticleAsRead(article: ArticleDTO) {
         launch {
+            allArticles.find { it.guid == article.guid }?.read = true
             article.guid?.let {
                 readArticleDao.insert(
                     ReadArticleEntity(guid = it)
@@ -134,9 +171,19 @@ class ArticlesFragmentViewModel(
         }
     }
 
+
+    fun markArticleAsStarred(article: ArticleDTO) {
+        launch {
+            allArticles.find { it.guid == article.guid }?.starred = true
+            article.guid?.let {
+                //todo save article
+            }
+        }
+    }
+
     fun filterArticles(filterType: ArticleFilterType) {
         prefManager.setArticleFilter(filterType)
-        loadArticles()
+        applyFiltersAndPostResult()
     }
 
 }

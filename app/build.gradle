@@ -47,7 +47,7 @@ dependencies {
     implementation 'com.github.minarja1:Base:v1.0.3'
     implementation 'com.prof.rssparser:rssparser:3.1.1'
 
-    implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
+    implementation 'com.google.firebase:firebase-analytics-ktx:17.6.0'
 
     implementation "androidx.browser:browser:1.2.0"
 
@@ -63,5 +63,4 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'me.saket:better-link-movement-method:2.2.0'
-
 }
