@@ -24,6 +24,7 @@
     <color name="textColorTertiary">#66FFFFFF</color>\
 
     <color name="semiTransparentBlack">#80000000</color>
+    <color name="fortyPercentTransparentBlack">#64000000</color>
 
     <color name="green">#00BC42</color>
     <color name="yellow">#FFEB3B</color>

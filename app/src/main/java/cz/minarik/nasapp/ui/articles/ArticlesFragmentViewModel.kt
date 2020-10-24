@@ -134,7 +134,7 @@ class ArticlesFragmentViewModel(
     /**
      * Returns new list containing new instances of items with applied filters.
      *
-     * creating copies of objects to ensure diffCallback always points to different objects
+     * creating copies of objects to ensure diffCallback never compares two same instances
      */
     private fun applyArticleFilters(articles: MutableList<ArticleDTO>): MutableList<ArticleDTO> {
         val result = mutableListOf<ArticleDTO>()
@@ -174,7 +174,8 @@ class ArticlesFragmentViewModel(
 
     fun markArticleAsStarred(article: ArticleDTO) {
         launch {
-            allArticles.find { it.guid == article.guid }?.starred = true
+            val articleToStar = allArticles.find { it.guid == article.guid }
+            articleToStar?.starred = articleToStar?.starred ?: true
             article.guid?.let {
                 //todo save article
             }

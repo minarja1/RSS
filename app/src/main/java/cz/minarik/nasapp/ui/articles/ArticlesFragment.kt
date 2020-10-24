@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.ui.articles
 
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -82,22 +83,35 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
     }
 
     private fun initSwipeGestures() {
-        val icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_star_24)!!
-        icon.setTint(ContextCompat.getColor(requireContext(), R.color.yellow))
         val itemTouchHelper = ItemTouchHelper(
             getSwipeActionItemTouchHelperCallback(
-                ColorDrawable(ContextCompat.getColor(requireContext(), R.color.colorBackground)),
-                icon,
-                ::starItem
+                colorDrawableBackground = ColorDrawable(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.colorBackground
+                    )
+                ),
+                getIcon = ::getSwipeIcon,
+                callback = ::starItem
             )
         )
         itemTouchHelper.attachToRecyclerView(articlesRecyclerView)
     }
 
+    private fun getSwipeIcon(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder): Drawable {
+        val article = articlesAdapter.getItemAtPosition(adapterPosition)
+        val icon = ContextCompat.getDrawable(
+            requireContext(),
+            if (article?.starred == true) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_outline_24
+        )!!
+        icon.setTint(ContextCompat.getColor(requireContext(), R.color.yellow))
+        return icon
+    }
+
     private fun starItem(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) {
         val article = articlesAdapter.getItemAtPosition(adapterPosition)
         article?.let {
-            it.starred = true
+            it.starred = !it.starred
             articlesAdapter.notifyItemChanged(adapterPosition)
             viewModel.markArticleAsStarred(it)
         }

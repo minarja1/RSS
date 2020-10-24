@@ -13,6 +13,10 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.Transformation
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
@@ -145,7 +149,8 @@ fun String.getHostFromUrl(): String? {
 }
 
 fun RecyclerView.scrollToTop(smooth: Boolean = false) {
-    val smoothScroll = smooth && computeVerticalScrollOffset() > RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
+    val smoothScroll =
+        smooth && computeVerticalScrollOffset() > RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
     if (smoothScroll) {
         smoothScrollToPosition(0);
     } else {
@@ -187,8 +192,9 @@ val Context.isInternetAvailable: Boolean
 
 fun getSwipeActionItemTouchHelperCallback(
     colorDrawableBackground: ColorDrawable,
-    icon: Drawable,
-    callback: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Unit)
+    getIcon: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Drawable),
+    callback: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Unit),
+    iconMarginHorizontal: Int = 16.dpToPx.toInt()
 ) =
     object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
@@ -213,10 +219,10 @@ fun getSwipeActionItemTouchHelperCallback(
             actionState: Int,
             isCurrentlyActive: Boolean
         ) {
+            val icon = getIcon.invoke(viewHolder.adapterPosition, viewHolder)
             val itemView = viewHolder.itemView
             val iconMarginVertical =
                 (viewHolder.itemView.height - icon.intrinsicHeight) / 2
-
             if (dX > 0) {
                 colorDrawableBackground.setBounds(
                     itemView.left,
@@ -225,9 +231,9 @@ fun getSwipeActionItemTouchHelperCallback(
                     itemView.bottom
                 )
                 icon.setBounds(
-                    itemView.left + iconMarginVertical,
+                    itemView.left + iconMarginHorizontal,
                     itemView.top + iconMarginVertical,
-                    itemView.left + iconMarginVertical + icon.intrinsicWidth,
+                    itemView.left + iconMarginHorizontal + icon.intrinsicWidth,
                     itemView.bottom - iconMarginVertical
                 )
             } else {
@@ -238,9 +244,9 @@ fun getSwipeActionItemTouchHelperCallback(
                     itemView.bottom
                 )
                 icon.setBounds(
-                    itemView.right - iconMarginVertical - icon.intrinsicWidth,
+                    itemView.right - iconMarginHorizontal - icon.intrinsicWidth,
                     itemView.top + iconMarginVertical,
-                    itemView.right - iconMarginVertical,
+                    itemView.right - iconMarginHorizontal,
                     itemView.bottom - iconMarginVertical
                 )
                 icon.level = 0
@@ -276,3 +282,25 @@ fun getSwipeActionItemTouchHelperCallback(
         }
     }
 
+
+fun View.expand() {
+    measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+    val targetHeight: Int = measuredHeight
+
+    layoutParams.height = 0
+    visibility = View.VISIBLE
+    val a: Animation = object : Animation() {
+        override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
+            layoutParams.height =
+                if (interpolatedTime == 1f) ViewGroup.LayoutParams.WRAP_CONTENT else (targetHeight * interpolatedTime).toInt()
+            requestLayout()
+        }
+
+        override fun willChangeBounds(): Boolean {
+            return true
+        }
+    }
+
+    a.duration = (targetHeight / context.resources.displayMetrics.density).toLong()
+    startAnimation(a)
+}

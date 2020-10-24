@@ -1,13 +1,14 @@
 package cz.minarik.nasapp.ui.custom
 
+import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.util.AttributeSet
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
 import androidx.core.view.isVisible
@@ -39,8 +40,8 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
 
     fun set(article: ArticleDTO) {
         this.article = article
-        expandLayout.isVisible = article.expandable
-        expandLayout.setOnClickListener {
+        expandButton.isVisible = article.expandable
+        expandButton.setOnClickListener {
             article.expanded = !article.expanded
             expand()
         }
@@ -76,7 +77,9 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         domainTextView.text = article.domain
         domainDividerTextView.isVisible = !article.domain.isNullOrEmpty()
 
-        expand()
+        starImageView.isVisible = article.starred
+
+        expand(true)
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
@@ -84,17 +87,32 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         cardView.setOnClickListener(l)
     }
 
-    private fun expand() {
+    private fun expand(expandingProgrammatically: Boolean = false) {
         article?.run {
             subtitleTextView.isVisible = expanded
-            articleImageView.isVisible = !expanded
-            articleFullImageView.isVisible = expanded
-            cardView.layoutParams = cardView.layoutParams.apply {
-                width = LayoutParams.MATCH_PARENT
-                height = if (expanded) LayoutParams.WRAP_CONTENT else 110.dpToPx
+            articleImageContainer.isVisible = !expanded
+            articleFullImageContainer.isVisible = expanded
+
+            val layoutTransition = cardView.layoutTransition
+            if (expanded && !expandingProgrammatically) {
+                layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+                layoutTransition.setDuration(750L)
+                layoutTransition.setInterpolator(
+                    LayoutTransition.CHANGING,
+                    DecelerateInterpolator(5f)
+                )
+            } else {
+                layoutTransition.disableTransitionType(LayoutTransition.CHANGING)
             }
 
-            expandImageView.load(if (expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
+            cardView.layoutParams.height =
+                if (expanded) LayoutParams.WRAP_CONTENT else 110.dpToPx
+            cardView.requestLayout()
+
+            val contentPadding = if (expanded) 16.dpToPx else 8.dpToPx
+            contentLayout.setPadding(contentPadding, contentPadding, contentPadding, contentPadding)
+
+            expandButton.load(if (expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
             invalidate()
             requestLayout()
         }
@@ -122,7 +140,7 @@ data class ArticleDTO(
 ) {
 
     override fun toString(): String {
-        return title?: super.toString()
+        return title ?: super.toString()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -204,7 +222,6 @@ data class ArticleDTO(
             )
         }
     }
-
 
 
 }
