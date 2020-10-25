@@ -18,6 +18,7 @@ class SourceSelectionViewModel(
     val sourcesData = MutableLiveData<MutableList<RSSSourceDTO>>()
     val selectedSource = MutableLiveData<RSSSourceDTO>()
     val selectedSourceName = MutableLiveData<String>()
+    val selectedSourceImage = MutableLiveData<String>()
 
     private val allSources: MutableList<RSSSourceDTO> = mutableListOf()
 
@@ -39,6 +40,8 @@ class SourceSelectionViewModel(
             } else {
                 selectedSourceName.postValue("")
             }
+
+            selectedSourceImage.postValue(selectedSource?.imageUrl)
 
             //"all articles" on top
             allSources.add(

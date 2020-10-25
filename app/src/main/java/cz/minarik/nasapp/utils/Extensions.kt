@@ -13,10 +13,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
-import android.view.View
-import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.Transformation
+import android.text.format.DateUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
@@ -38,11 +35,13 @@ import java.util.*
 fun ImageView.loadImageWithDefaultSettings(
     uri: String?,
     error: Int? = null,
-    placeholder: Int? = null
+    placeholder: Int? = null,
+    crossFade: Boolean = false,
 ) {
     load(uri) {
         placeholder(placeholder ?: R.drawable.image_placeholder)
         error(error ?: R.drawable.image_placeholder)
+        crossfade(crossFade)
     }
 }
 
@@ -282,25 +281,24 @@ fun getSwipeActionItemTouchHelperCallback(
         }
     }
 
+fun Date.toTimeElapsed(pastOnly: Boolean = true): CharSequence {
+    var actualTime = time
+    if (pastOnly && System.currentTimeMillis() - time < 0) actualTime =
+        System.currentTimeMillis() //API sometimes returns pubDates in future :(
+    return DateUtils.getRelativeTimeSpanString(
+        actualTime,
+        System.currentTimeMillis(),
+        DateUtils.SECOND_IN_MILLIS,
+        DateUtils.FORMAT_ABBREV_ALL
+    )
+}
 
-fun View.expand() {
-    measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-    val targetHeight: Int = measuredHeight
+val screenWidth: Int get() = Resources.getSystem().displayMetrics.widthPixels
+val screenWidthDp: Int get() = screenWidth.pxToDp
+val screenHeight: Int get() = Resources.getSystem().displayMetrics.heightPixels
+val screenHeightDp: Int get() = screenHeight.pxToDp
 
-    layoutParams.height = 0
-    visibility = View.VISIBLE
-    val a: Animation = object : Animation() {
-        override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
-            layoutParams.height =
-                if (interpolatedTime == 1f) ViewGroup.LayoutParams.WRAP_CONTENT else (targetHeight * interpolatedTime).toInt()
-            requestLayout()
-        }
 
-        override fun willChangeBounds(): Boolean {
-            return true
-        }
-    }
-
-    a.duration = (targetHeight / context.resources.displayMetrics.density).toLong()
-    startAnimation(a)
+fun RecyclerView.isScrolledToTop(): Boolean {
+    return !canScrollVertically(-1)
 }

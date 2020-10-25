@@ -55,21 +55,30 @@
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/all" />
+                        android:text="@string/all"
+                        app:chipIcon="@drawable/ic_baseline_article_24"
+                        app:chipIconTint="@color/colorAccent"
+                        app:chipIconVisible="true" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/filterUnread"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/unread" />
+                        android:text="@string/unread"
+                        app:chipIcon="@drawable/ic_baseline_remove_red_eye_24"
+                        app:chipIconTint="@color/colorAccent"
+                        app:chipIconVisible="true" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/filterStarred"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/starred" />
+                        android:text="@string/starred"
+                        app:chipIcon="@drawable/ic_baseline_star_24"
+                        app:chipIconTint="@color/colorAccent"
+                        app:chipIconVisible="true" />
 
                 </com.google.android.material.chip.ChipGroup>
 
@@ -77,20 +86,19 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/tall_toolbar_height">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapsingToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/colorToolbar"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:titleEnabled="false">
 
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize" />
+                <include layout="@layout/include_toolbar_with_subtitle"/>
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

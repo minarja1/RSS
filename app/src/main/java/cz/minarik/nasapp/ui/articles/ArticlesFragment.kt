@@ -3,14 +3,21 @@ package cz.minarik.nasapp.ui.articles
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
@@ -22,12 +29,12 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
-import cz.minarik.nasapp.utils.getSwipeActionItemTouchHelperCallback
-import cz.minarik.nasapp.utils.openCustomTabs
-import cz.minarik.nasapp.utils.scrollToTop
+import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_articles.*
+import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
 
@@ -38,30 +45,71 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
     private val viewState = ViewState()
 
     private val articlesAdapter by lazy {
-        ArticlesAdapter { imageView, position ->
-            (articlesRecyclerView.adapter as? ArticlesAdapter)?.run {
-                getItemAtPosition(position)?.run {
-                    read = true
-                    viewModel.markArticleAsRead(this)
-                    link?.toUri()?.let {
-                        val builder = CustomTabsIntent.Builder()
-                        //todo ikonka
+        ArticlesAdapter(
+            onItemClicked = { _, position ->
+                (articlesRecyclerView.adapter as? ArticlesAdapter)?.run {
+                    getItemAtPosition(position)?.run {
+                        read = true
+                        viewModel.markArticleAsRead(this)
+                        link?.toUri()?.let {
+                            val builder = CustomTabsIntent.Builder()
+                            //todo ikonka
 //                builder.setActionButton(icon, description, pendingIntent, tint);
-                        requireContext().openCustomTabs(it, builder)
+                            requireContext().openCustomTabs(it, builder)
+                        }
                     }
+                    notifyItemChanged(position)
                 }
-                notifyItemChanged(position)
+            },
+            onItemExpanded = { position ->
+                //make sure bottom of item is on screen
+                (articlesRecyclerView.layoutManager as? LinearLayoutManager)?.run {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (findLastCompletelyVisibleItemPosition() < position) {
+                            val recyclerOffset = articlesRecyclerView.height - appBarLayout.bottom
+                            val offset =
+                                recyclerOffset - (findViewByPosition(position)?.height ?: 0)
+                            scrollToPositionWithOffset(
+                                position,
+                                offset - 30
+                            )//add 30 px todo test on more devices
+                        }
+                    }, Constants.ARTICLE_EXPAND_ANIMATION_DURATION)
+                }
+            }
+        )
+    }
+
+    var doubleBackToExitPressedOnce = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            } else if (articlesRecyclerView.isScrolledToTop()) {
+                if (doubleBackToExitPressedOnce) {
+                    requireActivity().finish()
+                } else {
+                    doubleBackToExitPressedOnce = true;
+                    showToast(requireContext(), getString(R.string.press_back_again_to_leave))
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        doubleBackToExitPressedOnce = false
+                    }, 2000)
+
+                }
+            } else {
+                articlesRecyclerView.scrollToTop()
             }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState == null) {
-            initObserve()
-            initViews(view)
-            initSwipeToRefresh()
-        }
+        initObserve()
+        initViews(view)
+        initSwipeToRefresh()
     }
 
     override fun showError(error: String?) {
@@ -72,7 +120,7 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         //todo
     }
 
-    private fun initViews(view: View) {
+    private fun initViews(view: View?) {
         initToolbar()
         articlesRecyclerView.dividerMedium()
         articlesRecyclerView.adapter = articlesAdapter
@@ -117,10 +165,10 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
         }
     }
 
-    private fun setupFilters(view: View) {
+    private fun setupFilters(view: View?) {
         filterChipGroup.isVisible = viewModel.prefManager.showArticleFilters
         viewModel.prefManager.getArticleFilter().let {
-            view.findViewById<Chip>(it.chipId)?.isChecked = true
+            view?.findViewById<Chip>(it.chipId)?.isChecked = true
         }
 
         filterAll.setOnCheckedChangeListener { _, checked ->
@@ -148,10 +196,13 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
             it.addDrawerListener(toggle)
             toggle.syncState()
         }
+        toolbar.navigationIcon?.tint(requireContext(), R.color.colorOnBackground)
     }
 
     private fun initToolbar() {
         initToolbar(toolbar)
+        toolbarTitle.text = getString(R.string.articles_title)
+        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbar.inflateMenu(R.menu.menu_articles_fragment)
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -191,7 +242,11 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
             viewModel.loadArticles(scrollToTop = true)
         }
         sourcesViewModel.selectedSourceName.observe {
-            toolbar.subtitle = it
+            toolbarSubtitleContainer.isVisible = it.isNotEmpty()
+            toolbarSubtitle.text = it
+        }
+        sourcesViewModel.selectedSourceImage.observe {
+            toolbarImageView.load(it)
         }
 
         sourcesViewModel.sourceRepository.state.observe {
@@ -255,4 +310,5 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
                 updateViews()
             }
     }
+
 }

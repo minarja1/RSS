@@ -37,11 +37,11 @@ class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
         when {
             !source.imageUrl.isNullOrEmpty() -> {
                 sourceImageView.load(source.imageUrl){
-                    fallback(R.drawable.ic_baseline_filter_list_24)
+                    fallback(R.drawable.ic_baseline_article_24)
                 }
             }
             source.isList -> {
-                sourceImageView.load(R.drawable.ic_baseline_filter_list_24)
+                sourceImageView.load(R.drawable.ic_baseline_article_24)
             }
             else -> {
                 val drawable = ContextCompat.getDrawable(context, R.drawable.comet_24px)

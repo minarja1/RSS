@@ -17,11 +17,8 @@ import com.prof.rssparser.Article
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.toDateFromRSS
 import cz.minarik.base.common.extensions.toHtml
-import cz.minarik.base.common.extensions.toShortFormat
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.utils.getHostFromUrl
-import cz.minarik.nasapp.utils.handleHTML
-import cz.minarik.nasapp.utils.loadImageWithDefaultSettings
+import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.article_list_item.view.*
 import java.util.*
 
@@ -31,6 +28,8 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
 
     private var article: ArticleDTO? = null
     var articleImageView: ImageView
+
+    var onItemExpanded: (() -> Unit)? = null
 
     init {
         inflate(context, R.layout.article_list_item, this)
@@ -61,14 +60,16 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         )
 
         titleTextView.text = article.title
-        dateTextView.text = article.date?.toShortFormat()
+        dateTextView.text = article.date?.toTimeElapsed()
 
         articleImageView.loadImageWithDefaultSettings(article.image?.replace("http://", "https://"))
+
         articleFullImageView.loadImageWithDefaultSettings(
             article.image?.replace(
                 "http://",
                 "https://"
-            )
+            ),
+            crossFade = true
         )
 
         articleImageView.transitionName = article.image
@@ -96,11 +97,12 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             val layoutTransition = cardView.layoutTransition
             if (expanded && !expandingProgrammatically) {
                 layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-                layoutTransition.setDuration(750L)
+                layoutTransition.setDuration(Constants.ARTICLE_EXPAND_ANIMATION_DURATION)
                 layoutTransition.setInterpolator(
                     LayoutTransition.CHANGING,
-                    DecelerateInterpolator(5f)
+                    DecelerateInterpolator(1.5f)
                 )
+                onItemExpanded?.invoke()
             } else {
                 layoutTransition.disableTransitionType(LayoutTransition.CHANGING)
             }
@@ -142,6 +144,40 @@ data class ArticleDTO(
     override fun toString(): String {
         return title ?: super.toString()
     }
+
+    val isValid: Boolean
+        get() {
+            return !link.isNullOrEmpty() && !title.isNullOrEmpty()
+        }
+
+    companion object {
+        fun fromApi(article: Article): ArticleDTO {
+            val image = if (article.image.isNullOrEmpty()) {
+                article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
+            } else {
+                article.image
+            }
+
+            val date = article.pubDate?.toDateFromRSS()
+
+            return ArticleDTO(
+                guid = article.guid,
+                title = article.title,
+                image = image,
+                date = date,
+                link = article.link,
+                description = article.description?.toHtml(),
+                content = article.content?.toHtml().toString(),
+                audio = article.audio,
+                video = article.video,
+                sourceName = article.sourceName,
+                sourceUrl = article.sourceUrl,
+                categories = article.categories,
+                domain = article.link?.getHostFromUrl(),
+            )
+        }
+    }
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -188,40 +224,5 @@ data class ArticleDTO(
         result = 31 * result + (domain?.hashCode() ?: 0)
         return result
     }
-
-    val isValid: Boolean
-        get() {
-            return !link.isNullOrEmpty() && !title.isNullOrEmpty()
-        }
-
-    companion object {
-        fun fromApi(article: Article): ArticleDTO {
-            val image = if (article.image.isNullOrEmpty()) {
-                article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
-            } else {
-                article.image
-            }
-
-            val date = article.pubDate?.toDateFromRSS()
-
-
-            return ArticleDTO(
-                guid = article.guid,
-                title = article.title,
-                image = image,
-                date = date,
-                link = article.link,
-                description = article.description?.toHtml(),
-                content = article.content?.toHtml().toString(),
-                audio = article.audio,
-                video = article.video,
-                sourceName = article.sourceName,
-                sourceUrl = article.sourceUrl,
-                categories = article.categories,
-                domain = article.link?.getHostFromUrl(),
-            )
-        }
-    }
-
 
 }

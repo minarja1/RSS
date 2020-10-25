@@ -11,7 +11,10 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.ArticleListItemView
 
-class ArticlesAdapter(private var onItemClicked: (imageView: ImageView, position: Int) -> Unit) :
+class ArticlesAdapter(
+    private var onItemClicked: (imageView: ImageView, position: Int) -> Unit,
+    private var onItemExpanded: (position: Int)-> Unit,
+) :
     ListAdapter<ArticleDTO, RecyclerView.ViewHolder>(diffCallback) {
 
     companion object {
@@ -38,18 +41,23 @@ class ArticlesAdapter(private var onItemClicked: (imageView: ImageView, position
 
         fun bind(
             article: ArticleDTO?,
-            onItemClicked: (imageView: ImageView, position: Int) -> Unit
+            onItemClicked: (imageView: ImageView, position: Int) -> Unit,
+            onItemExpanded: (position: Int)-> Unit,
+            position: Int,
         ) {
             if (article == null) return
             articleItemView.set(article)
             articleItemView.setOnClickListener {
                 onItemClicked(articleItemView.articleImageView, adapterPosition)
             }
+            articleItemView.onItemExpanded = {
+                onItemExpanded.invoke(position)
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as VideoViewHolder).bind(getItem(position), onItemClicked)
+        (holder as VideoViewHolder).bind(getItem(position), onItemClicked, onItemExpanded, position)
     }
 
     public fun getItemAtPosition(position: Int): ArticleDTO? {
