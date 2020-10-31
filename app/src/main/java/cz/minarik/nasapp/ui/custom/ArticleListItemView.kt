@@ -18,6 +18,7 @@ import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.toDateFromRSS
 import cz.minarik.base.common.extensions.toHtml
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.article_list_item.view.*
 import java.util.*
@@ -165,6 +166,31 @@ data class ArticleDTO(
                 title = article.title,
                 image = image,
                 date = date,
+                link = article.link,
+                description = article.description?.toHtml(),
+                content = article.content?.toHtml().toString(),
+                audio = article.audio,
+                video = article.video,
+                sourceName = article.sourceName,
+                sourceUrl = article.sourceUrl,
+                categories = article.categories,
+                domain = article.link?.getHostFromUrl(),
+            )
+        }
+
+        fun fromDb(article: StarredArticleEntity): ArticleDTO {
+            val image = if (article.image.isNullOrEmpty()) {
+                article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
+            } else {
+                article.image
+            }
+
+            return ArticleDTO(
+                starred = true,
+                guid = article.guid,
+                title = article.title,
+                image = image,
+                date = article.date,
                 link = article.link,
                 description = article.description?.toHtml(),
                 content = article.content?.toHtml().toString(),

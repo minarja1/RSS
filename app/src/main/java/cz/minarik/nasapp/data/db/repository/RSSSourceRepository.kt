@@ -31,12 +31,11 @@ class RSSSourceRepository(
     val state = MutableLiveData<NetworkState>()
 
     fun updateRSSSourcesFromRealtimeDB() {
-        //todo minFetchGap
         state.postValue(NetworkState.LOADING)
         RealtimeDatabaseHelper.getNewsFeeds(this)
     }
 
-    private fun updateDB(allFromServer: MutableList<RealtimeDatabaseHelper.RssFeedDTO>) {
+    private fun updateDB(allFromServer: List<RealtimeDatabaseHelper.RssFeedDTO>) {
 
         val parser = Parser.Builder()
             .context(context)
@@ -55,7 +54,7 @@ class RSSSourceRepository(
                 if (!allServerUrls.contains(dbUrl)) {
                     allDB.find { it.url == dbUrl }?.let {
                         dao.delete(it)
-                    }   
+                    }
                 }
             }
 
@@ -90,11 +89,7 @@ class RSSSourceRepository(
     }
 
     override fun onDataChange(data: List<RealtimeDatabaseHelper.RssFeedDTO>?) {
-        val allRssFeeds = mutableListOf<RealtimeDatabaseHelper.RssFeedDTO>()
-        data?.let {
-            allRssFeeds.addAll(data)
-        }
-        updateDB(allRssFeeds)
+        updateDB(data ?: emptyList())
     }
 
     override fun onCancelled(error: DatabaseError) {

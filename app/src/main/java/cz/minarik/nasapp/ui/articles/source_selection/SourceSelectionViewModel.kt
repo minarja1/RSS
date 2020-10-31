@@ -56,30 +56,6 @@ class SourceSelectionViewModel(
         }
     }
 
-    fun getSources(): List<RSSSourceDTO> {
-        val allSelection = mutableListOf<RSSSourceDTO>()
-        val selectedSources = allSources.filter { it.selected }
-
-        allSelection.addAll(allSources.filter { !it.selected })
-
-        //"all articles" on top
-        allSelection.add(
-            0, RSSSourceDTO(
-                context.getString(R.string.all_articles),
-                null,
-                imageUrl = null,
-                selectedSources.isEmpty()
-            )
-        )
-
-        //selected item as second
-        allSelection.addAll(
-            1, selectedSources
-        )
-
-        return allSelection
-    }
-
     fun onSourceSelected(sourceSelectionDTO: RSSSourceDTO) {
         launch {
             sourceRepository.setSelected(sourceSelectionDTO.url)

@@ -8,7 +8,6 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 
 
-//todo this could be in Remote Config instead of RealtimeDB
 object RealtimeDatabaseHelper {
 
     private const val newsKey = "rssFeeds"

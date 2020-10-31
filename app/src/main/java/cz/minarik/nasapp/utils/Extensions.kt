@@ -24,6 +24,8 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
+import com.squareup.moshi.*
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import cz.minarik.base.common.extensions.toast
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.utils.Constants.Companion.RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
@@ -45,7 +47,19 @@ fun ImageView.loadImageWithDefaultSettings(
     }
 }
 
-private const val CHROME_PACKAGE = "com.android.chrome"
+fun Intent.addAppReferrer(context: Context) {
+    val scheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        Intent.URI_ANDROID_APP_SCHEME
+    } else {
+        1 shl 1
+    }
+    putExtra(
+        Intent.EXTRA_REFERRER,
+        Uri.parse("${scheme}//${context.packageName}")
+    )
+}
+
+const val CHROME_PACKAGE = "com.android.chrome"
 
 fun Context.openCustomTabs(
     uri: Uri,
@@ -59,7 +73,13 @@ fun Context.openCustomTabs(
             )
         )
         customTabsBuilder.addDefaultShareMenuItem()
+
+        customTabsBuilder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
+        customTabsBuilder.setExitAnimations(this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
         val intent = customTabsBuilder.build()
+
+        intent.intent.addAppReferrer(this)
 
         //to prevent "choose app" dialog -> open in CustomTabs if possible
         getCustomTabsPackages(this, uri)?.let {
@@ -302,3 +322,33 @@ val screenHeightDp: Int get() = screenHeight.pxToDp
 fun RecyclerView.isScrolledToTop(): Boolean {
     return !canScrollVertically(-1)
 }
+
+
+fun moshi(): Moshi {
+    return Moshi.Builder()
+        .add(Date::class.java, MoshiDateAdapter().nullSafe())
+        .add(KotlinJsonAdapterFactory())
+        .build()
+}
+
+
+class MoshiDateAdapter : JsonAdapter<Date>() {
+    @FromJson
+    override fun fromJson(reader: JsonReader): Date? {
+        return try {
+            val dateAsString = reader.nextString()
+            Date(dateAsString.toLong())
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @ToJson
+    override fun toJson(writer: JsonWriter, value: Date?) {
+        if (value != null) {
+            writer.value(value.time)
+        }
+    }
+
+}
+

@@ -13,7 +13,8 @@ import cz.minarik.nasapp.ui.custom.ArticleListItemView
 
 class ArticlesAdapter(
     private var onItemClicked: (imageView: ImageView, position: Int) -> Unit,
-    private var onItemExpanded: (position: Int)-> Unit,
+    private var onItemExpanded: (position: Int) -> Unit,
+    private var preloadUrl: (url: String) -> Unit,
 ) :
     ListAdapter<ArticleDTO, RecyclerView.ViewHolder>(diffCallback) {
 
@@ -42,7 +43,7 @@ class ArticlesAdapter(
         fun bind(
             article: ArticleDTO?,
             onItemClicked: (imageView: ImageView, position: Int) -> Unit,
-            onItemExpanded: (position: Int)-> Unit,
+            onItemExpanded: (position: Int) -> Unit,
             position: Int,
         ) {
             if (article == null) return
@@ -57,10 +58,14 @@ class ArticlesAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as VideoViewHolder).bind(getItem(position), onItemClicked, onItemExpanded, position)
+        val item = getItem(position)
+        (holder as VideoViewHolder).bind(item, onItemClicked, onItemExpanded, position)
+        item.link?.let {
+            preloadUrl.invoke(it)
+        }
     }
 
-    public fun getItemAtPosition(position: Int): ArticleDTO? {
+    fun getItemAtPosition(position: Int): ArticleDTO? {
         return getItem(position)
     }
 }

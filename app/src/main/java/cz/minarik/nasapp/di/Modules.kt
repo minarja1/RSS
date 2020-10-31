@@ -22,6 +22,7 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
 
@@ -59,6 +60,7 @@ val dbModule = module {
     // Dao
     single { get<UniverseDatabase>().readArticleDao() }
     single { get<UniverseDatabase>().rssSourceDao() }
+    single { get<UniverseDatabase>().starredArticleDao() }
 
 }
 

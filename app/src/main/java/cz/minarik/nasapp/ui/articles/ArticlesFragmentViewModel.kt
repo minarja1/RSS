@@ -8,7 +8,9 @@ import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
+import cz.minarik.nasapp.data.db.dao.StarredArticleDao
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
+import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.data.model.exception.NoConnectionException
 import cz.minarik.nasapp.ui.custom.ArticleDTO
@@ -23,6 +25,7 @@ import java.nio.charset.Charset
 class ArticlesFragmentViewModel(
     private val context: Context,
     private val readArticleDao: ReadArticleDao,
+    private val starredArticleDao: StarredArticleDao,
     val prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
 ) : BaseViewModel() {
@@ -81,6 +84,7 @@ class ArticlesFragmentViewModel(
             ensureActive()
             val selectedSource = sourceDao.getSelected()
 
+            //get articles from api
             //todo something more sophisticated like lists etc.
             //user selected article source
             if (selectedSource != null) {
@@ -95,16 +99,28 @@ class ArticlesFragmentViewModel(
                 ArticleDTO.fromApi(article).apply {
                     guid?.let {
                         read = readArticleDao.getByGuid(it) != null
+                        starred = starredArticleDao.getByGuid(it) != null
                     }
                 }
             }.filter {
-                it.isValid
+                it.isValid && !it.starred
             }.toMutableList()
             ensureActive()
 
+            //get starred articles from db
+            val fromDb = mutableListOf<StarredArticleEntity>()
+            if (selectedSource != null) {
+                fromDb.addAll(starredArticleDao.getBySourceUrl(selectedSource.url))
+            } else {
+                fromDb.addAll(starredArticleDao.getAll())
+            }
+            val mappedFromDb = fromDb.map {
+                ArticleDTO.fromDb(it)
+            }
 
             allArticles.clear()
             allArticles.addAll(mappedArticles)
+            allArticles.addAll(mappedFromDb)
             applyFiltersAndPostResult(scrollToTop)
         }
     }
@@ -161,7 +177,7 @@ class ArticlesFragmentViewModel(
     }
 
     fun markArticleAsRead(article: ArticleDTO) {
-        launch {
+        launch(defaultState = null) {
             allArticles.find { it.guid == article.guid }?.read = true
             article.guid?.let {
                 readArticleDao.insert(
@@ -173,11 +189,18 @@ class ArticlesFragmentViewModel(
 
 
     fun markArticleAsStarred(article: ArticleDTO) {
-        launch {
+        launch(defaultState = null) {
             val articleToStar = allArticles.find { it.guid == article.guid }
-            articleToStar?.starred = articleToStar?.starred ?: true
+            val starred = !(articleToStar?.starred ?: true)
+            articleToStar?.starred = starred
             article.guid?.let {
-                //todo save article
+                val entity = StarredArticleEntity.fromModel(article)
+
+                if (starred) {
+                    starredArticleDao.insert(entity)
+                } else {
+                    starredArticleDao.delete(entity)
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package cz.minarik.nasapp.ui.articles
 
+import android.content.ComponentName
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -9,7 +10,7 @@ import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
@@ -34,6 +35,7 @@ import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 
 class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
@@ -44,6 +46,20 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
 
     private val viewState = ViewState()
 
+    private var customTabsClient: CustomTabsClient? = null
+    private var customTabsSession: CustomTabsSession? = null
+
+    private val customTabsConnection = object : CustomTabsServiceConnection() {
+        override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
+            customTabsClient = client
+            initCustomTabs()
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            val test = 1
+        }
+    }
+
     private val articlesAdapter by lazy {
         ArticlesAdapter(
             onItemClicked = { _, position ->
@@ -52,10 +68,7 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
                         read = true
                         viewModel.markArticleAsRead(this)
                         link?.toUri()?.let {
-                            val builder = CustomTabsIntent.Builder()
-                            //todo ikonka
-//                builder.setActionButton(icon, description, pendingIntent, tint);
-                            requireContext().openCustomTabs(it, builder)
+                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
                         }
                     }
                     notifyItemChanged(position)
@@ -76,6 +89,10 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
                         }
                     }, Constants.ARTICLE_EXPAND_ANIMATION_DURATION)
                 }
+            },
+            preloadUrl = {
+                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
+                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
             }
         )
     }
@@ -84,6 +101,14 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //init Custom tabs services
+        CustomTabsClient.bindCustomTabsService(
+            requireContext(),
+            CHROME_PACKAGE,
+            customTabsConnection
+        )
+
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.closeDrawer(GravityCompat.START)
@@ -102,6 +127,14 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
             } else {
                 articlesRecyclerView.scrollToTop()
             }
+        }
+    }
+
+    private fun initCustomTabs() {
+        customTabsClient?.run {
+            warmup(0)
+            customTabsSession = newSession(object : CustomTabsCallback() {
+            })
         }
     }
 
