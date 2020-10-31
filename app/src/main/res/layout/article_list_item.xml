@@ -167,6 +167,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="bottom|end"
+            android:scaleType="centerInside"
             android:background="@null"
             android:tint="@color/colorAccent"
             tools:ignore="UseAppTint"

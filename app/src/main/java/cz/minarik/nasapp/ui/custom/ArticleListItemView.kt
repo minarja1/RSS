@@ -12,7 +12,7 @@ import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
 import androidx.core.view.isVisible
-import coil.api.load
+import coil.load
 import com.prof.rssparser.Article
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.toDateFromRSS

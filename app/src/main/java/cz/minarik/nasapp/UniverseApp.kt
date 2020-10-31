@@ -2,7 +2,6 @@ package cz.minarik.nasapp
 
 import android.app.Application
 import android.content.Context
-import android.content.res.Resources
 import coil.Coil
 import coil.ImageLoader
 import coil.util.CoilUtils
@@ -48,9 +47,9 @@ class UniverseApp : Application() {
     }
 
     private fun initCoilImageLoader() {
-        Coil.setDefaultImageLoader(
-            ImageLoader(this) {
-                okHttpClient {
+        Coil.setImageLoader(
+            ImageLoader.Builder(this)
+                .okHttpClient {
                     // Initialized lazily on a background thread.
                     //todo doresit https
 //                    ProviderInstaller.installIfNeeded(this@NASApp)
@@ -58,8 +57,7 @@ class UniverseApp : Application() {
                     OkHttpClient.Builder()
                         .cache(CoilUtils.createDefaultCache(this@UniverseApp))
                         .build()
-                }
-            }
+                }.build()
         )
     }
 

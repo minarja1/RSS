@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.DatabaseError
 import com.prof.rssparser.Parser
+import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseRepository
 import cz.minarik.nasapp.R
@@ -11,7 +12,6 @@ import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
 import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
-import cz.minarik.nasapp.utils.getFavIcon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber

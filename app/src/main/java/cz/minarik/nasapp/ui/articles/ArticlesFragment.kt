@@ -18,11 +18,12 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
+import coil.load
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
 import cz.minarik.base.common.extensions.showToast
+import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
@@ -241,7 +242,7 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
             when (it.itemId) {
                 R.id.searchAction -> {
                     true
-                }//todo
+                }
                 R.id.filterAction -> {
                     showFilterViews()
                     true

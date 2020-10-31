@@ -6,13 +6,13 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
+import cz.minarik.base.common.extensions.moshi
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.StarredArticleDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
-import cz.minarik.nasapp.utils.moshi
 import java.util.*
 
 @Database(

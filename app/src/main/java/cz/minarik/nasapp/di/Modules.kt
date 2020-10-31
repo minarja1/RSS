@@ -14,8 +14,6 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    //todo prefManager
-
     viewModel {
         ArticlesFragmentViewModel(
             androidContext(),

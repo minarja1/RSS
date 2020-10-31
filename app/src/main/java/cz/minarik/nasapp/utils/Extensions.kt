@@ -9,8 +9,6 @@ import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.text.format.DateUtils
@@ -19,13 +17,12 @@ import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
-import com.squareup.moshi.*
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import coil.load
+import cz.minarik.base.common.extensions.dpToPx
+import cz.minarik.base.common.extensions.pxToDp
 import cz.minarik.base.common.extensions.toast
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.utils.Constants.Companion.RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
@@ -75,7 +72,11 @@ fun Context.openCustomTabs(
         customTabsBuilder.addDefaultShareMenuItem()
 
         customTabsBuilder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
-        customTabsBuilder.setExitAnimations(this, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        customTabsBuilder.setExitAnimations(
+            this,
+            android.R.anim.slide_in_left,
+            android.R.anim.slide_out_right
+        );
 
         val intent = customTabsBuilder.build()
 
@@ -118,29 +119,6 @@ fun getCustomTabsPackages(context: Context, uri: Uri): ArrayList<ResolveInfo>? {
 }
 
 
-//todo do base
-fun Drawable.tint(context: Context, color: Int): Drawable {
-    val wrapDrawable: Drawable? = DrawableCompat.wrap(this)
-    return wrapDrawable?.let {
-        DrawableCompat.setTint(
-            it,
-            ContextCompat.getColor(context, color)
-        )
-        it
-    } ?: this
-}
-
-fun URL.getFavIcon(): String {
-    return "https://www.google.com/s2/favicons?sz=64&domain_url=$host"
-}
-
-val Int.pxToDp: Int
-    get() = (this / Resources.getSystem().displayMetrics.density).toInt()
-
-val Int.dpToPx: Float
-    get() = (this * Resources.getSystem().displayMetrics.density)
-
-
 fun TextView.handleHTML(context: Context) {
     movementMethod = BetterLinkMovementMethod.newInstance().apply {
         setOnLinkClickListener { textView, url ->
@@ -178,42 +156,11 @@ fun RecyclerView.scrollToTop(smooth: Boolean = false) {
 }
 
 
-val Context.isInternetAvailable: Boolean
-    get() {
-        var result = false
-        val connectivityManager =
-            this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val actNw =
-                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-            result = when {
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.run {
-                connectivityManager.activeNetworkInfo?.run {
-                    result = when (type) {
-                        ConnectivityManager.TYPE_WIFI -> true
-                        ConnectivityManager.TYPE_MOBILE -> true
-                        ConnectivityManager.TYPE_ETHERNET -> true
-                        else -> false
-                    }
-
-                }
-            }
-        }
-        return result
-    }
-
 fun getSwipeActionItemTouchHelperCallback(
     colorDrawableBackground: ColorDrawable,
     getIcon: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Drawable),
     callback: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Unit),
-    iconMarginHorizontal: Int = 16.dpToPx.toInt()
+    iconMarginHorizontal: Int = 16.dpToPx
 ) =
     object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
@@ -322,33 +269,3 @@ val screenHeightDp: Int get() = screenHeight.pxToDp
 fun RecyclerView.isScrolledToTop(): Boolean {
     return !canScrollVertically(-1)
 }
-
-
-fun moshi(): Moshi {
-    return Moshi.Builder()
-        .add(Date::class.java, MoshiDateAdapter().nullSafe())
-        .add(KotlinJsonAdapterFactory())
-        .build()
-}
-
-
-class MoshiDateAdapter : JsonAdapter<Date>() {
-    @FromJson
-    override fun fromJson(reader: JsonReader): Date? {
-        return try {
-            val dateAsString = reader.nextString()
-            Date(dateAsString.toLong())
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    @ToJson
-    override fun toJson(writer: JsonWriter, value: Date?) {
-        if (value != null) {
-            writer.value(value.time)
-        }
-    }
-
-}
-

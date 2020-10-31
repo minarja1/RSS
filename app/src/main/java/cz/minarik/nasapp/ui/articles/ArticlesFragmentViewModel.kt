@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.prof.rssparser.Article
 import com.prof.rssparser.Parser
+import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
@@ -15,7 +16,6 @@ import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.data.model.exception.NoConnectionException
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
-import cz.minarik.nasapp.utils.isInternetAvailable
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
