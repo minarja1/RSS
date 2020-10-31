@@ -63,7 +63,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         titleTextView.text = article.title
         dateTextView.text = article.date?.toTimeElapsed()
 
-        articleImageView.loadImageWithDefaultSettings(article.image?.replace("http://", "https://"))
+        articleImageView.loadImageWithDefaultSettings(article.image?.replace("http://", "https://"), crossFade = true)
 
         articleFullImageView.loadImageWithDefaultSettings(
             article.image?.replace(

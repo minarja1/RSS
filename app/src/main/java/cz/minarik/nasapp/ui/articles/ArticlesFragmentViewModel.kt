@@ -65,8 +65,11 @@ class ArticlesFragmentViewModel(
             Timber.i("flushing cache for url: $url")
             parser.flushCache(url)
         }
-        val channel = parser.getChannel(url)
-        result.addAll(channel.articles)
+        val articles = parser.getChannel(url).articles
+        articles.forEach {
+            it.sourceUrl = url
+        }
+        result.addAll(articles)
     }
 
     fun loadArticles(force: Boolean = false, scrollToTop: Boolean = false) {
