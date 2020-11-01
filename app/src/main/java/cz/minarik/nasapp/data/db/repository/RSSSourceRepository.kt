@@ -35,7 +35,7 @@ class RSSSourceRepository(
         RealtimeDatabaseHelper.getNewsFeeds(this)
     }
 
-    private fun updateDB(allFromServer: List<RealtimeDatabaseHelper.RssFeedDTO>) {
+    private fun updateDB(allFromServer: List<RealtimeDatabaseHelper.RssFeedDTO?>) {
 
         val parser = Parser.Builder()
             .context(context)
@@ -47,7 +47,7 @@ class RSSSourceRepository(
             val allDB = dao.getNonUserAdded()
 
             val dbUrls = allDB.map { it.url }
-            val allServerUrls = allFromServer.map { it.url }
+            val allServerUrls = allFromServer.map { it?.url }
 
             //delete entries no longer present on server
             for (dbUrl in dbUrls) {
@@ -60,7 +60,7 @@ class RSSSourceRepository(
 
             //create or update existing
             for (feed in allFromServer) {
-                feed.url?.let {
+                feed?.url?.let {
                     try {
                         val channel = parser.getChannel(it)
 

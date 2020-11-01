@@ -270,13 +270,13 @@ class ArticlesFragment : BaseFragment(R.layout.fragment_articles) {
                 }
             }
             viewState.articles = it
-        }
+        }   
 
         sourcesViewModel.selectedSource.observe {
             viewModel.loadArticles(scrollToTop = true)
         }
         sourcesViewModel.selectedSourceName.observe {
-            toolbarSubtitleContainer.isVisible = it.isNotEmpty()
+            toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
             toolbarSubtitle.text = it
         }
         sourcesViewModel.selectedSourceImage.observe {

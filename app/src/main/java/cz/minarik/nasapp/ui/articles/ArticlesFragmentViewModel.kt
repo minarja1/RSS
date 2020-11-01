@@ -13,13 +13,13 @@ import cz.minarik.nasapp.data.db.dao.StarredArticleDao
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.data.model.ArticleFilterType
+import cz.minarik.nasapp.data.model.exception.GenericException
 import cz.minarik.nasapp.data.model.exception.NoConnectionException
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import timber.log.Timber
+import java.io.IOException
 import java.nio.charset.Charset
 
 class ArticlesFragmentViewModel(
@@ -72,59 +72,76 @@ class ArticlesFragmentViewModel(
         result.addAll(articles)
     }
 
-    fun loadArticles(force: Boolean = false, scrollToTop: Boolean = false) {
+    fun loadArticles(
+        force: Boolean = false,
+        scrollToTop: Boolean = false,
+    ) {
         currentArticleLoadingJob?.cancel()
         currentArticleLoadingJob = defaultScope.launch {
-            if (!context.isInternetAvailable) {
-                state.postValue(NetworkState.Companion.error(NoConnectionException()))
-                return@launch
-            }
-            Timber.i("loading articles, force = $force")
-            state.postValue(NetworkState.LOADING)
+            try {
+                if (!context.isInternetAvailable) {
+                    state.postValue(NetworkState.Companion.error(NoConnectionException()))
+                    return@launch
+                }
+                Timber.i("loading articles, force = $force")
+                state.postValue(NetworkState.LOADING)
 
-            val allArticleList = mutableListOf<Article>()
+                val allArticleList = mutableListOf<Article>()
 
-            ensureActive()
-            val selectedSource = sourceDao.getSelected()
-
-            //get articles from api
-            //todo something more sophisticated like lists etc.
-            //user selected article source
-            if (selectedSource != null) {
-                loadArticlesFromUrl(selectedSource.url, force, allArticleList)
-            }  //load all sources
-            else for (feed in sourceDao.getAll()) {
                 ensureActive()
-                loadArticlesFromUrl(feed.url, force, allArticleList)
-            }
+                val selectedSource = sourceDao.getSelected()
 
-            val mappedArticles = allArticleList.map { article ->
-                ArticleDTO.fromApi(article).apply {
-                    guid?.let {
-                        read = readArticleDao.getByGuid(it) != null
-                        starred = starredArticleDao.getByGuid(it) != null
+                //get articles from api
+                //user selected article source
+                if (selectedSource != null) {
+                    loadArticlesFromUrl(selectedSource.url, force, allArticleList)
+                }  //load all sources
+                else {
+                    //todo something more sophisticated like lists etc.
+                    val allSources = sourceDao.getAll()
+                    (allSources.indices).map {
+                        async(Dispatchers.IO) {
+                            loadArticlesFromUrl(allSources[it].url, force, allArticleList)
+                        }
+                    }.awaitAll()
+                }
+
+                ensureActive()
+                val mappedArticles = allArticleList.map { article ->
+                    ArticleDTO.fromApi(article).apply {
+                        guid?.let {
+                            read = readArticleDao.getByGuid(it) != null
+                            starred = starredArticleDao.getByGuid(it) != null
+                        }
+                    }
+                }.filter {
+                    it.isValid && !it.starred
+                }.toMutableList()
+                ensureActive()
+
+                //get starred articles from db
+                val fromDb = mutableListOf<StarredArticleEntity>()
+                if (selectedSource != null) {
+                    fromDb.addAll(starredArticleDao.getBySourceUrl(selectedSource.url))
+                } else {
+                    fromDb.addAll(starredArticleDao.getAll())
+                }
+                val mappedFromDb = fromDb.map { starredArticle ->
+                    ArticleDTO.fromDb(starredArticle).apply {
+                        guid?.let {
+                            read = readArticleDao.getByGuid(it) != null
+                        }
                     }
                 }
-            }.filter {
-                it.isValid && !it.starred
-            }.toMutableList()
-            ensureActive()
 
-            //get starred articles from db
-            val fromDb = mutableListOf<StarredArticleEntity>()
-            if (selectedSource != null) {
-                fromDb.addAll(starredArticleDao.getBySourceUrl(selectedSource.url))
-            } else {
-                fromDb.addAll(starredArticleDao.getAll())
+                allArticles.clear()
+                allArticles.addAll(mappedArticles)
+                allArticles.addAll(mappedFromDb)
+                applyFiltersAndPostResult(scrollToTop)
+            } catch (e: IOException) {
+                Timber.e(e)
+                state.postValue(NetworkState.Companion.error(GenericException()))
             }
-            val mappedFromDb = fromDb.map {
-                ArticleDTO.fromDb(it)
-            }
-
-            allArticles.clear()
-            allArticles.addAll(mappedArticles)
-            allArticles.addAll(mappedFromDb)
-            applyFiltersAndPostResult(scrollToTop)
         }
     }
 

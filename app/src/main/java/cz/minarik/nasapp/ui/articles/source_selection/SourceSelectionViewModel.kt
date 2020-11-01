@@ -17,7 +17,7 @@ class SourceSelectionViewModel(
 
     val sourcesData = MutableLiveData<MutableList<RSSSourceDTO>>()
     val selectedSource = MutableLiveData<RSSSourceDTO>()
-    val selectedSourceName = MutableLiveData<String>()
+    val selectedSourceName = MutableLiveData<String?>()
     val selectedSourceImage = MutableLiveData<String>()
 
     private val allSources: MutableList<RSSSourceDTO> = mutableListOf()
@@ -36,7 +36,7 @@ class SourceSelectionViewModel(
 
             val selectedSource = allSources.firstOrNull { it.selected }
             if (selectedSource?.isList == false) {
-                selectedSourceName.postValue(selectedSource?.title)
+                selectedSourceName.postValue(selectedSource.title)
             } else {
                 selectedSourceName.postValue("")
             }

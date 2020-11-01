@@ -14,4 +14,5 @@
     <string name="no_internet_connection">No internet connection</string>
     <string name="press_back_again_to_leave">Press back again to leave</string>
     <string name="star_item">Star item</string>
+    <string name="generic_error">Oops! Something went wrong :(</string>
 </resources>
