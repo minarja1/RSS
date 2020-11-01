@@ -38,8 +38,6 @@ data class StarredArticleEntity(
                 content = article.content,
                 audio = article.audio,
                 video = article.video,
-                sourceName = article.sourceName,
-                sourceUrl = article.sourceUrl,
                 categories = article.categories,
                 read = article.read,
                 starred = article.starred,

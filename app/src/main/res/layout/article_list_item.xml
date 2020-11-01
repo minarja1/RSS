@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardView"
     style="@style/MaterialCard"
@@ -8,7 +9,7 @@
     android:animateLayoutChanges="true"
     android:clickable="true"
     android:focusable="true"
-    android:minHeight="110dp">
+    android:minHeight="@dimen/article_list_item_collapsed_height">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -17,7 +18,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="110dp"
+            android:minHeight="@dimen/article_list_item_collapsed_height"
             android:orientation="horizontal">
 
             <FrameLayout
@@ -99,60 +100,83 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/dateTextView"
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/starImageView"
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="4dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_baseline_star_24"
+                                android:tint="@color/yellow" />
+
+                            <TextView
+                                android:id="@+id/dateTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:lines="1"
+                                android:maxLines="1"
+                                android:minLines="1"
+                                android:textAlignment="viewStart"
+                                android:textAppearance="@style/TextAppearance.Subtitle"
+                                android:textColor="@color/textColorSecondary"
+                                tools:text="26. 01. 1994" />
+                        </LinearLayout>
+
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/sourceCard"
+                            style="@style/ClickableCard"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:lines="1"
-                            android:maxLines="1"
-                            android:minLines="1"
-                            android:textAlignment="viewStart"
-                            android:textAppearance="@style/TextAppearance.Subtitle"
-                            android:textColor="@color/textColorSecondary"
-                            tools:text="26. 01. 1994" />
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="4dp"
+                            android:orientation="horizontal"
+                            app:contentPaddingTop="2dp"
+                            app:contentPaddingBottom="2dp"
+                            app:contentPaddingLeft="6dp"
+                            app:contentPaddingRight="6dp">
 
-                        <TextView
-                            android:id="@+id/domainDividerTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="4dp"
-                            android:text="|"
-                            android:textAppearance="@style/TextAppearance.Subtitle"
-                            android:textColor="@color/textColorSecondary" />
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/domainTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:lines="1"
-                            android:maxLines="1"
-                            android:minLines="1"
-                            android:textAlignment="viewStart"
-                            android:textAppearance="@style/TextAppearance.Subtitle"
-                            android:textColor="@color/textColorSecondary"
-                            tools:text="space.com" />
+                                <ImageView
+                                    android:id="@+id/sourceImageView"
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="4dp" />
 
+                                <TextView
+                                    android:id="@+id/sourceNameTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_height="wrap_content"
+                                    android:ellipsize="end"
+                                    android:lines="1"
+                                    android:maxLines="1"
+                                    android:minLines="1"
+                                    android:textAlignment="viewStart"
+                                    android:textAppearance="@style/TextAppearance.Subtitle"
+                                    android:textColor="@color/textColorSecondary"
+                                    android:textSize="14sp"
+                                    tools:text="space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com " />
 
-                        <ImageView
-                            android:id="@+id/starImageView"
-                            android:layout_marginStart="4dp"
-                            android:layout_width="12dp"
-                            android:layout_height="12dp"
-                            android:layout_gravity="center_vertical"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/ic_baseline_star_24"
-                            android:tint="@color/yellow" />
+                            </LinearLayout>
 
+                        </com.google.android.material.card.MaterialCardView>
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -167,8 +191,8 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="bottom|end"
-            android:scaleType="centerInside"
             android:background="@null"
+            android:scaleType="centerInside"
             android:tint="@color/colorAccent"
             tools:ignore="UseAppTint"
             tools:src="@drawable/ic_baseline_keyboard_arrow_down_24" />

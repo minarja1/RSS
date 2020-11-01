@@ -2,8 +2,11 @@
 <resources>
 
     <dimen name="rounded_corner">4dp</dimen>
+    <dimen name="rounded_corner_small">12dp</dimen>
     <dimen name="dialog_rounded_corner">8dp</dimen>
 
     <dimen name="dialog_min_height">500dp</dimen>
     <dimen name="dialog_width">300dp</dimen>
+
+    <dimen name="article_list_item_collapsed_height">130dp</dimen>
 </resources>

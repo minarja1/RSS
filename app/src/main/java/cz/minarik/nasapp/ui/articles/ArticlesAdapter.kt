@@ -15,6 +15,7 @@ class ArticlesAdapter(
     private var onItemClicked: (imageView: ImageView, position: Int) -> Unit,
     private var onItemExpanded: (position: Int) -> Unit,
     private var preloadUrl: (url: String) -> Unit,
+    private var filterBySource: (url: String?) -> Unit,
 ) :
     ListAdapter<ArticleDTO, RecyclerView.ViewHolder>(diffCallback) {
 
@@ -44,6 +45,7 @@ class ArticlesAdapter(
             article: ArticleDTO?,
             onItemClicked: (imageView: ImageView, position: Int) -> Unit,
             onItemExpanded: (position: Int) -> Unit,
+            filterBySource: (url: String?) -> Unit,
             position: Int,
         ) {
             if (article == null) return
@@ -54,12 +56,15 @@ class ArticlesAdapter(
             articleItemView.onItemExpanded = {
                 onItemExpanded.invoke(position)
             }
+            articleItemView.filterBySource = {
+                filterBySource.invoke(it)
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        (holder as VideoViewHolder).bind(item, onItemClicked, onItemExpanded, position)
+        (holder as VideoViewHolder).bind(item, onItemClicked, onItemExpanded, filterBySource, position)
         item.link?.let {
             preloadUrl.invoke(it)
         }

@@ -15,12 +15,15 @@ import androidx.core.view.isVisible
 import coil.load
 import com.prof.rssparser.Article
 import cz.minarik.base.common.extensions.dpToPx
+import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.common.extensions.toDateFromRSS
 import cz.minarik.base.common.extensions.toHtml
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.article_list_item.view.*
+import timber.log.Timber
+import java.net.URL
 import java.util.*
 
 
@@ -31,6 +34,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     var articleImageView: ImageView
 
     var onItemExpanded: (() -> Unit)? = null
+    var filterBySource: ((url: String?) -> Unit)? = null
 
     init {
         inflate(context, R.layout.article_list_item, this)
@@ -59,11 +63,20 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
                 if (article.read) R.color.colorWindowBackground else R.color.colorSurface
             )
         )
+        sourceCard.setCardBackgroundColor(
+            ContextCompat.getColor(
+                context,
+                if (article.read) R.color.colorWindowBackground else R.color.colorSurface
+            )
+        )
 
         titleTextView.text = article.title
         dateTextView.text = article.date?.toTimeElapsed()
 
-        articleImageView.loadImageWithDefaultSettings(article.image?.replace("http://", "https://"), crossFade = true)
+        articleImageView.loadImageWithDefaultSettings(
+            article.image?.replace("http://", "https://"),
+            crossFade = true
+        )
 
         articleFullImageView.loadImageWithDefaultSettings(
             article.image?.replace(
@@ -76,8 +89,17 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         articleImageView.transitionName = article.image
         subtitleTextView.text = article.description
 
-        domainTextView.text = article.domain
-        domainDividerTextView.isVisible = !article.domain.isNullOrEmpty()
+        sourceNameTextView.text = article.sourceName
+        sourceCard.setOnClickListener {
+            filterBySource?.invoke(article.sourceUrl)
+        }
+        try {
+            val url = URL(article.sourceUrl)
+            sourceImageView.load(url.getFavIcon())
+        } catch (e: Exception) {
+        }
+
+        sourceCard.isVisible = article.showSource && !article.sourceUrl.isNullOrEmpty()
 
         starImageView.isVisible = article.starred
 
@@ -109,7 +131,8 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             }
 
             cardView.layoutParams.height =
-                if (expanded) LayoutParams.WRAP_CONTENT else 110.dpToPx
+                if (expanded) LayoutParams.WRAP_CONTENT else context.resources.getDimension(R.dimen.article_list_item_collapsed_height)
+                    .toInt()
             cardView.requestLayout()
 
             val contentPadding = if (expanded) 16.dpToPx else 8.dpToPx
@@ -140,6 +163,7 @@ data class ArticleDTO(
     var expandable: Boolean = true,
     var starred: Boolean = false,
     var domain: String? = null,
+    var showSource: Boolean = true,
 ) {
 
     override fun toString(): String {
@@ -227,6 +251,7 @@ data class ArticleDTO(
         if (expandable != other.expandable) return false
         if (starred != other.starred) return false
         if (domain != other.domain) return false
+        if (showSource != other.showSource) return false
 
         return true
     }
@@ -248,6 +273,7 @@ data class ArticleDTO(
         result = 31 * result + expandable.hashCode()
         result = 31 * result + starred.hashCode()
         result = 31 * result + (domain?.hashCode() ?: 0)
+        result = 31 * result + (showSource?.hashCode() ?: 0)
         return result
     }
 

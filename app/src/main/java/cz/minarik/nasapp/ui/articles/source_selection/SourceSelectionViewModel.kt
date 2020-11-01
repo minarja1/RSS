@@ -16,7 +16,7 @@ class SourceSelectionViewModel(
 ) : BaseViewModel() {
 
     val sourcesData = MutableLiveData<MutableList<RSSSourceDTO>>()
-    val selectedSource = MutableLiveData<RSSSourceDTO>()
+    val selectedSource = MutableLiveData<String>()
     val selectedSourceName = MutableLiveData<String?>()
     val selectedSourceImage = MutableLiveData<String>()
 
@@ -59,7 +59,15 @@ class SourceSelectionViewModel(
     fun onSourceSelected(sourceSelectionDTO: RSSSourceDTO) {
         launch {
             sourceRepository.setSelected(sourceSelectionDTO.url)
-            selectedSource.postValue(sourceSelectionDTO)
+            selectedSource.postValue(sourceSelectionDTO.url)
+            updateSources()
+        }
+    }
+
+    fun onSourceSelected(sourceUrl: String) {
+        launch {
+            sourceRepository.setSelected(sourceUrl)
+            selectedSource.postValue(sourceUrl)
             updateSources()
         }
     }
