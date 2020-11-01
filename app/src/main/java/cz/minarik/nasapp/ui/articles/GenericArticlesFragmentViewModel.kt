@@ -22,6 +22,7 @@ import cz.minarik.nasapp.utils.UniversePrefManager
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.IOException
+import java.net.SocketTimeoutException
 import java.nio.charset.Charset
 
 abstract class GenericArticlesFragmentViewModel(
@@ -109,7 +110,10 @@ abstract class GenericArticlesFragmentViewModel(
                     (allSources.indices).map {
                         ensureActive()
                         async(Dispatchers.IO) {
-                            loadArticlesFromUrl(allSources[it].url, force, allArticleList)
+                            try {
+                                loadArticlesFromUrl(allSources[it].url, force, allArticleList)
+                            } catch (e: SocketTimeoutException) {
+                            }
                         }
                     }.awaitAll()
                 }
@@ -123,7 +127,9 @@ abstract class GenericArticlesFragmentViewModel(
                         guid?.let {
                             read = readArticleDao.getByGuid(it) != null
                             starred = articlesRepository.getByGuid(it) != null
-                            showSource = shouldShowSource
+                            showSource = true
+                            //todo vratit
+//                            showSource = shouldShowSource
                         }
                     }
                 }.filter {

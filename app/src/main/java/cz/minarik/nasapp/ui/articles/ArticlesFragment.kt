@@ -14,6 +14,7 @@ import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.isScrolledToTop
@@ -88,6 +89,20 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             toggle.syncState()
         }
         toolbar?.navigationIcon?.tint(requireContext(), R.color.colorOnBackground)
+
+        //todo tohle je nechutne
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                val supportFragmentManager = activity?.supportFragmentManager
+                val transaction = supportFragmentManager?.beginTransaction()
+                transaction?.let {
+                    it.replace(R.id.nav_view_content, SourceSelectionFragment())
+                    it.commitNow()
+                }
+            } catch (e: Exception) {
+
+            }
+        }, 500)
     }
 
     override fun initObserve() {
@@ -108,6 +123,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
         sourcesViewModel.selectedSource.observe {
             viewModel.loadArticles(scrollToTop = true)
+
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
@@ -119,6 +135,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
         sourcesViewModel.sourceRepository.state.observe {
             if (it == NetworkState.SUCCESS) {
+                //todo tohle je spatny
                 sourcesViewModel.updateSources()
                 viewModel.loadArticles()
             }

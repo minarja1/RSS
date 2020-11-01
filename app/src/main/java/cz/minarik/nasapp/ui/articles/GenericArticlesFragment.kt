@@ -15,6 +15,7 @@ import androidx.browser.customtabs.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -96,7 +97,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
             },
             filterBySource = {
-                it?.let { sourcesViewModel.onSourceSelected(it) }
+//                it?.let { sourcesViewModel.onSourceSelected(it) }
+                findNavController().navigate(R.id.action_articles_to_simple_articles)
             }
         )
     }

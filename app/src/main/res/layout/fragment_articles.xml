@@ -116,11 +116,11 @@
         android:fitsSystemWindows="true"
         app:menu="@menu/drawer_main">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_view_content"
-            android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
     </com.google.android.material.navigation.NavigationView>
 
 

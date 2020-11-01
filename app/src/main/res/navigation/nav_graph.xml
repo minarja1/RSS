@@ -4,9 +4,33 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/articlesFragment">
 
+<!--    todo animations-->
     <fragment
         android:id="@+id/articlesFragment"
         android:name="cz.minarik.nasapp.ui.articles.ArticlesFragment"
-        android:label="@string/articles_title" />
+        android:label="@string/articles_title" >
+
+        <action
+            android:id="@+id/action_articles_to_simple_articles"
+            app:destination="@id/simpleArticlesFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/simpleArticlesFragment"
+        android:name="cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment"
+        android:label="@string/articles_title">
+
+        <action android:id="@+id/action_simple_articles_to_articles"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/articlesFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
 
 </navigation>
