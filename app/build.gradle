@@ -64,4 +64,6 @@ dependencies {
 
     implementation 'me.saket:better-link-movement-method:2.2.0'
 
+    api 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
 }

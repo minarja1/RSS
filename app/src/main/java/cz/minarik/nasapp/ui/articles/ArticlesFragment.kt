@@ -19,9 +19,11 @@ import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.isScrolledToTop
 import cz.minarik.nasapp.utils.scrollToTop
+import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
+import timber.log.Timber
 
 
 class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
@@ -59,8 +61,8 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initObserve()
         initViews(view)
+        initObserve()
         initSwipeToRefresh()
     }
 
@@ -121,7 +123,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
 
 
-        sourcesViewModel.selectedSource.observe {
+        sourcesViewModel.selectedSource.toFreshLiveData().observe {
             viewModel.loadArticles(scrollToTop = true)
 
         }
@@ -133,7 +135,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             toolbarImageView.load(it)
         }
 
-        sourcesViewModel.sourceRepository.state.observe {
+        sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             if (it == NetworkState.SUCCESS) {
                 //todo tohle je spatny
                 sourcesViewModel.updateSources()
@@ -195,5 +197,4 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                 updateViews()
             }
     }
-
 }

@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -122,11 +123,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initViews(view)
-    }
-
     override fun showError(error: String?) {
         //todo
     }
@@ -135,6 +131,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         //todo
     }
 
+    @CallSuper
     open fun initViews(view: View?) {
         articlesRecyclerView = view?.findViewById(R.id.articlesRecyclerView)
         filterChipGroup = view?.findViewById(R.id.filterChipGroup)
@@ -219,6 +216,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             articlesAdapter.submitList(it) {
                 if (viewModel.shouldScrollToTop) {
                     articlesRecyclerView?.scrollToTop()
+                    viewModel.shouldScrollToTop = false
                 }
             }
         }
