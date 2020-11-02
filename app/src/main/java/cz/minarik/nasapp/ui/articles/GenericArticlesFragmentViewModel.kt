@@ -127,9 +127,7 @@ abstract class GenericArticlesFragmentViewModel(
                         guid?.let {
                             read = readArticleDao.getByGuid(it) != null
                             starred = articlesRepository.getByGuid(it) != null
-                            showSource = true
-                            //todo vratit
-//                            showSource = shouldShowSource
+                            showSource = shouldShowSource
                         }
                     }
                 }.filter {

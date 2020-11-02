@@ -16,6 +16,7 @@ import androidx.browser.customtabs.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +25,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
+import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
@@ -37,9 +39,7 @@ import timber.log.Timber
 abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     BaseFragment(layoutId) {
 
-    override val viewModel by viewModel<ArticlesFragmentViewModel>()
-
-    private val sourcesViewModel: SourceSelectionViewModel by inject()
+    abstract override val viewModel : GenericArticlesFragmentViewModel
 
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
@@ -98,8 +98,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
             },
             filterBySource = {
-//                it?.let { sourcesViewModel.onSourceSelected(it) }
-                findNavController().navigate(R.id.action_articles_to_simple_articles)
+                val action = ArticlesFragmentDirections.actionArticlesToSimpleArticles(it ?: "")
+                findNavController().navigate(action)
             }
         )
     }

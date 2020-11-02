@@ -23,12 +23,14 @@ import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
-import timber.log.Timber
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val sourcesViewModel: SourceSelectionViewModel by inject()
+
+    override val viewModel by viewModel<ArticlesFragmentViewModel>()
 
     private val viewState = ViewState()
 
@@ -82,6 +84,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
     }
 
+
     private fun setupDrawerNavigation() {
         drawerLayout?.let {
             val toggle = ActionBarDrawerToggle(
@@ -92,19 +95,13 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
         toolbar?.navigationIcon?.tint(requireContext(), R.color.colorOnBackground)
 
-        //todo tohle je nechutne
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                val supportFragmentManager = activity?.supportFragmentManager
-                val transaction = supportFragmentManager?.beginTransaction()
-                transaction?.let {
-                    it.replace(R.id.nav_view_content, SourceSelectionFragment())
-                    it.commitNow()
-                }
-            } catch (e: Exception) {
-
-            }
-        }, 500)
+        val fragmentManager = childFragmentManager
+        fragmentManager.executePendingTransactions()
+        val transaction = fragmentManager.beginTransaction()
+        transaction.let {
+            it.replace(R.id.nav_view_content, SourceSelectionFragment())
+            it.commit()
+        }
     }
 
     override fun initObserve() {
@@ -125,7 +122,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
         sourcesViewModel.selectedSource.toFreshLiveData().observe {
             viewModel.loadArticles(scrollToTop = true)
-
+            drawerLayout.closeDrawer(GravityCompat.START)
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()

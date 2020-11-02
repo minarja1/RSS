@@ -26,8 +26,9 @@ val appModule = module {
             get(),
         )
     }
-    viewModel {
+    viewModel { (sourceUrl: String) ->
         SimpleArticlesFragmentViewModel(
+            sourceUrl,
             androidContext(),
             get(),
             get(),

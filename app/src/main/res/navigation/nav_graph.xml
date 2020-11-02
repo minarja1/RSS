@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/articlesFragment">
 
-<!--    todo animations-->
+    <fragment
+        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment"
+        android:id="@+id/drawerFragment"/>
+
+    <!--    todo animations-->
     <fragment
         android:id="@+id/articlesFragment"
         android:name="cz.minarik.nasapp.ui.articles.ArticlesFragment"
@@ -13,22 +18,26 @@
         <action
             android:id="@+id/action_articles_to_simple_articles"
             app:destination="@id/simpleArticlesFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"/>
     </fragment>
 
     <fragment
         android:id="@+id/simpleArticlesFragment"
         android:name="cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment"
         android:label="@string/articles_title">
+        <argument
+            android:name="sourceUrl"
+            app:argType="string" />
 
         <action android:id="@+id/action_simple_articles_to_articles"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:destination="@id/simpleArticlesFragment"
+            app:popExitAnim="@android:anim/slide_in_left"
+            app:popEnterAnim="@android:anim/slide_out_right"
+            app:exitAnim="@anim/slide_in_right"
+            app:enterAnim="@anim/slide_out_left"
             app:popUpTo="@+id/articlesFragment"/>
     </fragment>
 

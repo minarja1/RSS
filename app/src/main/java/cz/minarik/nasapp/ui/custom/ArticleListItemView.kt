@@ -22,7 +22,6 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.article_list_item.view.*
-import timber.log.Timber
 import java.net.URL
 import java.util.*
 
@@ -183,6 +182,8 @@ data class ArticleDTO(
                 article.image
             }
 
+            val description = article.description?.replace(Regex("<img.+?>"), "")
+
             val date = article.pubDate?.toDateFromRSS()
 
             return ArticleDTO(
@@ -191,7 +192,7 @@ data class ArticleDTO(
                 image = image,
                 date = date,
                 link = article.link,
-                description = article.description?.toHtml(),
+                description = description?.toHtml(),
                 content = article.content?.toHtml().toString(),
                 audio = article.audio,
                 video = article.video,
