@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.util.AttributeSet
+import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -22,6 +23,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.article_list_item.view.*
+import java.io.Serializable
 import java.net.URL
 import java.util.*
 
@@ -85,7 +87,6 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             crossFade = true
         )
 
-        articleImageView.transitionName = article.image
         subtitleTextView.text = article.description
 
         sourceNameTextView.text = article.sourceName
@@ -137,7 +138,18 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             val contentPadding = if (expanded) 16.dpToPx else 8.dpToPx
             contentLayout.setPadding(contentPadding, contentPadding, contentPadding, contentPadding)
 
+            val contentPaddingSmall = if (expanded) 8.dpToPx else 4.dpToPx
+            val layoutParams = LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            layoutParams.setMargins(0, contentPaddingSmall, 0, 0)
+            sourceCard.layoutParams = layoutParams
+
             expandButton.load(if (expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
+
+            articleImageView.transitionName = guid
+
             invalidate()
             requestLayout()
         }
@@ -163,7 +175,7 @@ data class ArticleDTO(
     var starred: Boolean = false,
     var domain: String? = null,
     var showSource: Boolean = true,
-) {
+) : Serializable {
 
     override fun toString(): String {
         return title ?: super.toString()

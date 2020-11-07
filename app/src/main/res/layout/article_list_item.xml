@@ -140,8 +140,8 @@
                             android:gravity="center_vertical"
                             android:layout_marginTop="4dp"
                             android:orientation="horizontal"
-                            app:contentPaddingTop="2dp"
-                            app:contentPaddingBottom="2dp"
+                            app:contentPaddingTop="3dp"
+                            app:contentPaddingBottom="3dp"
                             app:contentPaddingLeft="6dp"
                             app:contentPaddingRight="6dp">
 

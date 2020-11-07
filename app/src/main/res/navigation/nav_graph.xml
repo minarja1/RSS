@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/articlesFragment">
 
     <fragment
-        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment"
-        android:id="@+id/drawerFragment"/>
+        android:id="@+id/drawerFragment"
+        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment" />
 
-    <!--    todo animations-->
     <fragment
         android:id="@+id/articlesFragment"
         android:name="cz.minarik.nasapp.ui.articles.ArticlesFragment"
-        android:label="@string/articles_title" >
+        android:label="@string/articles_title">
 
         <action
             android:id="@+id/action_articles_to_simple_articles"
             app:destination="@id/simpleArticlesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_articles_to_article_detail"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"/>
+            app:destination="@id/articleDetailFragment" />
     </fragment>
 
     <fragment
@@ -32,13 +36,29 @@
             android:name="sourceUrl"
             app:argType="string" />
 
-        <action android:id="@+id/action_simple_articles_to_articles"
+        <action
+            android:id="@+id/action_simple_articles_to_articles"
             app:destination="@id/simpleArticlesFragment"
-            app:popExitAnim="@android:anim/slide_in_left"
-            app:popEnterAnim="@android:anim/slide_out_right"
-            app:exitAnim="@anim/slide_in_right"
             app:enterAnim="@anim/slide_out_left"
-            app:popUpTo="@+id/articlesFragment"/>
+            app:exitAnim="@anim/slide_in_right"
+            app:popEnterAnim="@android:anim/slide_out_right"
+            app:popExitAnim="@android:anim/slide_in_left"
+            app:popUpTo="@+id/articlesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/articleDetailFragment"
+        android:name="cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment">
+        <argument
+            android:name="article"
+            app:argType="cz.minarik.nasapp.ui.custom.ArticleDTO" />
+
+        <action
+            android:id="@+id/action_article_detail_to_articles"
+            app:destination="@id/articleDetailFragment"
+            app:popEnterAnim="@android:anim/slide_out_right"
+            app:popExitAnim="@android:anim/slide_in_left"
+            app:popUpTo="@+id/articlesFragment" />
     </fragment>
 
 </navigation>

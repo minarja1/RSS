@@ -1,5 +1,6 @@
 package cz.minarik.nasapp.utils
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -7,26 +8,32 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.text.format.DateUtils
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.chimbori.crux.articles.Article
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.pxToDp
 import cz.minarik.base.common.extensions.toast
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.utils.Constants.Companion.RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
+import org.jsoup.nodes.Document
 import timber.log.Timber
 import java.net.URL
 import java.util.*
@@ -35,12 +42,25 @@ fun ImageView.loadImageWithDefaultSettings(
     uri: String?,
     error: Int? = null,
     placeholder: Int? = null,
+    fallback: Int? = null,
     crossFade: Boolean = false,
 ) {
     load(uri) {
         placeholder(placeholder ?: R.drawable.image_placeholder)
         error(error ?: R.drawable.image_placeholder)
+        fallback(fallback ?: R.drawable.image_placeholder)
         crossfade(crossFade)
+    }
+}
+
+fun ImageView.loadImageWithDefaultSettings(
+    uri: String?,
+    placeholder: Drawable
+) {
+    load(uri) {
+        placeholder(placeholder)
+        error(placeholder)
+        fallback(placeholder)
     }
 }
 
@@ -269,3 +289,60 @@ val screenHeightDp: Int get() = screenHeight.pxToDp
 fun RecyclerView.isScrolledToTop(): Boolean {
     return !canScrollVertically(-1)
 }
+
+//todo do base
+
+@Suppress("unused")
+fun Fragment.setTransparentStatusBar(transparent: Boolean = true) {
+    (activity as AppCompatActivity).setTransparentStatusBar(transparent)
+}
+
+
+fun Activity.setTransparentStatusBar(transparent: Boolean = true) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        window.apply {
+            if (transparent) {
+                addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                statusBarColor = Color.TRANSPARENT
+            } else {
+                clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                statusBarColor = Color.BLACK
+            }
+        }
+    }
+}
+
+fun Document.styleHtml(context: Context) {
+    val linkTextColor =
+        "#" + Integer.toHexString(
+            ContextCompat.getColor(
+                context,
+                R.color.colorAccent
+            ) and 0x00ffffff
+        )
+    val links = select("a")
+    links.attr("style", "color:$linkTextColor;");
+}
+
+fun String.styleHtml(context: Context): String {
+    val textColor =
+        "#" + Integer.toHexString(
+            ContextCompat.getColor(
+                context,
+                R.color.textColorPrimary
+            ) and 0x00ffffff
+        )
+    return "<html><head>" +
+            "<style type=\"text/css\">body{color: $textColor; background-color: #000;}" +
+            "</style></head>" +
+            "<body>$this" +
+            "</body></html>"
+}
+
+val Article.imgUrlSafe: String?
+    get() = (imageUrl?.toString() ?: images?.getOrNull(0)?.srcUrl?.toString())?.replace(
+        "http://",
+        "https://"
+    )

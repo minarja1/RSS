@@ -12,11 +12,14 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.browser.customtabs.*
+import androidx.browser.customtabs.CustomTabsCallback
+import androidx.browser.customtabs.CustomTabsClient
+import androidx.browser.customtabs.CustomTabsServiceConnection
+import androidx.browser.customtabs.CustomTabsSession
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModel
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,21 +28,20 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.initToolbar
-import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
-import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
-import cz.minarik.nasapp.utils.*
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import cz.minarik.nasapp.utils.CHROME_PACKAGE
+import cz.minarik.nasapp.utils.Constants
+import cz.minarik.nasapp.utils.getSwipeActionItemTouchHelperCallback
+import cz.minarik.nasapp.utils.scrollToTop
 import timber.log.Timber
 
 
 abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     BaseFragment(layoutId) {
 
-    abstract override val viewModel : GenericArticlesFragmentViewModel
+    abstract override val viewModel: GenericArticlesFragmentViewModel
 
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
@@ -64,13 +66,21 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     val articlesAdapter by lazy {
         ArticlesAdapter(
-            onItemClicked = { _, position ->
+            onItemClicked = { imageView, position ->
                 (articlesRecyclerView?.adapter as? ArticlesAdapter)?.run {
                     getItemAtPosition(position)?.run {
                         read = true
                         viewModel.markArticleAsRead(this)
                         link?.toUri()?.let {
-                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+                            //todo pridat do nastaveni moznost volby
+//                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+
+                            val extras = FragmentNavigatorExtras(
+                                imageView to (this.guid ?: "")
+                            )
+                            val action =
+                                ArticlesFragmentDirections.actionArticlesToArticleDetail(this)
+                            findNavController().navigate(action, extras)
                         }
                     }
                     notifyItemChanged(position)

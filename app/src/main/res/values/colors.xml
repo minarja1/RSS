@@ -7,7 +7,7 @@
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorPrimaryLight">#62727b</color>
 
-    <color name="colorBackground">#000</color>
+    <color name="colorBackground">#000000</color>
     <color name="colorOnBackground">#FFFFFF</color>
 
     <color name="colorSurface">#202124</color>

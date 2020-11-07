@@ -1,10 +1,12 @@
 package cz.minarik.nasapp.di
 
+import android.content.Context
 import androidx.room.Room
 import cz.minarik.nasapp.data.db.UniverseDatabase
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.ui.articles.ArticlesFragmentViewModel
+import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragmentViewModel
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragmentViewModel
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.utils.UniversePrefManager
@@ -35,6 +37,13 @@ val appModule = module {
             get(),
             get(),
             get(),
+        )
+    }
+
+    viewModel { (articleUrl: String?, context: Context) ->
+        ArticleDetailFragmentViewModel(
+            articleUrl,
+            context,
         )
     }
 
