@@ -68,4 +68,6 @@ dependencies {
 
     implementation 'com.chimbori.crux:crux:3.0.0'
     implementation 'org.jsoup:jsoup:1.13.1'
+
+    implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.1'
 }

@@ -55,7 +55,7 @@ fun ImageView.loadImageWithDefaultSettings(
 
 fun ImageView.loadImageWithDefaultSettings(
     uri: String?,
-    placeholder: Drawable
+    placeholder: Drawable?
 ) {
     load(uri) {
         placeholder(placeholder)

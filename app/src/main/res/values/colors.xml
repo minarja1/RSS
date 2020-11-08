@@ -31,4 +31,8 @@
     <color name="green">#00BC42</color>
     <color name="yellow">#FFEB3B</color>
 
+    <color name="sixtyFivePercentTransparentBlack">#A6000000</color>
+
+    <color name="color_ripple">#33ffffff</color>
+
 </resources>

@@ -15,4 +15,6 @@
     <string name="press_back_again_to_leave">Press back again to leave</string>
     <string name="star_item">Star item</string>
     <string name="generic_error">Oops! Something went wrong :(</string>
+    <string name="gallery">Gallery</string>
+    <string name="visit_website">Visit website</string>
 </resources>

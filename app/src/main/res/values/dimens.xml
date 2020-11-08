@@ -9,4 +9,7 @@
     <dimen name="dialog_width">300dp</dimen>
 
     <dimen name="article_list_item_collapsed_height">130dp</dimen>
+
+    <dimen name="image_view_corner_radius">4dp</dimen>
+    <dimen name="gallery_content_padding">4dp</dimen>
 </resources>

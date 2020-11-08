@@ -87,7 +87,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             crossFade = true
         )
 
-        subtitleTextView.text = article.description
+        subtitleTextView.text = article.description?.toHtml()
 
         sourceNameTextView.text = article.sourceName
         sourceCard.setOnClickListener {
@@ -162,7 +162,7 @@ data class ArticleDTO(
     val image: String? = null,
     val date: Date? = null,
     var link: String? = null,
-    var description: Spanned? = null,
+    var description: String? = null,
     var content: String? = null,
     var audio: String? = null,
     var video: String? = null,
@@ -204,7 +204,7 @@ data class ArticleDTO(
                 image = image,
                 date = date,
                 link = article.link,
-                description = description?.toHtml(),
+                description = description,
                 content = article.content?.toHtml().toString(),
                 audio = article.audio,
                 video = article.video,
@@ -229,7 +229,7 @@ data class ArticleDTO(
                 image = image,
                 date = article.date,
                 link = article.link,
-                description = article.description?.toHtml(),
+                description = article.description,
                 content = article.content?.toHtml().toString(),
                 audio = article.audio,
                 video = article.video,

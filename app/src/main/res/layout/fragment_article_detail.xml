@@ -75,24 +75,46 @@
 
                 <ImageView
                     android:id="@+id/sourceImageView"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="4dp" />
 
-                <TextView
-                    android:id="@+id/sourceNameDateTextView"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:lines="1"
-                    android:maxLines="1"
-                    android:minLines="1"
-                    android:textAlignment="viewStart"
-                    android:textAppearance="@style/TextAppearance.Subtitle"
-                    android:textColor="@color/textColorSecondary"
-                    android:textSize="14sp"
-                    tools:text="26. 01. 1994" />
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/sourceNameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:ellipsize="end"
+                        android:lines="1"
+                        android:maxLines="1"
+                        android:minLines="1"
+                        android:textAppearance="@style/TextAppearance.Subtitle"
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="14sp"
+                        tools:text="Space.com" />
+
+                    <TextView
+                        android:id="@+id/dateTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:ellipsize="end"
+                        android:lines="1"
+                        android:maxLines="1"
+                        android:minLines="1"
+                        android:textAppearance="@style/TextAppearance.Subtitle"
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="14sp"
+                        tools:text="26. 01. 1994" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -106,6 +128,33 @@
                 android:nestedScrollingEnabled="false"
                 android:scrollbars="none"
                 android:visibility="invisible" />
+
+            <LinearLayout
+                android:id="@+id/galleryContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/gallery"
+                    android:textAllCaps="true"
+                    android:textAppearance="@style/TextAppearance.Subtitle" />
+
+                <cz.minarik.nasapp.ui.custom.GalleryView
+                    android:id="@+id/galleryView"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

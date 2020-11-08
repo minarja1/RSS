@@ -100,7 +100,6 @@ abstract class GenericArticlesFragmentViewModel(
                 val selectedSource = getSource()
 
                 //get articles from api
-                //user selected article source
                 if (selectedSource != null) {
                     loadArticlesFromUrl(selectedSource.url, force, allArticleList)
                 }  //load all sources
@@ -155,7 +154,12 @@ abstract class GenericArticlesFragmentViewModel(
                 allArticles.clear()
                 allArticles.addAll(mappedArticles)
                 allArticles.addAll(mappedFromDb)
-                applyFiltersAndPostResult(scrollToTop)
+
+                this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
+                val result = applyFilters()
+
+                articles.postValue(result)
+                state.postValue(NetworkState.SUCCESS)
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))
@@ -163,8 +167,7 @@ abstract class GenericArticlesFragmentViewModel(
         }
     }
 
-    private fun applyFiltersAndPostResult(scrollToTop: Boolean = false) {
-        this.shouldScrollToTop = scrollToTop
+    private fun applyFilters(): MutableList<ArticleDTO> {
         val result = applyArticleFilters(allArticles)
 
         result.sortByDescending {
@@ -179,9 +182,7 @@ abstract class GenericArticlesFragmentViewModel(
                 articleDTO.expandable = true
             }
         }
-
-        articles.postValue(result)
-        state.postValue(NetworkState.SUCCESS)
+        return result
     }
 
 
@@ -245,7 +246,11 @@ abstract class GenericArticlesFragmentViewModel(
 
     fun filterArticles(filterType: ArticleFilterType) {
         prefManager.setArticleFilter(filterType)
-        applyFiltersAndPostResult()
+        val result = applyFilters()
+        if (state.value != NetworkState.LOADING) {
+            articles.postValue(result)
+            state.postValue(NetworkState.SUCCESS)
+        }
     }
 
     abstract suspend fun getSource(): RSSSourceEntity?

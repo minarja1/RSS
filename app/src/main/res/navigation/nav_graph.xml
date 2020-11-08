@@ -38,7 +38,6 @@
 
         <action
             android:id="@+id/action_simple_articles_to_articles"
-            app:destination="@id/simpleArticlesFragment"
             app:enterAnim="@anim/slide_out_left"
             app:exitAnim="@anim/slide_in_right"
             app:popEnterAnim="@android:anim/slide_out_right"
@@ -55,7 +54,6 @@
 
         <action
             android:id="@+id/action_article_detail_to_articles"
-            app:destination="@id/articleDetailFragment"
             app:popEnterAnim="@android:anim/slide_out_right"
             app:popExitAnim="@android:anim/slide_in_left"
             app:popUpTo="@+id/articlesFragment" />
