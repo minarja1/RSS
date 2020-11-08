@@ -104,9 +104,11 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         }
         viewModel.state.observe {
             if (it.status == Status.FAILED) {
-                if(!requireContext().isInternetAvailable){
+                if (!requireContext().isInternetAvailable) {
                     stateView.error(show = true, getString(R.string.no_internet_connection)) {
-                        viewModel.loadArticleDetail()
+                        if (requireContext().isInternetAvailable) {
+                            viewModel.loadArticleDetail()
+                        }
                     }
                 } else {
                     stateView.error(show = true, it.message) {
