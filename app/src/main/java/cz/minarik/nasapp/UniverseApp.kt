@@ -5,6 +5,7 @@ import android.content.Context
 import coil.Coil
 import coil.ImageLoader
 import coil.util.CoilUtils
+import com.google.android.gms.security.ProviderInstaller
 import cz.minarik.nasapp.di.allModules
 import cz.minarik.nasapp.utils.TimberReleaseTree
 import okhttp3.OkHttpClient
@@ -51,8 +52,7 @@ class UniverseApp : Application() {
             ImageLoader.Builder(this)
                 .okHttpClient {
                     // Initialized lazily on a background thread.
-                    //todo doresit https
-//                    ProviderInstaller.installIfNeeded(this@NASApp)
+                    ProviderInstaller.installIfNeeded(this@UniverseApp)
 
                     OkHttpClient.Builder()
                         .cache(CoilUtils.createDefaultCache(this@UniverseApp))

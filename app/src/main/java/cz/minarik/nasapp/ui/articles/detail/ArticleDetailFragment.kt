@@ -5,6 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.ImageView
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.navArgs
@@ -19,10 +21,7 @@ import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.custom.GalleryViewClickListener
 import cz.minarik.nasapp.ui.custom.GalleryViewImageDTO
-import cz.minarik.nasapp.utils.imgUrlSafe
-import cz.minarik.nasapp.utils.loadImageWithDefaultSettings
-import cz.minarik.nasapp.utils.styleHtml
-import cz.minarik.nasapp.utils.toTimeElapsed
+import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*
 import okhttp3.HttpUrl
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -59,14 +58,13 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
 
     private fun initToolbar() {
         toolbar?.let {
-            //todo doresit menu
-            it.inflateMenu(R.menu.menu_articles_fragment)
-            it.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.searchAction -> {
-                        true
-                    }
-                    R.id.filterAction -> {
+            it.inflateMenu(R.menu.menu_article_detail)
+            it.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.openWebsiteAction -> {
+                        articleDTO.link?.toUri()?.let {
+                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+                        }
                         true
                     }
                     else -> false
@@ -75,8 +73,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         }
 
         toolbarExpandedImage.transitionName = articleDTO.guid
-
         toolbarExpandedImage.load(articleDTO.image)
+        toolbarLayout.title = articleDTO.title
+
 
         val navController = NavHostFragment.findNavController(this)
         val appBarConfiguration = AppBarConfiguration(navController.graph)
@@ -109,9 +108,8 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
                 placeholder = toolbarExpandedImage.drawable
             )
         }
-        toolbarLayout.title = article?.title
 
-        article?.document?.styleHtml(requireContext())
+            article?.document?.styleHtml(requireContext())
         article?.document?.html()?.let {
             webView.loadDataWithBaseURL(
                 "",
