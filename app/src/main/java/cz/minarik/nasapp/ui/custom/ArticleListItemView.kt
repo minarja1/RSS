@@ -3,7 +3,6 @@ package cz.minarik.nasapp.ui.custom
 import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.Typeface
-import android.text.Spanned
 import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.ViewGroup
@@ -33,6 +32,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
 
     private var article: ArticleDTO? = null
     var articleImageView: ImageView
+    var articleFullImageView: ImageView
 
     var onItemExpanded: (() -> Unit)? = null
     var filterBySource: ((url: String?) -> Unit)? = null
@@ -40,6 +40,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     init {
         inflate(context, R.layout.article_list_item, this)
         articleImageView = findViewById(R.id.articleImageView)
+        articleFullImageView = findViewById(R.id.articleFullImageView)
         subtitleTextView.handleHTML(context)
     }
 
@@ -147,8 +148,6 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             sourceCard.layoutParams = layoutParams
 
             expandButton.load(if (expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
-
-            articleImageView.transitionName = guid
 
             invalidate()
             requestLayout()

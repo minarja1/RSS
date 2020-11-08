@@ -75,6 +75,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                             //todo pridat do nastaveni moznost volby
 //                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
 
+                            imageView.transitionName = this.guid
                             val extras = FragmentNavigatorExtras(
                                 imageView to (this.guid ?: "")
                             )

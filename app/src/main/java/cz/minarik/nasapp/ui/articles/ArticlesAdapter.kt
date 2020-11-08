@@ -51,7 +51,7 @@ class ArticlesAdapter(
             if (article == null) return
             articleItemView.set(article)
             articleItemView.setOnClickListener {
-                onItemClicked(articleItemView.articleImageView, adapterPosition)
+                onItemClicked(if(article.expanded) articleItemView.articleFullImageView else articleItemView.articleImageView, adapterPosition)
             }
             articleItemView.onItemExpanded = {
                 onItemExpanded.invoke(position)

@@ -126,45 +126,231 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/galleryContainer"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="@string/gallery"
-                    android:textAllCaps="true"
-                    android:textAppearance="@style/TextAppearance.Subtitle" />
-
-                <cz.minarik.nasapp.ui.custom.GalleryView
-                    android:id="@+id/galleryView"
+                <FrameLayout
+                    android:id="@+id/contentContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp" />
+                    android:layout_height="wrap_content">
 
-            </LinearLayout>
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmerViewContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginEnd="50dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="15dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginEnd="150dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="15dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginEnd="100dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="15dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:background="@color/shimmer_block" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="15dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginEnd="300dp"
+                                android:background="@color/shimmer_block" />
+
+                        </LinearLayout>
+
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/galleryContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:text="@string/gallery"
+                                android:textAllCaps="true"
+                                android:textAppearance="@style/TextAppearance.Subtitle" />
+
+                            <cz.minarik.nasapp.ui.custom.GalleryView
+                                android:id="@+id/galleryView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp" />
+
+                        </LinearLayout>
 
 
-            <WebView
-                android:id="@+id/webView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@color/colorBackground"
-                android:nestedScrollingEnabled="false"
-                android:scrollbars="none"
-                android:visibility="invisible" />
+                        <WebView
+                            android:id="@+id/webView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@color/colorBackground"
+                            android:nestedScrollingEnabled="false"
+                            android:scrollbars="none"
+                            android:visibility="invisible" />
 
+                    </LinearLayout>
+
+                </FrameLayout>
+
+                <cz.minarik.nasapp.ui.custom.StateView
+                    android:id="@+id/stateView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+            </FrameLayout>
 
         </LinearLayout>
 

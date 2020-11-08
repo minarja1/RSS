@@ -70,4 +70,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.13.1'
 
     implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.1'
+
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
 }

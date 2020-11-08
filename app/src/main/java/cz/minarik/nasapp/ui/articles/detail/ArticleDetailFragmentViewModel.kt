@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.chimbori.crux.articles.Article
 import com.chimbori.crux.articles.ArticleExtractor
+import cz.minarik.base.common.extensions.isInternetAvailable
+import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
+import cz.minarik.nasapp.data.model.exception.NoConnectionException
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
 
@@ -20,24 +23,18 @@ class ArticleDetailFragmentViewModel(
         loadArticleDetail()
     }
 
-    private fun loadArticleDetail() {
+    fun loadArticleDetail() {
         launch {
-            try {
-                articleUrl?.let {
-                    val parse = articleUrl.toHttpUrl()
-                    val doc = Jsoup.connect(articleUrl).get()
-                    val article = ArticleExtractor(parse, doc)
-                        .extractMetadata()
-                        .extractContent()
-                        .article
+            articleUrl?.let {
+                val parse = articleUrl.toHttpUrl()
+                val doc = Jsoup.connect(articleUrl).get()
+                val article = ArticleExtractor(parse, doc)
+                    .extractMetadata()
+                    .extractContent()
+                    .article
 
-                    articleLiveData.postValue(article)
-                }
-
-            } catch (e: Exception) {
-//                todo handle exception
+                articleLiveData.postValue(article)
             }
-
         }
     }
 }

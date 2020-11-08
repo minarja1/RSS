@@ -17,6 +17,8 @@ import coil.load
 import com.chimbori.crux.articles.Article
 import com.stfalcon.imageviewer.StfalconImageViewer
 import cz.minarik.base.common.extensions.getFavIcon
+import cz.minarik.base.common.extensions.isInternetAvailable
+import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.custom.GalleryViewClickListener
@@ -93,11 +95,27 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         initToolbar()
         sourceNameTextView.text = articleDTO.sourceName
         dateTextView.text = articleDTO.date?.toTimeElapsed()
+        stateView.attacheContentView(contentContainer)
     }
 
     private fun initObserve() {
         viewModel.articleLiveData.observe { article ->
             updateArticleViews(article)
+        }
+        viewModel.state.observe {
+            if (it.status == Status.FAILED) {
+                if(!requireContext().isInternetAvailable){
+                    stateView.error(show = true, getString(R.string.no_internet_connection)) {
+                        viewModel.loadArticleDetail()
+                    }
+                } else {
+                    stateView.error(show = true, it.message) {
+                        viewModel.loadArticleDetail()
+                    }
+                }
+            } else {
+                stateView.loading(false)
+            }
         }
     }
 
@@ -109,7 +127,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             )
         }
 
-            article?.document?.styleHtml(requireContext())
+        article?.document?.styleHtml(requireContext())
         article?.document?.html()?.let {
             webView.loadDataWithBaseURL(
                 "",
@@ -121,6 +139,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
 
             Handler(Looper.getMainLooper()).postDelayed({
                 webView?.isVisible = true
+                shimmerViewContainer?.isVisible = false
             }, 100) //to prevent white screen from flashing (webView still loading styles)
         }
 

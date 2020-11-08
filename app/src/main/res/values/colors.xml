@@ -35,4 +35,5 @@
 
     <color name="color_ripple">#33ffffff</color>
 
+    <color name="shimmer_block">#33FFFFFF</color>
 </resources>
