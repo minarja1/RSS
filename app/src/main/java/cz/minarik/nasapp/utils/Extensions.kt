@@ -17,12 +17,15 @@ import android.text.format.DateUtils
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -34,6 +37,11 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.utils.Constants.Companion.RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import org.jsoup.nodes.Document
+import org.koin.android.ext.android.getKoin
+import org.koin.androidx.viewmodel.ViewModelParameter
+import org.koin.androidx.viewmodel.koin.getViewModel
+import org.koin.core.parameter.ParametersDefinition
+import org.koin.core.qualifier.Qualifier
 import timber.log.Timber
 import java.net.URL
 import java.util.*
@@ -346,3 +354,12 @@ val Article.imgUrlSafe: String?
         "http://",
         "https://"
     )
+
+inline fun <reified VM : ViewModel> Fragment.sharedGraphViewModel(
+    @IdRes navGraphId: Int,
+    qualifier: Qualifier? = null,
+    noinline parameters: ParametersDefinition? = null
+) = lazy {
+    val store = findNavController().getViewModelStoreOwner(navGraphId).viewModelStore
+    getKoin().getViewModel(ViewModelParameter(VM::class, qualifier, parameters, null, store, null))
+}

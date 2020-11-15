@@ -77,6 +77,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
                             imageView.transitionName = this.guid
                             val extras = FragmentNavigatorExtras(
+                                //todo i title?
                                 imageView to (this.guid ?: "")
                             )
                             val action =

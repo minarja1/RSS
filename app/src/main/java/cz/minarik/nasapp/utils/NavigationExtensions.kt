@@ -1,5 +1,3 @@
-package cz.minarik.nasapp.utils
-
 /*
  * Copyright 2019, The Android Open Source Project
  *
@@ -15,6 +13,8 @@ package cz.minarik.nasapp.utils
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package cz.minarik.nasapp.utils
 
 import android.content.Intent
 import android.util.SparseArray

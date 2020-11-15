@@ -76,7 +76,9 @@ abstract class GenericArticlesFragmentViewModel(
                 it.sourceUrl = source.url
                 it.sourceName = source.title
             }
-            result.addAll(articles)
+            synchronized(this){
+                result.addAll(articles)
+            }
         }
     }
 

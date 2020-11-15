@@ -19,6 +19,7 @@ import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.isScrolledToTop
 import cz.minarik.nasapp.utils.scrollToTop
+import cz.minarik.nasapp.utils.sharedGraphViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
@@ -30,7 +31,8 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val sourcesViewModel: SourceSelectionViewModel by inject()
 
-    override val viewModel by viewModel<ArticlesFragmentViewModel>()
+    override val viewModel by sharedGraphViewModel<ArticlesFragmentViewModel>(R.id.articles_nav_graph)
+//    override val viewModel by viewModel<ArticlesFragmentViewModel>()
 
     private val viewState = ViewState()
 
@@ -134,9 +136,17 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             if (it == NetworkState.SUCCESS) {
-                //todo tohle je spatny
                 sourcesViewModel.updateSources()
-                viewModel.loadArticles()
+            }
+            viewState.loadingSourcesState = it
+        }
+        sourcesViewModel.sourceRepository.sourcesChanged.toFreshLiveData().observe {
+            if (it) viewModel.loadArticles()
+        }
+
+        sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
+            if (it == NetworkState.SUCCESS) {
+                sourcesViewModel.updateSources()
             }
             viewState.loadingSourcesState = it
         }

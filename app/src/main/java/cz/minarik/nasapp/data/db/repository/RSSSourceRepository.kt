@@ -13,6 +13,8 @@ import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
 import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.net.URL
@@ -29,6 +31,7 @@ class RSSSourceRepository(
     }
 
     val state = MutableLiveData<NetworkState>()
+    val sourcesChanged = MutableLiveData<Boolean>()
 
     fun updateRSSSourcesFromRealtimeDB() {
         state.postValue(NetworkState.LOADING)
@@ -59,30 +62,34 @@ class RSSSourceRepository(
             }
 
             //create or update existing
-            for (feed in allFromServer) {
-                feed?.url?.let {
-                    try {
-                        val channel = parser.getChannel(it)
+            allFromServer.map { feed ->
+                async {
+                    feed?.url?.let {
+                        try {
+                            val channel = parser.getChannel(it)
 
-                        var entity = dao.getByUrl(it)
-                        val url = URL(it)
-                        if (entity == null) {
-                            entity = RSSSourceEntity(
-                                url = it,
-                                title = channel.title,
-                                imageUrl = url.getFavIcon()
-                            )
+                            var entity = dao.getByUrl(it)
+                            val url = URL(it)
+                            if (entity == null) {
+                                entity = RSSSourceEntity(
+                                    url = it,
+                                    title = channel.title,
+                                    imageUrl = url.getFavIcon()
+                                )
+                            }
+
+                            entity.title = channel.title
+                            entity.imageUrl = url.getFavIcon()
+
+                            dao.insert(entity)
+                        } catch (e: Exception) {
+                            Timber.e(e)
                         }
-
-                        entity.title = channel.title
-                        entity.imageUrl = url.getFavIcon()
-
-                        dao.insert(entity)
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                        state.postValue(NetworkState.error(e.message))
                     }
                 }
+            }.awaitAll()
+            if (allDB != dao.getNonUserAdded()) {
+                sourcesChanged.postValue(true)
             }
             state.postValue(NetworkState.SUCCESS)
         }
