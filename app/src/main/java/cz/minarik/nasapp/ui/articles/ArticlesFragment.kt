@@ -8,6 +8,8 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.findNavController
 import coil.load
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
@@ -24,7 +26,6 @@ import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
@@ -32,7 +33,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
     private val sourcesViewModel: SourceSelectionViewModel by inject()
 
     override val viewModel by sharedGraphViewModel<ArticlesFragmentViewModel>(R.id.articles_nav_graph)
-//    override val viewModel by viewModel<ArticlesFragmentViewModel>()
 
     private val viewState = ViewState()
 
@@ -153,26 +153,34 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
     }
 
     private fun initSwipeToRefresh() {
-        viewModel.state.observe {
-            swipeRefreshLayout.isRefreshing = it == NetworkState.LOADING
-        }
-
         swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadArticles(true)
         }
     }
 
+    override fun navigateToArticleDetail(extras: FragmentNavigator.Extras, articleDTO: ArticleDTO) {
+        val action =
+            ArticlesFragmentDirections.actionArticlesToArticleDetail(articleDTO)
+        findNavController().navigate(action, extras)
+    }
+
     private fun updateViews() {
         val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
         val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
+        val loading = loadingArticles || loadingSources
         val isError = viewState.loadingArticlesState?.status == Status.FAILED
         val articlesEmpty = viewState.articles.isEmpty()
         val loadingMessage = viewState.loadingArticlesState?.message
 
-        if (articlesEmpty && !isError && !loadingArticles && !loadingSources) {
+        val showShimmer = loading && articlesEmpty && !isError
+        shimmerLayout.isVisible = showShimmer
+
+        val showLoadingSwipeRefresh = loading && !showShimmer
+        swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
+        swipeRefreshLayout.isEnabled = !showShimmer
+
+        if (articlesEmpty && !isError && !loading) {
             stateView.empty(true)
-        } else if (loadingSources && articlesEmpty && !isError) {
-            stateView.loading(true, getString(R.string.updating_sources))
         } else if (isError) {
             if (articlesEmpty) {
                 //full-screen error
@@ -183,6 +191,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                 showToast(requireContext(), loadingMessage ?: getString(R.string.common_base_error))
             }
         } else {
+            //hide stateView
             stateView.loading(false)
         }
     }

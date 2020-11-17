@@ -16,7 +16,7 @@ class SimpleArticlesFragmentViewModel(
     readArticleDao: ReadArticleDao,
     articlesRepository: ArticlesRepository,
     starredArticleDao: StarredArticleDao,
-    override val prefManager: UniversePrefManager,
+    prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
 ) : GenericArticlesFragmentViewModel(
     context,

@@ -28,13 +28,38 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
                     android:scrollbarSize="5dp"
                     android:scrollbarThumbVertical="@color/colorPrimary"
                     android:scrollbars="vertical"
                     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     tools:listitem="@layout/article_list_item" />
 
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="?actionBarSize">
+
+                    <LinearLayout
+                        android:id="@+id/shimmerLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <include layout="@layout/article_list_item_shimmer_expanded" />
+
+                        <include layout="@layout/article_list_item_shimmer" />
+
+                        <include layout="@layout/article_list_item_shimmer" />
+
+                        <include layout="@layout/article_list_item_shimmer" />
+
+                        <include layout="@layout/article_list_item_shimmer" />
+
+                    </LinearLayout>
+
+                </ScrollView>
 
                 <cz.minarik.nasapp.ui.custom.StateView
                     android:id="@+id/stateView"
@@ -98,7 +123,7 @@
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:titleEnabled="false">
 
-                <include layout="@layout/include_toolbar_with_subtitle"/>
+                <include layout="@layout/include_toolbar_with_subtitle" />
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

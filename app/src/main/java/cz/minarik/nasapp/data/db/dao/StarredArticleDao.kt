@@ -10,12 +10,12 @@ import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 @Dao
 interface StarredArticleDao : BaseDao<StarredArticleEntity> {
 
-    @Query("Select * From StarredArticleEntity")
+    @Query("Select * From StarredArticleEntity order by date desc")
     suspend fun getAll(): List<StarredArticleEntity>
 
-    @Query("Select * From StarredArticleEntity Where guid = :guid")
+    @Query("Select * From StarredArticleEntity Where guid = :guid order by date desc")
     suspend fun getByGuid(guid: String): StarredArticleEntity?
 
-    @Query("Select * From StarredArticleEntity Where sourceUrl = :sourceUrl")
+    @Query("Select * From StarredArticleEntity Where sourceUrl = :sourceUrl order by date desc")
     suspend fun getBySourceUrl(sourceUrl: String): List<StarredArticleEntity>
 }

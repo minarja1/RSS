@@ -1,6 +1,5 @@
 package cz.minarik.nasapp.data.db.entity
 
-import android.text.Spanned
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import cz.minarik.nasapp.ui.custom.ArticleDTO
@@ -41,7 +40,8 @@ data class StarredArticleEntity(
                 categories = article.categories,
                 read = article.read,
                 starred = article.starred,
-                domain = article.domain
+                domain = article.domain,
+                sourceUrl = article.sourceUrl,
             )
         }
     }

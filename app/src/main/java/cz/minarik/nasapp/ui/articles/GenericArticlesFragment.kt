@@ -19,6 +19,7 @@ import androidx.browser.customtabs.CustomTabsSession
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -31,6 +32,7 @@ import cz.minarik.base.common.extensions.initToolbar
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
+import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.CHROME_PACKAGE
 import cz.minarik.nasapp.utils.Constants
 import cz.minarik.nasapp.utils.getSwipeActionItemTouchHelperCallback
@@ -64,6 +66,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         }
     }
 
+    abstract fun navigateToArticleDetail(extras: FragmentNavigator.Extras, articleDTO: ArticleDTO)
+
     val articlesAdapter by lazy {
         ArticlesAdapter(
             onItemClicked = { imageView, position ->
@@ -80,9 +84,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                                 //todo i title?
                                 imageView to (this.guid ?: "")
                             )
-                            val action =
-                                ArticlesFragmentDirections.actionArticlesToArticleDetail(this)
-                            findNavController().navigate(action, extras)
+                            navigateToArticleDetail(extras, this)
                         }
                     }
                     notifyItemChanged(position)

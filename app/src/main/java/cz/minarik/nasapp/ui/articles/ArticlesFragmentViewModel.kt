@@ -9,11 +9,11 @@ import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.utils.UniversePrefManager
 
 class ArticlesFragmentViewModel(
-    private val context: Context,
-    private val readArticleDao: ReadArticleDao,
-    private val articlesRepository: ArticlesRepository,
-    private val starredArticleDao: StarredArticleDao,
-    override val prefManager: UniversePrefManager,
+    context: Context,
+    readArticleDao: ReadArticleDao,
+    articlesRepository: ArticlesRepository,
+    starredArticleDao: StarredArticleDao,
+    prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
 ) : GenericArticlesFragmentViewModel(
     context,
