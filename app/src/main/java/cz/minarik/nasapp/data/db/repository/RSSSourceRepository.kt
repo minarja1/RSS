@@ -34,12 +34,11 @@ class RSSSourceRepository(
     val sourcesChanged = MutableLiveData<Boolean>()
 
     fun updateRSSSourcesFromRealtimeDB() {
-        state.postValue(NetworkState.LOADING)
         RealtimeDatabaseHelper.getNewsFeeds(this)
     }
 
     private fun updateDB(allFromServer: List<RealtimeDatabaseHelper.RssFeedDTO?>) {
-
+        state.postValue(NetworkState.LOADING)
         val parser = Parser.Builder()
             .context(context)
             .charset(Charset.forName("UTF-8"))

@@ -175,7 +175,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         val showShimmer = loading && articlesEmpty && !isError
         shimmerLayout.isVisible = showShimmer
 
-        val showLoadingSwipeRefresh = loading && !showShimmer
+        val showLoadingSwipeRefresh = loading && !showShimmer && !isError
         swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
         swipeRefreshLayout.isEnabled = !showShimmer
 
@@ -189,6 +189,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                 }
             } else {
                 showToast(requireContext(), loadingMessage ?: getString(R.string.common_base_error))
+                stateView.error(false)
             }
         } else {
             //hide stateView

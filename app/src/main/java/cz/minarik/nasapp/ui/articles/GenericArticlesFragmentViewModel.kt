@@ -87,88 +87,87 @@ abstract class GenericArticlesFragmentViewModel(
         scrollToTop: Boolean = false,
     ) {
         currentArticleLoadingJob?.cancel()
-        if (prefManager.getArticleFilter() == ArticleFilterType.Starred) {
-            loadStarredArticles()
-        } else {
-            currentArticleLoadingJob = defaultScope.launch {
-                try {
-                    if (!context.isInternetAvailable) {
-                        state.postValue(NetworkState.Companion.error(NoConnectionException()))
-                        return@launch
-                    }
-                    Timber.i("loading articles, force = $force")
-                    state.postValue(NetworkState.LOADING)
-
-                    val allArticleList = mutableListOf<Article>()
-
-                    ensureActive()
-                    val selectedSource = getSource()
-
-                    //get articles from api
-                    if (selectedSource != null) {
-                        loadArticlesFromUrl(selectedSource.url, force, allArticleList)
-                    }  //load all sources
-                    else {
-                        //todo something more sophisticated like lists etc.
-                        val allSources = sourceDao.getAll()
-                        (allSources.indices).map {
-                            ensureActive()
-                            async(Dispatchers.IO) {
-                                try {
-                                    loadArticlesFromUrl(allSources[it].url, force, allArticleList)
-                                } catch (e: SocketTimeoutException) {
-                                }
-                            }
-                        }.awaitAll()
-                    }
-
-                    ensureActive()
-                    val shouldShowSource = selectedSource == null
-
-                    val mappedArticles = allArticleList.map { article ->
-                        ensureActive()
-                        ArticleDTO.fromApi(article).apply {
-                            guid?.let {
-                                read = readArticleDao.getByGuid(it) != null
-                                starred = articlesRepository.getByGuid(it) != null
-                                showSource = shouldShowSource
-                            }
-                        }
-                    }.filter {
-                        it.isValid && !it.starred
-                    }.toMutableList()
-                    ensureActive()
-
-                    //get starred articles from db
-                    val fromDb = mutableListOf<StarredArticleEntity>()
-                    if (selectedSource != null) {
-                        fromDb.addAll(articlesRepository.getBySourceUrl(selectedSource.url))
-                    } else {
-                        fromDb.addAll(articlesRepository.getAll())
-                    }
-                    val mappedFromDb = fromDb.map { starredArticle ->
-                        ensureActive()
-                        ArticleDTO.fromDb(starredArticle).apply {
-                            guid?.let {
-                                read = readArticleDao.getByGuid(it) != null
-                                showSource = shouldShowSource
-                            }
-                        }
-                    }
-
-                    allArticles.clear()
-                    allArticles.addAll(mappedArticles)
-                    allArticles.addAll(mappedFromDb)
-
-                    this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
-                    val result = applyFilters()
-
-                    articles.postValue(result)
-                    state.postValue(NetworkState.SUCCESS)
-                } catch (e: IOException) {
-                    Timber.e(e)
-                    state.postValue(NetworkState.Companion.error(GenericException()))
+        currentArticleLoadingJob = defaultScope.launch {
+            try {
+                if (prefManager.getArticleFilter() == ArticleFilterType.Starred) {
+                    loadStarredArticles()
                 }
+                if (!context.isInternetAvailable) {
+                    state.postValue(NetworkState.Companion.error(NoConnectionException()))
+                    return@launch
+                }
+                Timber.i("loading articles, force = $force")
+                state.postValue(NetworkState.LOADING)
+
+                val allArticleList = mutableListOf<Article>()
+
+                ensureActive()
+                val selectedSource = getSource()
+
+                //get articles from api
+                if (selectedSource != null) {
+                    loadArticlesFromUrl(selectedSource.url, force, allArticleList)
+                }  //load all sources
+                else {
+                    //todo something more sophisticated like lists etc.
+                    val allSources = sourceDao.getAll()
+                    (allSources.indices).map {
+                        ensureActive()
+                        async(Dispatchers.IO) {
+                            try {
+                                loadArticlesFromUrl(allSources[it].url, force, allArticleList)
+                            } catch (e: SocketTimeoutException) {
+                            }
+                        }
+                    }.awaitAll()
+                }
+
+                ensureActive()
+                val shouldShowSource = selectedSource == null
+
+                val mappedArticles = allArticleList.map { article ->
+                    ensureActive()
+                    ArticleDTO.fromApi(article).apply {
+                        guid?.let {
+                            read = readArticleDao.getByGuid(it) != null
+                            starred = articlesRepository.getByGuid(it) != null
+                            showSource = shouldShowSource
+                        }
+                    }
+                }.filter {
+                    it.isValid && !it.starred
+                }.toMutableList()
+                ensureActive()
+
+                //get starred articles from db
+                val fromDb = mutableListOf<StarredArticleEntity>()
+                if (selectedSource != null) {
+                    fromDb.addAll(articlesRepository.getBySourceUrl(selectedSource.url))
+                } else {
+                    fromDb.addAll(articlesRepository.getAll())
+                }
+                val mappedFromDb = fromDb.map { starredArticle ->
+                    ensureActive()
+                    ArticleDTO.fromDb(starredArticle).apply {
+                        guid?.let {
+                            read = readArticleDao.getByGuid(it) != null
+                            showSource = shouldShowSource
+                        }
+                    }
+                }
+
+                allArticles.clear()
+                allArticles.addAll(mappedArticles)
+                allArticles.addAll(mappedFromDb)
+
+                this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
+                val result = applyFilters()
+
+                articles.postValue(result)
+                state.postValue(NetworkState.SUCCESS)
+            } catch (e: IOException) {
+                Timber.e(e)
+                state.postValue(NetworkState.Companion.error(GenericException()))
             }
         }
     }
@@ -254,34 +253,33 @@ abstract class GenericArticlesFragmentViewModel(
         prefManager.setArticleFilter(filterType)
         if (filterType == ArticleFilterType.Starred) {
             currentArticleLoadingJob?.cancel()
-            loadStarredArticles()
+            launch(defaultState = null) {
+                loadStarredArticles()
+            }
         } else {
             val result = applyFilters()
             if (state.value != NetworkState.LOADING) {
                 articles.postValue(result)
-                state.postValue(NetworkState.SUCCESS)
             }
         }
     }
 
-    private fun loadStarredArticles() {
-        launch {
-            val selectedSource = getSource()
-            val fromDB = if (selectedSource == null) {
-                articlesRepository.getAll()
-            } else {
-                articlesRepository.getBySourceUrl(selectedSource.url)
-            }
-
-            articles.postValue(fromDB.map { starredEntity ->
-                ArticleDTO.fromDb(starredEntity).apply {
-                    guid?.let {
-                        read = readArticleDao.getByGuid(it) != null
-                        showSource = selectedSource == null
-                    }
-                }
-            })
+    private suspend fun loadStarredArticles() {
+        val selectedSource = getSource()
+        val fromDB = if (selectedSource == null) {
+            articlesRepository.getAll()
+        } else {
+            articlesRepository.getBySourceUrl(selectedSource.url)
         }
+
+        articles.postValue(fromDB.map { starredEntity ->
+            ArticleDTO.fromDb(starredEntity).apply {
+                guid?.let {
+                    read = readArticleDao.getByGuid(it) != null
+                    showSource = selectedSource == null
+                }
+            }
+        })
     }
 
     abstract suspend fun getSource(): RSSSourceEntity?
