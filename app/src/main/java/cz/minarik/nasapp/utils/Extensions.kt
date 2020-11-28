@@ -9,12 +9,15 @@ import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.text.format.DateUtils
+import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
@@ -362,4 +365,39 @@ inline fun <reified VM : ViewModel> Fragment.sharedGraphViewModel(
 ) = lazy {
     val store = findNavController().getViewModelStoreOwner(navGraphId).viewModelStore
     getKoin().getViewModel(ViewModelParameter(VM::class, qualifier, parameters, null, store, null))
+}
+
+//todo move to base
+
+
+fun Activity.hideKeyboard() {
+    findViewById<View>(android.R.id.content).hideKeyboard()
+}
+
+fun Fragment.hideKeyboard() {
+    (activity as AppCompatActivity).findViewById<View>(android.R.id.content)?.hideKeyboard()
+}
+
+fun Activity.openKeyboard() {
+    findViewById<View>(android.R.id.content).openKeyboard()
+}
+
+fun Fragment.openKeyboard() {
+    (activity as AppCompatActivity).findViewById<View>(android.R.id.content)?.openKeyboard()
+}
+
+
+fun hideKeyboard(context: Context, view: View) {
+    val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(view.getWindowToken(), 0)
+}
+
+fun View.hideKeyboard() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun View.openKeyboard() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
 }

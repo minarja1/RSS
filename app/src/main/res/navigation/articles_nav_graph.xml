@@ -10,8 +10,7 @@
 
     <fragment
         android:id="@+id/articlesFragment"
-        android:name="cz.minarik.nasapp.ui.articles.ArticlesFragment"
-        android:label="@string/articles_title">
+        android:name="cz.minarik.nasapp.ui.articles.ArticlesFragment">
 
         <action
             android:id="@+id/action_articles_to_simple_articles"
@@ -30,8 +29,7 @@
 
     <fragment
         android:id="@+id/simpleArticlesFragment"
-        android:name="cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment"
-        android:label="@string/articles_title">
+        android:name="cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment">
         <argument
             android:name="sourceUrl"
             app:argType="string" />

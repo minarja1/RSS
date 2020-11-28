@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ListView
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
@@ -33,10 +35,10 @@ import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.ui.custom.ArticleDTO
-import cz.minarik.nasapp.utils.CHROME_PACKAGE
-import cz.minarik.nasapp.utils.Constants
-import cz.minarik.nasapp.utils.getSwipeActionItemTouchHelperCallback
-import cz.minarik.nasapp.utils.scrollToTop
+import cz.minarik.nasapp.ui.custom.MaterialSearchView
+import cz.minarik.nasapp.utils.*
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent.setEventListener
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
 import timber.log.Timber
 
 
@@ -55,6 +57,9 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     var filterUnread: Chip? = null
     var toolbar: Toolbar? = null
     var toolbarTitle: TextView? = null
+    var searchView: MaterialSearchView? = null
+    var toolbarContentContainer: ViewGroup? = null
+    var suggestionsListView: ListView? = null
 
     private val customTabsConnection = object : CustomTabsServiceConnection() {
         override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
@@ -154,12 +159,58 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         filterUnread = view?.findViewById(R.id.filterUnread)
         toolbar = view?.findViewById(R.id.toolbar)
         toolbarTitle = view?.findViewById(R.id.toolbarTitle)
+        searchView = view?.findViewById(R.id.search_view)
+        toolbarContentContainer = view?.findViewById(R.id.toolbarContentContainer)
+        suggestionsListView = view?.findViewById(R.id.suggestionsListView)
 
         articlesRecyclerView?.dividerMedium()
         articlesRecyclerView?.adapter = articlesAdapter
         initToolbar()
+        initSearchView()
         setupFilters(view)
         initSwipeGestures()
+    }
+
+    private fun initSearchView() {
+        setEventListener(
+            requireActivity(),
+            object : KeyboardVisibilityEventListener {
+                override fun onVisibilityChanged(isOpen: Boolean) {
+                    if (!isOpen) searchView?.dismissSuggestions()
+                }
+            })
+
+        searchView?.run {
+            setSuggestionsListView(suggestionsListView)
+            setSuggestions(
+                arrayOf("Mercury", "Venus", "Earth", "Mars")
+            )
+            setSubmitOnClick(true)
+            setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener {
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if (newText.isNullOrEmpty()) viewModel.filterBySearchQuery(newText)
+                    return true
+                }
+
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    viewModel.filterBySearchQuery(query)
+                    hideKeyboard()
+                    dismissSuggestions()
+                    return true
+                }
+            })
+
+            setOnSearchViewListener(object : MaterialSearchView.SearchViewListener {
+                override fun onSearchViewClosed() {
+                    viewModel.filterBySearchQuery("")
+                    toolbarContentContainer?.isVisible = true
+                }
+
+                override fun onSearchViewShown() {
+                    toolbarContentContainer?.isVisible = false
+                }
+            })
+        }
     }
 
     private fun initSwipeGestures() {
@@ -238,14 +289,12 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     private fun initToolbar() {
         toolbarTitle?.text = getString(R.string.articles_title)
-        toolbar?.let {
-            initToolbar(it)
-            it.inflateMenu(R.menu.menu_articles_fragment)
-            it.setOnMenuItemClickListener {
+        toolbar?.let { toolbar ->
+            initToolbar(toolbar)
+            toolbar.inflateMenu(R.menu.menu_articles_fragment)
+            searchView?.setMenuItem(toolbar.menu.findItem(R.id.searchAction))
+            toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.searchAction -> {
-                        true
-                    }
                     R.id.filterAction -> {
                         showFilterViews()
                         true

@@ -107,23 +107,43 @@
 
                 </com.google.android.material.chip.ChipGroup>
 
+                <ListView
+                    android:id="@+id/suggestionsListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorBackground"
+                    android:divider="@android:color/transparent"/>
+
             </FrameLayout>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/tall_toolbar_height">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/collapsingToolbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@color/colorToolbar"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:titleEnabled="false">
 
-                <include layout="@layout/include_toolbar_with_subtitle" />
+                <FrameLayout
+                    android:id="@+id/toolbar_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <include layout="@layout/include_toolbar_with_subtitle" />
+
+                    <cz.minarik.nasapp.ui.custom.MaterialSearchView
+                        android:id="@+id/search_view"
+                        android:theme="@style/MaterialSearchViewStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </FrameLayout>
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

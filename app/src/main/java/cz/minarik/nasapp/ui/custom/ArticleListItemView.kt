@@ -211,6 +211,7 @@ data class ArticleDTO(
                 sourceUrl = article.sourceUrl,
                 categories = article.categories,
                 domain = article.link?.getHostFromUrl(),
+                expandable = true,
             )
         }
 
@@ -236,6 +237,7 @@ data class ArticleDTO(
                 sourceUrl = article.sourceUrl,
                 categories = article.categories,
                 domain = article.link?.getHostFromUrl(),
+                expandable = true,
             )
         }
     }

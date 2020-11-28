@@ -44,17 +44,22 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.closeDrawer(GravityCompat.START)
+            } else if (searchView?.isSearchOpen == true) {
+                searchView?.closeSearch()
             } else if (articlesRecyclerView?.isScrolledToTop() == true) {
-                if (doubleBackToExitPressedOnce) {
-                    requireActivity().finish()
-                } else {
-                    doubleBackToExitPressedOnce = true;
-                    showToast(requireContext(), getString(R.string.press_back_again_to_leave))
+                when {
+                    doubleBackToExitPressedOnce -> {
+                        requireActivity().finish()
+                    }
+                    else -> {
+                        doubleBackToExitPressedOnce = true;
+                        showToast(requireContext(), getString(R.string.press_back_again_to_leave))
 
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        doubleBackToExitPressedOnce = false
-                    }, 2000)
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            doubleBackToExitPressedOnce = false
+                        }, 2000)
 
+                    }
                 }
             } else {
                 articlesRecyclerView?.scrollToTop()
