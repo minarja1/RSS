@@ -34,8 +34,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override val viewModel by sharedGraphViewModel<ArticlesFragmentViewModel>(R.id.articles_nav_graph)
 
-    private val viewState = ViewState()
-
     private var doubleBackToExitPressedOnce = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,20 +111,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override fun initObserve() {
         super.initObserve()
-
-        viewModel.articles.observe {
-            viewState.articles = it
-            if (viewModel.shouldScrollToTop) {
-                appBarLayout.setExpanded(true)
-            }
-        }
-
-        viewModel.state.observe {
-            //todo drzet si v NetworkState i exception a rozlisovat noInternet od jinych
-            viewState.loadingArticlesState = it
-        }
-
-
         sourcesViewModel.selectedSource.toFreshLiveData().observe {
             viewModel.loadArticles(scrollToTop = true)
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -139,12 +123,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             toolbarImageView.load(it)
         }
 
-        sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
-            if (it == NetworkState.SUCCESS) {
-                sourcesViewModel.updateSources()
-            }
-            viewState.loadingSourcesState = it
-        }
         sourcesViewModel.sourceRepository.sourcesChanged.toFreshLiveData().observe {
             if (it) viewModel.loadArticles()
         }
@@ -169,54 +147,4 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         findNavController().navigate(action, extras)
     }
 
-    private fun updateViews() {
-        val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
-        val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
-        val loading = loadingArticles || loadingSources
-        val isError = viewState.loadingArticlesState?.status == Status.FAILED
-        val articlesEmpty = viewState.articles.isEmpty()
-        val loadingMessage = viewState.loadingArticlesState?.message
-
-        val showShimmer = loading && articlesEmpty && !isError
-        shimmerLayout.isVisible = showShimmer
-
-        val showLoadingSwipeRefresh = loading && !showShimmer && !isError
-        swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
-        swipeRefreshLayout.isEnabled = !showShimmer
-
-        if (articlesEmpty && !isError && !loading) {
-            stateView.empty(true)
-        } else if (isError) {
-            if (articlesEmpty) {
-                //full-screen error
-                stateView.error(show = true, message = loadingMessage) {
-                    viewModel.loadArticles()
-                }
-            } else {
-                showToast(requireContext(), loadingMessage ?: getString(R.string.common_base_error))
-                stateView.error(false)
-            }
-        } else {
-            //hide stateView
-            stateView.loading(false)
-        }
-    }
-
-    inner class ViewState {
-        var loadingArticlesState: NetworkState? = null
-            set(value) {
-                field = value
-                updateViews()
-            }
-        var loadingSourcesState: NetworkState? = null
-            set(value) {
-                field = value
-                updateViews()
-            }
-        var articles: List<ArticleDTO> = emptyList()
-            set(value) {
-                field = value
-                updateViews()
-            }
-    }
 }

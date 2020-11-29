@@ -17,7 +17,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 
-class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_simple_articles) {
+class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val args: SimpleArticlesFragmentArgs by navArgs()
 
@@ -51,23 +51,12 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_simple_
     override fun initObserve() {
         super.initObserve()
 
-        viewModel.state.observe {
-            swipeRefreshLayout.isRefreshing = it == NetworkState.LOADING
-        }
-
         viewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
             toolbarSubtitle.text = it
         }
         viewModel.selectedSourceImage.observe {
             toolbarImageView.load(it)
-        }
-
-        viewModel.articles.observe {
-            articlesAdapter.submitList(it)
-            if (viewModel.shouldScrollToTop) {
-                appBarLayout.setExpanded(true)
-            }
         }
 
     }

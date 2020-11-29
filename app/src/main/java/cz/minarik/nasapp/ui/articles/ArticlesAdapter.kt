@@ -4,15 +4,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.ArticleListItemView
+import kotlinx.android.synthetic.main.article_list_item.view.*
 
 class ArticlesAdapter(
-    private var onItemClicked: (imageView: ImageView, position: Int) -> Unit,
+    private var onItemClicked: (imageView: ImageView, titleTextView: TextView, position: Int) -> Unit,
     private var onItemExpanded: (position: Int) -> Unit,
     private var preloadUrl: (url: String) -> Unit,
     private var filterBySource: (url: String?) -> Unit,
@@ -43,7 +45,7 @@ class ArticlesAdapter(
 
         fun bind(
             article: ArticleDTO?,
-            onItemClicked: (imageView: ImageView, position: Int) -> Unit,
+            onItemClicked: (imageView: ImageView, titleTextView: TextView, position: Int) -> Unit,
             onItemExpanded: (position: Int) -> Unit,
             filterBySource: (url: String?) -> Unit,
             position: Int,
@@ -51,7 +53,7 @@ class ArticlesAdapter(
             if (article == null) return
             articleItemView.set(article)
             articleItemView.setOnClickListener {
-                onItemClicked(if(article.expanded) articleItemView.articleFullImageView else articleItemView.articleImageView, adapterPosition)
+                onItemClicked(if(article.expanded) articleItemView.articleFullImageView else articleItemView.articleImageView, articleItemView.titleTextView, adapterPosition)
             }
             articleItemView.onItemExpanded = {
                 onItemExpanded.invoke(position)

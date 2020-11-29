@@ -44,6 +44,7 @@ val appModule = module {
         ArticleDetailFragmentViewModel(
             articleUrl,
             context,
+            get(),
         )
     }
 

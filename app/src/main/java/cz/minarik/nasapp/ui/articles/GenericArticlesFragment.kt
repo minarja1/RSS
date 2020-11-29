@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
@@ -28,17 +27,19 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import cz.minarik.base.common.extensions.dividerMedium
+import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.initToolbar
+import cz.minarik.base.common.extensions.showToast
+import cz.minarik.base.data.NetworkState
+import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent.setEventListener
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
+import kotlinx.android.synthetic.main.fragment_articles.*
 import timber.log.Timber
 
 
@@ -47,19 +48,15 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     abstract override val viewModel: GenericArticlesFragmentViewModel
 
+    val viewState = ViewState()
+
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
 
-    var articlesRecyclerView: RecyclerView? = null
-    var filterChipGroup: ChipGroup? = null
-    var filterAll: Chip? = null
-    var filterStarred: Chip? = null
-    var filterUnread: Chip? = null
     var toolbar: Toolbar? = null
     var toolbarTitle: TextView? = null
     var searchView: MaterialSearchView? = null
     var toolbarContentContainer: ViewGroup? = null
-    var suggestionsListView: ListView? = null
 
     private val customTabsConnection = object : CustomTabsServiceConnection() {
         override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
@@ -75,7 +72,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     val articlesAdapter by lazy {
         ArticlesAdapter(
-            onItemClicked = { imageView, position ->
+            onItemClicked = { imageView, titleTextView, position ->
                 (articlesRecyclerView?.adapter as? ArticlesAdapter)?.run {
                     getItemAtPosition(position)?.run {
                         read = true
@@ -84,10 +81,12 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                             //todo pridat do nastaveni moznost volby
 //                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
 
-                            imageView.transitionName = this.guid
+                            imageView.transitionName = this.guid?.toImageSharedTransitionName()
+                            titleTextView.transitionName = this.guid?.toTitleSharedTransitionName()
                             val extras = FragmentNavigatorExtras(
                                 //todo i title?
-                                imageView to (this.guid ?: "")
+                                imageView to this.guid.toImageSharedTransitionName(),
+                                titleTextView to this.guid.toTitleSharedTransitionName(),
                             )
                             navigateToArticleDetail(extras, this)
                         }
@@ -152,16 +151,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     @CallSuper
     open fun initViews(view: View?) {
-        articlesRecyclerView = view?.findViewById(R.id.articlesRecyclerView)
-        filterChipGroup = view?.findViewById(R.id.filterChipGroup)
-        filterAll = view?.findViewById(R.id.filterAll)
-        filterStarred = view?.findViewById(R.id.filterStarred)
-        filterUnread = view?.findViewById(R.id.filterUnread)
         toolbar = view?.findViewById(R.id.toolbar)
         toolbarTitle = view?.findViewById(R.id.toolbarTitle)
         searchView = view?.findViewById(R.id.search_view)
         toolbarContentContainer = view?.findViewById(R.id.toolbarContentContainer)
-        suggestionsListView = view?.findViewById(R.id.suggestionsListView)
 
         articlesRecyclerView?.dividerMedium()
         articlesRecyclerView?.adapter = articlesAdapter
@@ -172,30 +165,19 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun initSearchView() {
-        setEventListener(
-            requireActivity(),
-            object : KeyboardVisibilityEventListener {
-                override fun onVisibilityChanged(isOpen: Boolean) {
-                    if (!isOpen) searchView?.dismissSuggestions()
-                }
-            })
-
         searchView?.run {
-            setSuggestionsListView(suggestionsListView)
-            setSuggestions(
-                arrayOf("Mercury", "Venus", "Earth", "Mars")
-            )
-            setSubmitOnClick(true)
             setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener {
                 override fun onQueryTextChange(newText: String?): Boolean {
-                    if (newText.isNullOrEmpty()) viewModel.filterBySearchQuery(newText)
+//                    if (newText.isNullOrEmpty()) viewModel.filterBySearchQuery(newText)
                     return true
                 }
 
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     viewModel.filterBySearchQuery(query)
                     hideKeyboard()
-                    dismissSuggestions()
+                    searchView?.let {
+                        mSearchSrcTextView.clearFocus()
+                    }
                     return true
                 }
             })
@@ -214,7 +196,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun initSwipeGestures() {
-        val itemTouchHelper = ItemTouchHelper(
+        val starTouchHelper = ItemTouchHelper(
             getSwipeActionItemTouchHelperCallback(
                 colorDrawableBackground = ColorDrawable(
                     ContextCompat.getColor(
@@ -222,21 +204,64 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                         R.color.colorBackground
                     )
                 ),
-                getIcon = ::getSwipeIcon,
-                callback = ::starItem
+                getIcon = ::getStarIcon,
+                callback = ::starItem,
+                iconMarginHorizontal = 32.dpToPx,
+                swipeDirs = ItemTouchHelper.LEFT
             )
         )
-        itemTouchHelper.attachToRecyclerView(articlesRecyclerView)
+        starTouchHelper.attachToRecyclerView(articlesRecyclerView)
+
+        val readTouchHelper = ItemTouchHelper(
+            getSwipeActionItemTouchHelperCallback(
+                colorDrawableBackground = ColorDrawable(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.colorBackground
+                    )
+                ),
+                getIcon = ::getReadIcon,
+                callback = ::markAsReadOrUnread,
+                iconMarginHorizontal = 32.dpToPx,
+                swipeDirs = ItemTouchHelper.RIGHT
+            )
+        )
+        readTouchHelper.attachToRecyclerView(articlesRecyclerView)
     }
 
-    private fun getSwipeIcon(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder): Drawable {
+    private fun getReadIcon(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder): Drawable {
         val article = articlesAdapter.getItemAtPosition(adapterPosition)
         val icon = ContextCompat.getDrawable(
             requireContext(),
-            if (article?.starred == true) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_outline_24
+            if (article?.read == true)
+                R.drawable.ic_baseline_undo_24
+            else
+                R.drawable.ic_baseline_check_24
+        )!!
+        icon.setTint(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+        return icon
+    }
+
+    private fun getStarIcon(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder): Drawable {
+        val article = articlesAdapter.getItemAtPosition(adapterPosition)
+        val icon = ContextCompat.getDrawable(
+            requireContext(),
+            if (article?.starred == true)
+                R.drawable.ic_baseline_star_24
+            else
+                R.drawable.ic_baseline_star_outline_24
         )!!
         icon.setTint(ContextCompat.getColor(requireContext(), R.color.yellow))
         return icon
+    }
+
+    private fun markAsReadOrUnread(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) {
+        val article = articlesAdapter.getItemAtPosition(adapterPosition)
+        article?.let {
+            it.read = !it.read
+            articlesAdapter.notifyItemChanged(adapterPosition)
+            viewModel.markArticleAsReadOrUnread(it)
+        }
     }
 
     private fun starItem(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) {
@@ -278,12 +303,18 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     open fun initObserve() {
         viewModel.articles.observe {
-            articlesAdapter.submitList(it) {
-                if (viewModel.shouldScrollToTop) {
-                    articlesRecyclerView?.scrollToTop()
-                    viewModel.shouldScrollToTop = false
-                }
+            viewState.articles = it
+            articlesAdapter.submitList(it)
+            if (viewModel.shouldScrollToTop) {
+                appBarLayout.setExpanded(true)
+                articlesRecyclerView?.scrollToTop()
+                viewModel.shouldScrollToTop = false
             }
+        }
+
+        viewModel.state.observe {
+            //todo drzet si v NetworkState i exception a rozlisovat noInternet od jinych
+            viewState.loadingArticlesState = it
         }
     }
 
@@ -304,5 +335,57 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             }
         }
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+    }
+
+
+    private fun updateViews() {
+        val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
+        val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
+        val loading = loadingArticles || loadingSources
+        val isError = viewState.loadingArticlesState?.status == Status.FAILED
+        val articlesEmpty = viewState.articles.isEmpty()
+        val loadingMessage = viewState.loadingArticlesState?.message
+
+        val showShimmer = loading && articlesEmpty && !isError
+        shimmerLayout.isVisible = showShimmer
+
+        val showLoadingSwipeRefresh = loading && !showShimmer && !isError
+        swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
+        swipeRefreshLayout.isEnabled = !showShimmer
+
+        if (articlesEmpty && !isError && !loading) {
+            stateView.empty(true)
+        } else if (isError) {
+            if (articlesEmpty) {
+                //full-screen error
+                stateView.error(show = true, message = loadingMessage) {
+                    viewModel.loadArticles()
+                }
+            } else {
+                showToast(requireContext(), loadingMessage ?: getString(R.string.common_base_error))
+                stateView.error(false)
+            }
+        } else {
+            //hide stateView
+            stateView.loading(false)
+        }
+    }
+
+    inner class ViewState {
+        var loadingArticlesState: NetworkState? = null
+            set(value) {
+                field = value
+                updateViews()
+            }
+        var loadingSourcesState: NetworkState? = null
+            set(value) {
+                field = value
+                updateViews()
+            }
+        var articles: List<ArticleDTO> = emptyList()
+            set(value) {
+                field = value
+                updateViews()
+            }
     }
 }

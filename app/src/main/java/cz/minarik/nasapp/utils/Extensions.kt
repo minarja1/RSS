@@ -9,7 +9,6 @@ import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -49,6 +48,14 @@ import timber.log.Timber
 import java.net.URL
 import java.util.*
 
+fun String?.toImageSharedTransitionName(): String {
+    return "image|${this}"
+}
+
+fun String?.toTitleSharedTransitionName(): String {
+    return "title|${this}"
+}
+
 fun ImageView.loadImageWithDefaultSettings(
     uri: String?,
     error: Int? = null,
@@ -74,6 +81,137 @@ fun ImageView.loadImageWithDefaultSettings(
         fallback(placeholder)
     }
 }
+
+
+fun getSwipeActionItemTouchHelperCallback(
+    colorDrawableBackground: ColorDrawable,
+    getIcon: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Drawable),
+    callback: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Unit),
+    iconMarginHorizontal: Int = 16.dpToPx,
+    swipeDirs: Int = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+) =
+    object : ItemTouchHelper.SimpleCallback(0, swipeDirs) {
+
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            viewHolder2: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDirection: Int) {
+            callback.invoke(viewHolder.adapterPosition, viewHolder)
+        }
+
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
+            val icon = getIcon.invoke(viewHolder.adapterPosition, viewHolder)
+            val itemView = viewHolder.itemView
+            val iconMarginVertical =
+                (viewHolder.itemView.height - icon.intrinsicHeight) / 2
+            if (dX > 0) {
+                colorDrawableBackground.setBounds(
+                    itemView.left,
+                    itemView.top,
+                    dX.toInt(),
+                    itemView.bottom
+                )
+                icon.setBounds(
+                    itemView.left + iconMarginHorizontal,
+                    itemView.top + iconMarginVertical,
+                    itemView.left + iconMarginHorizontal + icon.intrinsicWidth,
+                    itemView.bottom - iconMarginVertical
+                )
+            } else {
+                colorDrawableBackground.setBounds(
+                    itemView.right + dX.toInt(),
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
+                )
+                icon.setBounds(
+                    itemView.right - iconMarginHorizontal - icon.intrinsicWidth,
+                    itemView.top + iconMarginVertical,
+                    itemView.right - iconMarginHorizontal,
+                    itemView.bottom - iconMarginVertical
+                )
+                icon.level = 0
+            }
+
+            colorDrawableBackground.draw(c)
+
+            c.save()
+
+            if (dX > 0)
+                c.clipRect(itemView.left, itemView.top, dX.toInt(), itemView.bottom)
+            else
+                c.clipRect(
+                    itemView.right + dX.toInt(),
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
+                )
+
+            icon.draw(c)
+
+            c.restore()
+
+            super.onChildDraw(
+                c,
+                recyclerView,
+                viewHolder,
+                dX,
+                dY,
+                actionState,
+                isCurrentlyActive
+            )
+        }
+    }
+
+fun Document.styleHtml(context: Context) {
+    val linkTextColor =
+        "#" + Integer.toHexString(
+            ContextCompat.getColor(
+                context,
+                R.color.colorAccent
+            ) and 0x00ffffff
+        )
+    val links = select("a")
+    links.attr("style", "color:$linkTextColor;");
+}
+
+fun String.styleHtml(context: Context): String {
+    val textColor =
+        "#" + Integer.toHexString(
+            ContextCompat.getColor(
+                context,
+                R.color.textColorPrimary
+            ) and 0x00ffffff
+        )
+    return "<html><head>" +
+            "<style type=\"text/css\">body{color: $textColor; background-color: #000;}" +
+            "</style></head>" +
+            "<body>$this" +
+            "</body></html>"
+}
+
+val Article.imgUrlSafe: String?
+    get() = (imageUrl?.toString() ?: images?.getOrNull(0)?.srcUrl?.toString())?.replace(
+        "http://",
+        "https://"
+    )
+
+
+//todo move to Base________________________________________________________________________________
+
 
 fun Intent.addAppReferrer(context: Context) {
     val scheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -186,99 +324,6 @@ fun RecyclerView.scrollToTop(smooth: Boolean = false) {
     }
 }
 
-
-fun getSwipeActionItemTouchHelperCallback(
-    colorDrawableBackground: ColorDrawable,
-    getIcon: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Drawable),
-    callback: ((adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) -> Unit),
-    iconMarginHorizontal: Int = 16.dpToPx
-) =
-    object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            viewHolder2: RecyclerView.ViewHolder
-        ): Boolean {
-            return false
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDirection: Int) {
-            callback.invoke(viewHolder.adapterPosition, viewHolder)
-        }
-
-        override fun onChildDraw(
-            c: Canvas,
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            dX: Float,
-            dY: Float,
-            actionState: Int,
-            isCurrentlyActive: Boolean
-        ) {
-            val icon = getIcon.invoke(viewHolder.adapterPosition, viewHolder)
-            val itemView = viewHolder.itemView
-            val iconMarginVertical =
-                (viewHolder.itemView.height - icon.intrinsicHeight) / 2
-            if (dX > 0) {
-                colorDrawableBackground.setBounds(
-                    itemView.left,
-                    itemView.top,
-                    dX.toInt(),
-                    itemView.bottom
-                )
-                icon.setBounds(
-                    itemView.left + iconMarginHorizontal,
-                    itemView.top + iconMarginVertical,
-                    itemView.left + iconMarginHorizontal + icon.intrinsicWidth,
-                    itemView.bottom - iconMarginVertical
-                )
-            } else {
-                colorDrawableBackground.setBounds(
-                    itemView.right + dX.toInt(),
-                    itemView.top,
-                    itemView.right,
-                    itemView.bottom
-                )
-                icon.setBounds(
-                    itemView.right - iconMarginHorizontal - icon.intrinsicWidth,
-                    itemView.top + iconMarginVertical,
-                    itemView.right - iconMarginHorizontal,
-                    itemView.bottom - iconMarginVertical
-                )
-                icon.level = 0
-            }
-
-            colorDrawableBackground.draw(c)
-
-            c.save()
-
-            if (dX > 0)
-                c.clipRect(itemView.left, itemView.top, dX.toInt(), itemView.bottom)
-            else
-                c.clipRect(
-                    itemView.right + dX.toInt(),
-                    itemView.top,
-                    itemView.right,
-                    itemView.bottom
-                )
-
-            icon.draw(c)
-
-            c.restore()
-
-            super.onChildDraw(
-                c,
-                recyclerView,
-                viewHolder,
-                dX,
-                dY,
-                actionState,
-                isCurrentlyActive
-            )
-        }
-    }
-
 fun Date.toTimeElapsed(pastOnly: Boolean = true): CharSequence {
     var actualTime = time
     if (pastOnly && System.currentTimeMillis() - time < 0) actualTime =
@@ -300,8 +345,6 @@ val screenHeightDp: Int get() = screenHeight.pxToDp
 fun RecyclerView.isScrolledToTop(): Boolean {
     return !canScrollVertically(-1)
 }
-
-//todo do base
 
 @Suppress("unused")
 fun Fragment.setTransparentStatusBar(transparent: Boolean = true) {
@@ -325,39 +368,6 @@ fun Activity.setTransparentStatusBar(transparent: Boolean = true) {
     }
 }
 
-fun Document.styleHtml(context: Context) {
-    val linkTextColor =
-        "#" + Integer.toHexString(
-            ContextCompat.getColor(
-                context,
-                R.color.colorAccent
-            ) and 0x00ffffff
-        )
-    val links = select("a")
-    links.attr("style", "color:$linkTextColor;");
-}
-
-fun String.styleHtml(context: Context): String {
-    val textColor =
-        "#" + Integer.toHexString(
-            ContextCompat.getColor(
-                context,
-                R.color.textColorPrimary
-            ) and 0x00ffffff
-        )
-    return "<html><head>" +
-            "<style type=\"text/css\">body{color: $textColor; background-color: #000;}" +
-            "</style></head>" +
-            "<body>$this" +
-            "</body></html>"
-}
-
-val Article.imgUrlSafe: String?
-    get() = (imageUrl?.toString() ?: images?.getOrNull(0)?.srcUrl?.toString())?.replace(
-        "http://",
-        "https://"
-    )
-
 inline fun <reified VM : ViewModel> Fragment.sharedGraphViewModel(
     @IdRes navGraphId: Int,
     qualifier: Qualifier? = null,
@@ -366,9 +376,6 @@ inline fun <reified VM : ViewModel> Fragment.sharedGraphViewModel(
     val store = findNavController().getViewModelStoreOwner(navGraphId).viewModelStore
     getKoin().getViewModel(ViewModelParameter(VM::class, qualifier, parameters, null, store, null))
 }
-
-//todo move to base
-
 
 fun Activity.hideKeyboard() {
     findViewById<View>(android.R.id.content).hideKeyboard()

@@ -58,7 +58,7 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
     private View mSearchLayout;
     private View mTintView;
     private ListView mSuggestionsListView;
-    private EditText mSearchSrcTextView;
+    public EditText mSearchSrcTextView;
     private ImageButton mBackBtn;
     private ImageButton mVoiceBtn;
     private ImageButton mEmptyBtn;
@@ -519,7 +519,10 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
 
         //Request Focus
         mSearchSrcTextView.setText(null);
-        mSearchSrcTextView.requestFocus();
+        if (animate) {
+            mSearchSrcTextView.requestFocus();
+        }
+
 
         if (animate) {
             setVisibleWithAnimation();
@@ -728,9 +731,5 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
         void onSearchViewShown();
 
         void onSearchViewClosed();
-    }
-
-    public void setSuggestionsListView(ListView suggestionsListView) {
-        this.mSuggestionsListView = suggestionsListView;
     }
 }

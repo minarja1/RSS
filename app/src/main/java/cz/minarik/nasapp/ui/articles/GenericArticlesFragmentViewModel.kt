@@ -155,7 +155,7 @@ abstract class GenericArticlesFragmentViewModel(
                 allArticles.clear()
                 allArticles.addAll(mappedArticles)
 
-                if (shouldShowResult) {
+                if (shouldShowResult || prefManager.getArticleFilter() != ArticleFilterType.Starred) {
                     this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
                     val result = applyFilters()
 
@@ -247,6 +247,24 @@ abstract class GenericArticlesFragmentViewModel(
                     starredArticleDao.insert(entity)
                 } else {
                     starredArticleDao.delete(entity)
+                }
+            }
+        }
+    }
+
+
+    fun markArticleAsReadOrUnread(article: ArticleDTO) {
+        launch(defaultState = null) {
+            val articleToMark = allArticles.find { it.guid == article.guid }
+            val read = !(articleToMark?.read ?: true)
+            articleToMark?.read = read
+            article.guid?.let {
+                val entity = ReadArticleEntity(it)
+
+                if (read) {
+                    readArticleDao.insert(entity)
+                } else {
+                    readArticleDao.delete(entity)
                 }
             }
         }

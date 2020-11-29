@@ -63,6 +63,12 @@
             app:popEnterAnim="@android:anim/slide_out_right"
             app:popExitAnim="@android:anim/slide_in_left"
             app:popUpTo="@+id/articlesFragment" />
+
+        <action
+            android:id="@+id/action_article_detail_to_simple_articles"
+            app:popEnterAnim="@android:anim/slide_out_right"
+            app:popExitAnim="@android:anim/slide_in_left"
+            app:popUpTo="@+id/simpleArticlesFragment" />
     </fragment>
 
 </navigation>

@@ -48,7 +48,9 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         this.article = article
         expandButton.isVisible = article.expandable
         expandButton.setOnClickListener {
-            article.expanded = !article.expanded
+            this.article?.run {
+                expanded = !expanded
+            }
             expand()
         }
 
@@ -263,6 +265,7 @@ data class ArticleDTO(
         if (categories != other.categories) return false
         if (read != other.read) return false
         if (expandable != other.expandable) return false
+        if (expanded != other.expanded) return false
         if (starred != other.starred) return false
         if (domain != other.domain) return false
         if (showSource != other.showSource) return false
@@ -285,6 +288,7 @@ data class ArticleDTO(
         result = 31 * result + categories.hashCode()
         result = 31 * result + read.hashCode()
         result = 31 * result + expandable.hashCode()
+        result = 31 * result + expanded.hashCode()
         result = 31 * result + starred.hashCode()
         result = 31 * result + (domain?.hashCode() ?: 0)
         result = 31 * result + (showSource?.hashCode() ?: 0)

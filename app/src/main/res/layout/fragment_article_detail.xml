@@ -17,6 +17,9 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/colorToolbar"
+            app:expandedTitleGravity="bottom"
+            app:expandedTitleMarginBottom="8dp"
+            app:expandedTitleMarginStart="16dp"
             app:expandedTitleTextAppearance="?textAppearanceHeadline5"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:maxLines="5"
@@ -36,14 +39,31 @@
                     android:tint="@color/semiTransparentBlack"
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="0.7"
+                    tools:ignore="UseAppTint"
                     tools:src="@tools:sample/backgrounds/scenic" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="?actionBarSize"
                     android:layout_gravity="bottom"
-                    android:background="@drawable/gradient" />
+                    android:background="@drawable/gradient_bottom" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    android:layout_gravity="top"
+                    android:background="@drawable/gradient_top" />
+
+
+                <TextView
+                    android:id="@+id/fakeTitleTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="56dp"
+                    android:maxLines="5"
+                    android:textAppearance="?textAppearanceHeadline5" />
             </FrameLayout>
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -76,7 +96,10 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -324,7 +347,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:layout_marginBottom="8dp"/>
+                                android:layout_marginBottom="8dp" />
 
                         </LinearLayout>
 

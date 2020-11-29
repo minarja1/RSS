@@ -3,6 +3,7 @@ package cz.minarik.nasapp.ui.articles.detail
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.transition.Transition
 import android.view.View
 import android.widget.ImageView
 import androidx.browser.customtabs.CustomTabsIntent
@@ -52,12 +53,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         initObserve()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedElementEnterTransition =
-            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-    }
-
     private fun initViews() {
         initToolbar()
         sourceNameTextView.text = articleDTO.sourceName
@@ -104,10 +99,12 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             }
         }
 
-        toolbarExpandedImage.transitionName = articleDTO.guid
-        toolbarExpandedImage.load(articleDTO.image)
-        toolbarLayout.title = articleDTO.title
 
+        toolbarExpandedImage.load(articleDTO.image)
+        fakeTitleTextView.text = articleDTO.title
+
+        toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
+        fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
 
         val navController = NavHostFragment.findNavController(this)
         val appBarConfiguration = AppBarConfiguration(navController.graph)
@@ -128,6 +125,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
                 uri = it.replace("http://", "https://"),
                 placeholder = toolbarExpandedImage.drawable
             )
+            toolbarExpandedImage.setOnClickListener {
+                showImage(0, toolbarExpandedImage)
+            }
         }
 
         article?.document?.styleHtml(requireContext())
@@ -146,7 +146,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             }, 100) //to prevent white screen from flashing (webView still loading styles)
         }
 
-        //todo handle article media (images and/or videos)
         article?.images?.let {
             if (it.size > 1) {
                 initGallery(it)
@@ -159,6 +158,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
 
     }
 
+    //todo handle video
     private fun initVideo(videoUrl: HttpUrl) {
     }
 
@@ -177,11 +177,20 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     }
 
     override fun onImageClicked(position: Int, clickedView: ImageView) {
-        val builder = StfalconImageViewer.Builder<GalleryViewImageDTO>(
+        showImage(position + 1, clickedView)
+    }
+
+    private fun showImage(position: Int, clickedView: ImageView) {
+        val images = viewModel.articleLiveData.value?.images?.map {
+            GalleryViewImageDTO.fromApi(it)
+        }?.toMutableList() ?: mutableListOf()
+        viewModel.articleLiveData.value?.imgUrlSafe?.let {
+            images.add(0, GalleryViewImageDTO(it))
+        }
+
+        val builder = StfalconImageViewer.Builder(
             context,
-            viewModel.articleLiveData.value?.images?.map {
-                GalleryViewImageDTO.fromApi(it)
-            }
+            images
         ) { view, image ->
             view.loadImageWithDefaultSettings(image.image)
         }
@@ -190,14 +199,61 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
                 clickedView
             )
             .withImageChangeListener {
-                viewer?.updateTransitionImage(
-                    galleryView.getImageForTransition(it)
-                )
+                if (it == 0) {
+                    viewer?.updateTransitionImage(
+                        toolbarExpandedImage
+                    )
+                } else {
+                    viewer?.updateTransitionImage(
+                        galleryView.getImageForTransition(it - 1)
+                    )
+                }
             }
             .withHiddenStatusBar(false)
 
         viewer = builder.show()
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition =
+            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+                .addListener(
+                    object : Transition.TransitionListener,
+                        androidx.transition.Transition.TransitionListener {
+                        override fun onTransitionStart(transition: androidx.transition.Transition) {
+                        }
 
+                        override fun onTransitionEnd(transition: androidx.transition.Transition) {
+                            fakeTitleTextView.text = ""
+                            toolbarLayout.title = articleDTO.title
+                        }
+
+                        override fun onTransitionCancel(transition: androidx.transition.Transition) {
+                        }
+
+                        override fun onTransitionPause(transition: androidx.transition.Transition) {
+                        }
+
+                        override fun onTransitionResume(transition: androidx.transition.Transition) {
+                        }
+
+                        override fun onTransitionStart(transition: Transition?) {
+                        }
+
+                        override fun onTransitionEnd(transition: Transition?) {
+                        }
+
+                        override fun onTransitionCancel(transition: Transition?) {
+                        }
+
+                        override fun onTransitionPause(transition: Transition?) {
+                        }
+
+                        override fun onTransitionResume(transition: Transition?) {
+                        }
+
+                    }
+                )
+    }
 }
