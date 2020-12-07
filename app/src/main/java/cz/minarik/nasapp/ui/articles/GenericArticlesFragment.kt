@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.ui.articles
 
 import android.content.ComponentName
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -36,6 +37,8 @@ import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.model.ArticleFilterType
+import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
+import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
@@ -70,7 +73,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     abstract fun navigateToArticleDetail(extras: FragmentNavigator.Extras, articleDTO: ArticleDTO)
 
-    val articlesAdapter by lazy {
+    private val articlesAdapter by lazy {
         ArticlesAdapter(
             onItemClicked = { imageView, titleTextView, position ->
                 (articlesRecyclerView?.adapter as? ArticlesAdapter)?.run {
@@ -92,6 +95,40 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                         }
                     }
                     notifyItemChanged(position)
+                }
+            },
+            onItemLongClicked = { position ->
+                val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
+                val article = adapter?.getItemAtPosition(position)
+
+                article?.run {
+                    val sheet = ArticleBottomSheet.newInstance(this)
+                    sheet.listener = object : ArticleBottomSheetListener {
+                        override fun onStarred() {
+                            article.starred = !article.starred
+                            adapter.notifyItemChanged(position)
+                            viewModel.markArticleAsStarred(article)
+                        }
+
+                        override fun onRead() {
+                            article.read = !article.read
+                            adapter.notifyItemChanged(position)
+                            viewModel.markArticleAsReadOrUnread(article)
+                        }
+
+                        override fun onShare() {
+                            val sendIntent: Intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, article.link)
+                                type = "text/plain"
+                            }
+
+                            val shareIntent = Intent.createChooser(sendIntent, null)
+                            startActivity(shareIntent)
+                        }
+
+                    }
+                    sheet.show(childFragmentManager, Constants.ARTICLE_BOTTOM_SHEET_TAG)
                 }
             },
             onItemExpanded = { position ->
@@ -247,9 +284,9 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         val icon = ContextCompat.getDrawable(
             requireContext(),
             if (article?.starred == true)
-                R.drawable.ic_baseline_star_24
-            else
                 R.drawable.ic_baseline_star_outline_24
+            else
+                R.drawable.ic_baseline_star_24
         )!!
         icon.setTint(ContextCompat.getColor(requireContext(), R.color.yellow))
         return icon
@@ -302,6 +339,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     open fun initObserve() {
+        viewModel.state.observe {
+            viewState.loadingArticlesState = it
+        }
+
         viewModel.articles.observe {
             viewState.articles = it
             articlesAdapter.submitList(it)
@@ -310,11 +351,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 articlesRecyclerView?.scrollToTop()
                 viewModel.shouldScrollToTop = false
             }
-        }
-
-        viewModel.state.observe {
-            //todo drzet si v NetworkState i exception a rozlisovat noInternet od jinych
-            viewState.loadingArticlesState = it
         }
     }
 
@@ -339,35 +375,40 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
 
     private fun updateViews() {
-        val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
-        val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
-        val loading = loadingArticles || loadingSources
-        val isError = viewState.loadingArticlesState?.status == Status.FAILED
-        val articlesEmpty = viewState.articles.isEmpty()
-        val loadingMessage = viewState.loadingArticlesState?.message
+        synchronized(viewModel) {
+            val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
+            val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
+            val loading = loadingArticles || loadingSources
+            val isError = viewState.loadingArticlesState?.status == Status.FAILED
+            val articlesEmpty = viewState.articles.isEmpty()
+            val loadingMessage = viewState.loadingArticlesState?.message
 
-        val showShimmer = loading && articlesEmpty && !isError
-        shimmerLayout.isVisible = showShimmer
+            val showShimmer = loading && articlesEmpty && !isError
+            shimmerLayout.isVisible = showShimmer
 
-        val showLoadingSwipeRefresh = loading && !showShimmer && !isError
-        swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
-        swipeRefreshLayout.isEnabled = !showShimmer
+            val showLoadingSwipeRefresh = loading && !showShimmer && !isError
+            swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
+            swipeRefreshLayout.isEnabled = !showShimmer
 
-        if (articlesEmpty && !isError && !loading) {
-            stateView.empty(true)
-        } else if (isError) {
-            if (articlesEmpty) {
-                //full-screen error
-                stateView.error(show = true, message = loadingMessage) {
-                    viewModel.loadArticles()
+            if (articlesEmpty && !isError && !loading) {
+                stateView.empty(true)
+            } else if (isError) {
+                if (articlesEmpty) {
+                    //full-screen error
+                    stateView.error(show = true, message = loadingMessage) {
+                        viewModel.loadArticles()
+                    }
+                } else {
+                    showToast(
+                        requireContext(),
+                        loadingMessage ?: getString(R.string.common_base_error)
+                    )
+                    stateView.error(false)
                 }
             } else {
-                showToast(requireContext(), loadingMessage ?: getString(R.string.common_base_error))
-                stateView.error(false)
+                //hide stateView
+                stateView.show(false)
             }
-        } else {
-            //hide stateView
-            stateView.loading(false)
         }
     }
 

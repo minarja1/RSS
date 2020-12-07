@@ -2,7 +2,6 @@ package cz.minarik.nasapp.ui.custom
 
 import android.animation.LayoutTransition
 import android.content.Context
-import android.graphics.Typeface
 import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.ViewGroup
@@ -54,8 +53,14 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             expand()
         }
 
-        titleTextView.setTypeface(null, if (article.read) Typeface.NORMAL else Typeface.BOLD)
         subtitleTextView.setTextColor(
+            ContextCompat.getColor(
+                context,
+                if (article.read) R.color.textColorSecondary else R.color.textColorPrimary
+            )
+        )
+
+        titleTextView.setTextColor(
             ContextCompat.getColor(
                 context,
                 if (article.read) R.color.textColorSecondary else R.color.textColorPrimary
@@ -112,6 +117,11 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     override fun setOnClickListener(l: OnClickListener?) {
         subtitleTextView.setOnClickListener(l) // because it can be html and consumes touches
         cardView.setOnClickListener(l)
+    }
+
+    override fun setOnLongClickListener(l: OnLongClickListener?) {
+        subtitleTextView.setOnLongClickListener(l) // because it can be html and consumes touches
+        cardView.setOnLongClickListener(l)
     }
 
     private fun expand(expandingProgrammatically: Boolean = false) {

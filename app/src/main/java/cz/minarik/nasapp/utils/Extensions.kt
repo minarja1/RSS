@@ -240,12 +240,12 @@ fun Context.openCustomTabs(
         )
         customTabsBuilder.addDefaultShareMenuItem()
 
-        customTabsBuilder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
+        customTabsBuilder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left)
         customTabsBuilder.setExitAnimations(
             this,
             android.R.anim.slide_in_left,
             android.R.anim.slide_out_right
-        );
+        )
 
         val intent = customTabsBuilder.build()
 

@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.article_list_item.view.*
 
 class ArticlesAdapter(
     private var onItemClicked: (imageView: ImageView, titleTextView: TextView, position: Int) -> Unit,
+    private var onItemLongClicked: (position: Int) -> Unit,
     private var onItemExpanded: (position: Int) -> Unit,
     private var preloadUrl: (url: String) -> Unit,
     private var filterBySource: (url: String?) -> Unit,
@@ -46,6 +47,7 @@ class ArticlesAdapter(
         fun bind(
             article: ArticleDTO?,
             onItemClicked: (imageView: ImageView, titleTextView: TextView, position: Int) -> Unit,
+            onItemLongClicked: (position: Int) -> Unit,
             onItemExpanded: (position: Int) -> Unit,
             filterBySource: (url: String?) -> Unit,
             position: Int,
@@ -53,7 +55,15 @@ class ArticlesAdapter(
             if (article == null) return
             articleItemView.set(article)
             articleItemView.setOnClickListener {
-                onItemClicked(if(article.expanded) articleItemView.articleFullImageView else articleItemView.articleImageView, articleItemView.titleTextView, adapterPosition)
+                onItemClicked(
+                    if (article.expanded) articleItemView.articleFullImageView else articleItemView.articleImageView,
+                    articleItemView.titleTextView,
+                    adapterPosition
+                )
+            }
+            articleItemView.setOnLongClickListener {
+                onItemLongClicked(adapterPosition)
+                true
             }
             articleItemView.onItemExpanded = {
                 onItemExpanded.invoke(position)
@@ -66,7 +76,14 @@ class ArticlesAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        (holder as VideoViewHolder).bind(item, onItemClicked, onItemExpanded, filterBySource, position)
+        (holder as VideoViewHolder).bind(
+            item,
+            onItemClicked,
+            onItemLongClicked,
+            onItemExpanded,
+            filterBySource,
+            position
+        )
         item.link?.let {
             preloadUrl.invoke(it)
         }

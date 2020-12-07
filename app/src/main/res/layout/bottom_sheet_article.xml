@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottom_sheet_background"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorSurface"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/starButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/custom_ripple"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:id="@+id/starImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_star_24"
+                app:tint="@color/yellow" />
+
+            <TextView
+                android:id="@+id/starTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Star item"
+                android:textAppearance="@style/TextAppearance.Universe.Title" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/readButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/custom_ripple"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:id="@+id/readImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_check_24"
+                app:tint="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/readTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Mark as read"
+                android:textAppearance="@style/TextAppearance.Universe.Title" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/shareButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/custom_ripple"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_share_24"
+                app:tint="@color/colorAccent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/share_article"
+                android:textAppearance="@style/TextAppearance.Universe.Title" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

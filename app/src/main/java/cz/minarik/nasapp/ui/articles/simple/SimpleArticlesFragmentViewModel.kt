@@ -32,13 +32,11 @@ class SimpleArticlesFragmentViewModel(
     val selectedSourceImage = MutableLiveData<String>()
 
     init {
-        launch {
-            loadSelectedSource()
-        }
+        loadSelectedSource()
     }
 
-    private fun loadSelectedSource(){
-        launch {
+    private fun loadSelectedSource() {
+        launch(defaultState = null) {
             selectedSource = sourceDao.getByUrl(sourceUrl)
             selectedSourceName.postValue(selectedSource?.title)
             selectedSourceImage.postValue(selectedSource?.imageUrl)

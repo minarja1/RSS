@@ -96,20 +96,18 @@ abstract class GenericArticlesFragmentViewModel(
         force: Boolean = false,
         scrollToTop: Boolean = false,
     ) {
+        Timber.i("loading articles, force = $force")
+        state.postValue(NetworkState.LOADING)
         currentArticleLoadingJob?.cancel()
         currentArticleLoadingJob = defaultScope.launch {
             try {
-                var shouldShowResult = true
                 if (prefManager.getArticleFilter() == ArticleFilterType.Starred) {
                     loadStarredArticles()
-                    shouldShowResult = false
                 }
                 if (!context.isInternetAvailable) {
                     state.postValue(NetworkState.Companion.error(NoConnectionException()))
                     return@launch
                 }
-                Timber.i("loading articles, force = $force")
-                state.postValue(NetworkState.LOADING)
 
                 val allArticleList = mutableListOf<Article>()
 
@@ -155,7 +153,7 @@ abstract class GenericArticlesFragmentViewModel(
                 allArticles.clear()
                 allArticles.addAll(mappedArticles)
 
-                if (shouldShowResult || prefManager.getArticleFilter() != ArticleFilterType.Starred) {
+                if (prefManager.getArticleFilter() != ArticleFilterType.Starred) {
                     this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
                     val result = applyFilters()
 

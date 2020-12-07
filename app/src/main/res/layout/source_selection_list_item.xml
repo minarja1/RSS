@@ -32,7 +32,7 @@
             android:maxLines="3"
             android:minLines="1"
             android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.Subtitle"
+            android:textAppearance="@style/TextAppearance.Universe.Subtitle"
             android:textColor="@color/textColorPrimary"
             tools:text="Space.com | NASA, Space Exploration and Astronpace Exploration and Astronpace Exploration and Astronpace Exploration and Astronomy News" />
     </LinearLayout>

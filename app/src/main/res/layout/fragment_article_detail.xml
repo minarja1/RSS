@@ -124,7 +124,7 @@
                         android:lines="1"
                         android:maxLines="1"
                         android:minLines="1"
-                        android:textAppearance="@style/TextAppearance.Subtitle"
+                        android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
                         tools:text="Space.com" />
@@ -138,7 +138,7 @@
                         android:lines="1"
                         android:maxLines="1"
                         android:minLines="1"
-                        android:textAppearance="@style/TextAppearance.Subtitle"
+                        android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                         android:textColor="@color/textColorSecondary"
                         android:textSize="14sp"
                         tools:text="26. 01. 1994" />
@@ -340,7 +340,7 @@
                                 android:maxLines="1"
                                 android:text="@string/gallery"
                                 android:textAllCaps="true"
-                                android:textAppearance="@style/TextAppearance.Subtitle" />
+                                android:textAppearance="@style/TextAppearance.Universe.Subtitle" />
 
                             <cz.minarik.nasapp.ui.custom.GalleryView
                                 android:id="@+id/galleryView"

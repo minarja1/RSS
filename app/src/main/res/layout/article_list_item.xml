@@ -75,7 +75,7 @@
                         android:maxLines="3"
                         android:minLines="1"
                         android:textAlignment="viewStart"
-                        android:textAppearance="@style/TextAppearance.Title"
+                        android:textAppearance="@style/TextAppearance.Universe.Title"
                         android:textColor="@color/textColorPrimary"
                         android:textStyle="bold"
                         tools:text="Thekokft!" />
@@ -87,7 +87,7 @@
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="4dp"
                         android:textAlignment="viewStart"
-                        android:textAppearance="@style/TextAppearance.Subtitle"
+                        android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                         android:textColor="@color/textColorPrimary"
                         tools:text="Thkokt!" />
 
@@ -126,7 +126,7 @@
                                 android:maxLines="1"
                                 android:minLines="1"
                                 android:textAlignment="viewStart"
-                                android:textAppearance="@style/TextAppearance.Subtitle"
+                                android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                                 android:textColor="@color/textColorSecondary"
                                 tools:text="26. 01. 1994" />
                         </LinearLayout>
@@ -168,7 +168,7 @@
                                     android:maxLines="1"
                                     android:minLines="1"
                                     android:textAlignment="viewStart"
-                                    android:textAppearance="@style/TextAppearance.Subtitle"
+                                    android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                                     android:textColor="@color/textColorSecondary"
                                     android:textSize="14sp"
                                     tools:text="space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com " />
