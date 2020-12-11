@@ -12,6 +12,7 @@ import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
 import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
+import cz.minarik.nasapp.utils.compareLists
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -65,6 +66,7 @@ class RSSSourceRepository(
                 async {
                     feed?.url?.let {
                         try {
+                            //todo netreba updatovat title pokazde
                             val channel = parser.getChannel(it)
 
                             var entity = dao.getByUrl(it)
@@ -87,7 +89,10 @@ class RSSSourceRepository(
                     }
                 }
             }.awaitAll()
-            if (allDB != dao.getNonUserAdded()) {
+
+            val newDb = dao.getNonUserAdded()
+            //todo tohle vraci pokazde false
+            if (!compareLists(allDB, newDb)) {
                 sourcesChanged.postValue(true)
             }
             state.postValue(NetworkState.SUCCESS)

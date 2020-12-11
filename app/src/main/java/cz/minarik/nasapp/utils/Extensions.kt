@@ -212,6 +212,16 @@ val Article.imgUrlSafe: String?
 
 //todo move to Base________________________________________________________________________________
 
+fun <T> compareLists(first: List<T>, second: List<T>): Boolean {
+
+    if (first.size != second.size) {
+        return false
+    }
+
+    return first.zip(second).all { (x, y) ->
+        x == y
+    }
+}
 
 fun Intent.addAppReferrer(context: Context) {
     val scheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {

@@ -22,7 +22,6 @@ import cz.minarik.nasapp.utils.UniversePrefManager
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.IOException
-import java.net.SocketTimeoutException
 import java.nio.charset.Charset
 
 abstract class GenericArticlesFragmentViewModel(
@@ -74,21 +73,25 @@ abstract class GenericArticlesFragmentViewModel(
         flushCache: Boolean,
         result: MutableList<Article>
     ) {
-        Timber.i("Loading articles for url: $url")
-        if (flushCache) {
-            Timber.i("flushing cache for url: $url")
-            parser.flushCache(url)
-        }
-        val source = sourceDao.getByUrl(url)
-        source?.let {
-            val articles = parser.getChannel(source.url).articles
-            articles.forEach {
-                it.sourceUrl = source.url
-                it.sourceName = source.title
+        try {
+            Timber.i("Loading articles for url: $url")
+            if (flushCache) {
+                Timber.i("flushing cache for url: $url")
+                parser.flushCache(url)
             }
-            synchronized(this) {
-                result.addAll(articles)
+            val source = sourceDao.getByUrl(url)
+            source?.let {
+                val articles = parser.getChannel(source.url).articles
+                articles.forEach {
+                    it.sourceUrl = source.url
+                    it.sourceName = source.title
+                }
+                synchronized(this) {
+                    result.addAll(articles)
+                }
             }
+        } catch (e: Exception) {
+            Timber.e(e)
         }
     }
 
@@ -124,10 +127,7 @@ abstract class GenericArticlesFragmentViewModel(
                     (allSources.indices).map {
                         ensureActive()
                         async(Dispatchers.IO) {
-                            try {
-                                loadArticlesFromUrl(allSources[it].url, force, allArticleList)
-                            } catch (e: SocketTimeoutException) {
-                            }
+                            loadArticlesFromUrl(allSources[it].url, force, allArticleList)
                         }
                     }.awaitAll()
                 }

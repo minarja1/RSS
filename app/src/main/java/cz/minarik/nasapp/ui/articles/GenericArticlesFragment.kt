@@ -375,40 +375,38 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
 
     private fun updateViews() {
-        synchronized(viewModel) {
-            val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
-            val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
-            val loading = loadingArticles || loadingSources
-            val isError = viewState.loadingArticlesState?.status == Status.FAILED
-            val articlesEmpty = viewState.articles.isEmpty()
-            val loadingMessage = viewState.loadingArticlesState?.message
+        val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
+        val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
+        val loading = loadingArticles || loadingSources
+        val isError = viewState.loadingArticlesState?.status == Status.FAILED
+        val articlesEmpty = viewState.articles.isEmpty()
+        val loadingMessage = viewState.loadingArticlesState?.message
 
-            val showShimmer = loading && articlesEmpty && !isError
-            shimmerLayout.isVisible = showShimmer
+        val showShimmer = loading && articlesEmpty && !isError
+        shimmerLayout.isVisible = showShimmer
 
-            val showLoadingSwipeRefresh = loading && !showShimmer && !isError
-            swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
-            swipeRefreshLayout.isEnabled = !showShimmer
+        val showLoadingSwipeRefresh = loading && !showShimmer && !isError
+        swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
+        swipeRefreshLayout.isEnabled = !showShimmer
 
-            if (articlesEmpty && !isError && !loading) {
-                stateView.empty(true)
-            } else if (isError) {
-                if (articlesEmpty) {
-                    //full-screen error
-                    stateView.error(show = true, message = loadingMessage) {
-                        viewModel.loadArticles()
-                    }
-                } else {
-                    showToast(
-                        requireContext(),
-                        loadingMessage ?: getString(R.string.common_base_error)
-                    )
-                    stateView.error(false)
+        if (articlesEmpty && !isError && !loading) {
+            stateView.empty(true)
+        } else if (isError) {
+            if (articlesEmpty) {
+                //full-screen error
+                stateView.error(show = true, message = loadingMessage) {
+                    viewModel.loadArticles()
                 }
             } else {
-                //hide stateView
-                stateView.show(false)
+                showToast(
+                    requireContext(),
+                    loadingMessage ?: getString(R.string.common_base_error)
+                )
+                stateView.error(false)
             }
+        } else {
+            //hide stateView
+            stateView.show(false)
         }
     }
 
