@@ -11,7 +11,7 @@ interface RSSSourceDao : BaseDao<RSSSourceEntity> {
     @Query("Select * From RSSSourceEntity")
     suspend fun getAll(): List<RSSSourceEntity>
 
-    @Query("Select * From RSSSourceEntity where isUserAdded = 0")
+    @Query("Select * From RSSSourceEntity where isUserAdded = 0 order by url")
     suspend fun getNonUserAdded(): List<RSSSourceEntity>
 
     @Query("Select * From RSSSourceEntity Where url = :url")

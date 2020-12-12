@@ -60,7 +60,7 @@ val appModule = module {
         UniversePrefManager(androidContext())
     }
     single {
-        RSSSourceRepository(androidContext(), get())
+        RSSSourceRepository(androidContext(), get(), get())
     }
     single {
         ArticlesRepository(get(), get())

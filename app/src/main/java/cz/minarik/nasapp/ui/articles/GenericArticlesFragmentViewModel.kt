@@ -21,6 +21,8 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
 import kotlinx.coroutines.*
 import timber.log.Timber
+import tw.ktrssreader.Reader
+import tw.ktrssreader.model.channel.RssStandardChannelData
 import java.io.IOException
 import java.nio.charset.Charset
 
@@ -81,6 +83,7 @@ abstract class GenericArticlesFragmentViewModel(
             }
             val source = sourceDao.getByUrl(url)
             source?.let {
+                val articleNew = Reader.read<RssStandardChannelData>(source.url)
                 val articles = parser.getChannel(source.url).articles
                 articles.forEach {
                     it.sourceUrl = source.url
@@ -104,6 +107,8 @@ abstract class GenericArticlesFragmentViewModel(
         currentArticleLoadingJob?.cancel()
         currentArticleLoadingJob = defaultScope.launch {
             try {
+                val startTime = System.currentTimeMillis()
+
                 if (prefManager.getArticleFilter() == ArticleFilterType.Starred) {
                     loadStarredArticles()
                 }
@@ -160,6 +165,8 @@ abstract class GenericArticlesFragmentViewModel(
                     articles.postValue(result)
                 }
                 state.postValue(NetworkState.SUCCESS)
+                val duration = System.currentTimeMillis() - startTime
+                Timber.i("Fetching articles finished in $duration ms")
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))

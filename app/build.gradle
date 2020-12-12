@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "cz.minarik.universe"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -77,5 +77,5 @@ dependencies {
 
     implementation 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC2'
 
-
+    implementation "com.github.ivanisidrowu:KtRssReader:v2.0.1"
 }

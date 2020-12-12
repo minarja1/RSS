@@ -16,7 +16,7 @@ data class RSSSourceEntity(
 
     ) {
     override fun equals(other: Any?): Boolean {
-        Timber.i("RSSSourceEntity: comparing $this with $other")
+        Timber.i("RSSSourceEntity: comparing ${this.title} with $other")
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 

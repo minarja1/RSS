@@ -2,6 +2,7 @@ package cz.minarik.nasapp.utils
 
 import android.content.Context
 import cz.minarik.base.common.extensions.booleanPreference
+import cz.minarik.base.common.extensions.longPreference
 import cz.minarik.base.common.extensions.stringPreference
 import cz.minarik.base.common.prefs.PrefManager
 import cz.minarik.nasapp.data.model.ArticleFilterType
@@ -10,6 +11,7 @@ class UniversePrefManager(context: Context) : PrefManager(context) {
 
     companion object {
         const val selectedArticleFilterKey = "selectedArticleFilterKey"
+        const val lastSourcesUpdateFilterKey = "lastSourcesUpdateFilterKey"
         const val showArticleFiltersKey = "showArticleFiltersKey"
     }
 
@@ -18,6 +20,9 @@ class UniversePrefManager(context: Context) : PrefManager(context) {
         selectedArticleFilterKey,
         ArticleFilterType.All.key
     )
+
+    var lastSourcesUpdate by longPreference(lastSourcesUpdateFilterKey)
+
     var showArticleFilters by booleanPreference(showArticleFiltersKey, false)
 
     fun getArticleFilter(): ArticleFilterType {

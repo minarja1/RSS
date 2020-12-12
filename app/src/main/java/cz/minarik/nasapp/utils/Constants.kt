@@ -1,7 +1,11 @@
 package cz.minarik.nasapp.utils
 
+import java.util.concurrent.TimeUnit
+
 class Constants {
-    companion object{
+    companion object {
+        val sourcesUpdateGap: Long = TimeUnit.DAYS.toMillis(1)
+
         const val RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING: Long = 1000
         const val ARTICLE_EXPAND_ANIMATION_DURATION: Long = 300L
 

@@ -10,9 +10,7 @@ import cz.minarik.base.di.base.BaseRepository
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
-import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
-import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
-import cz.minarik.nasapp.utils.compareLists
+import cz.minarik.nasapp.utils.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -24,6 +22,7 @@ import java.nio.charset.Charset
 class RSSSourceRepository(
     private val context: Context,
     private val dao: RSSSourceDao,
+    private val prefManager: UniversePrefManager,
 ) : BaseRepository(),
     RealtimeDatabaseQueryListener<List<RealtimeDatabaseHelper.RssFeedDTO>> {
 
@@ -61,26 +60,28 @@ class RSSSourceRepository(
                 }
             }
 
+            val shouldUpdate =
+                System.currentTimeMillis() - prefManager.lastSourcesUpdate >= Constants.sourcesUpdateGap
+
             //create or update existing
             allFromServer.map { feed ->
                 async {
                     feed?.url?.let {
                         try {
-                            //todo netreba updatovat title pokazde
-                            val channel = parser.getChannel(it)
-
                             var entity = dao.getByUrl(it)
                             val url = URL(it)
                             if (entity == null) {
+                                val channel = parser.getChannel(it)
                                 entity = RSSSourceEntity(
                                     url = it,
                                     title = channel.title,
                                     imageUrl = url.getFavIcon()
                                 )
+                            } else if (shouldUpdate) {
+                                val channel = parser.getChannel(it)
+                                entity.title = channel.title
+                                entity.imageUrl = url.getFavIcon()
                             }
-
-                            entity.title = channel.title
-                            entity.imageUrl = url.getFavIcon()
 
                             dao.insert(entity)
                         } catch (e: Exception) {
@@ -91,7 +92,6 @@ class RSSSourceRepository(
             }.awaitAll()
 
             val newDb = dao.getNonUserAdded()
-            //todo tohle vraci pokazde false
             if (!compareLists(allDB, newDb)) {
                 sourcesChanged.postValue(true)
             }
