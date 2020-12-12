@@ -20,6 +20,9 @@ data class Article(
     private var _categories: MutableList<String> = mutableListOf()
 ) : Serializable {
 
+    val isValid: Boolean
+        get() = !guid.isNullOrEmpty() && pubDate != null
+
     companion object {
         fun fromLibrary(article: Article): cz.minarik.nasapp.data.model.Article {
             return cz.minarik.nasapp.data.model.Article(

@@ -1,17 +1,15 @@
 package cz.minarik.nasapp.data.db.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import java.util.*
 
-@Entity
+@Entity(primaryKeys = ["guid", "date"])
 data class StarredArticleEntity(
-    @PrimaryKey
     var guid: String,
+    val date: Date,
     var title: String? = null,
     val image: String? = null,
-    val date: Date? = null,
     var link: String? = null,
     var description: String? = null,
     var content: String? = null,
@@ -31,7 +29,7 @@ data class StarredArticleEntity(
                 guid = article.guid ?: "",
                 title = article.title,
                 image = article.image,
-                date = article.date,
+                date = article.date?: Date(),
                 link = article.link,
                 description = article.description.toString(),
                 content = article.content,

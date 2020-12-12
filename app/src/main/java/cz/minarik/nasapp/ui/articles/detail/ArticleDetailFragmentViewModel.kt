@@ -43,10 +43,12 @@ class ArticleDetailFragmentViewModel(
     fun markArticleAsRead(article: ArticleDTO) {
         launch(defaultState = null) {
             article.read = false
-            article.guid?.let {
-                readArticleDao.delete(
-                    ReadArticleEntity(guid = it)
-                )
+            article.guid?.let { guid ->
+                article.date?.let { date ->
+                    readArticleDao.delete(
+                        ReadArticleEntity(guid = guid, date = date)
+                    )
+                }
             }
         }
     }

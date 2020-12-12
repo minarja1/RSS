@@ -4,6 +4,7 @@ import cz.minarik.base.di.base.BaseRepository
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.StarredArticleDao
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
+import java.util.*
 
 class ArticlesRepository(
     private val dao: StarredArticleDao,
@@ -18,8 +19,8 @@ class ArticlesRepository(
         return list
     }
 
-    suspend fun getByGuid(guid: String): StarredArticleEntity? {
-        val entity = dao.getByGuid(guid)
+    suspend fun getByGuidAndDate(guid: String, date: Date): StarredArticleEntity? {
+        val entity = dao.getByGuidAndDate(guid, date)
         updateSourceByDB(entity)
         return entity
     }

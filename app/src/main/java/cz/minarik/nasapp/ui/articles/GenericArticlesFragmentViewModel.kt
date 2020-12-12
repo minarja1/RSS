@@ -73,7 +73,7 @@ abstract class GenericArticlesFragmentViewModel(
     private suspend fun loadArticlesFromUrl(
         url: String,
         flushCache: Boolean,
-        result: MutableList<cz.minarik.nasapp.data.model.Article>
+        result: MutableList<Article>
     ) {
         try {
             Timber.i("Loading articles for url: $url")
@@ -90,8 +90,9 @@ abstract class GenericArticlesFragmentViewModel(
                 }
                 synchronized(this) {
                     result.addAll(articles.map {
-                        cz.minarik.nasapp.data.model.Article.fromLibrary(it)
-                    })
+                        Article.fromLibrary(it)
+                    }.filter { it.isValid }
+                    )
                 }
             }
         } catch (e: Exception) {
@@ -154,7 +155,7 @@ abstract class GenericArticlesFragmentViewModel(
                     return@launch
                 }
 
-                val allArticleList = mutableListOf<cz.minarik.nasapp.data.model.Article>()
+                val allArticleList = mutableListOf<Article>()
 
                 ensureActive()
                 val selectedSource = getSource()
@@ -192,9 +193,11 @@ abstract class GenericArticlesFragmentViewModel(
                 val mappedArticles = allArticleList.map { article ->
                     ensureActive()
                     ArticleDTO.fromModel(article).apply {
-                        guid?.let {
-                            read = readArticleDao.getByGuid(it) != null
-                            starred = articlesRepository.getByGuid(it) != null
+                        guid?.let { guid ->
+                            date?.let { date ->
+                                read = readArticleDao.getByGuidAndDate(guid, date) != null
+                                starred = articlesRepository.getByGuidAndDate(guid, date) != null
+                            }
                             showSource = shouldShowSource
                         }
                     }
@@ -269,7 +272,7 @@ abstract class GenericArticlesFragmentViewModel(
             searchQuery?.let { query ->
                 result = result.filter {
                     it.title?.contains(query, true) ?: true
-                            && it.description?.contains(query, true) ?: true
+                            || it.description?.contains(query, true) ?: true
                 }.toMutableList()
             }
             return result
@@ -280,10 +283,12 @@ abstract class GenericArticlesFragmentViewModel(
     fun markArticleAsRead(article: ArticleDTO) {
         launch(defaultState = null) {
             allArticles.find { it.guid == article.guid }?.read = true
-            article.guid?.let {
-                readArticleDao.insert(
-                    ReadArticleEntity(guid = it)
-                )
+            article.guid?.let { guid ->
+                article.date?.let { date ->
+                    readArticleDao.insert(
+                        ReadArticleEntity(guid = guid, date = date)
+                    )
+                }
             }
         }
     }
@@ -312,13 +317,14 @@ abstract class GenericArticlesFragmentViewModel(
             val articleToMark = allArticles.find { it.guid == article.guid }
             val read = !(articleToMark?.read ?: true)
             articleToMark?.read = read
-            article.guid?.let {
-                val entity = ReadArticleEntity(it)
-
-                if (read) {
-                    readArticleDao.insert(entity)
-                } else {
-                    readArticleDao.delete(entity)
+            article.guid?.let { guid ->
+                article.date?.let { date ->
+                    val entity = ReadArticleEntity(guid, date)
+                    if (read) {
+                        readArticleDao.insert(entity)
+                    } else {
+                        readArticleDao.delete(entity)
+                    }
                 }
             }
         }
@@ -357,8 +363,10 @@ abstract class GenericArticlesFragmentViewModel(
 
         val mapped = fromDB.map { starredEntity ->
             ArticleDTO.fromDb(starredEntity).apply {
-                guid?.let {
-                    read = readArticleDao.getByGuid(it) != null
+                guid?.let { guid ->
+                    date?.let { date ->
+                        read = readArticleDao.getByGuidAndDate(guid, date) != null
+                    }
                     showSource = selectedSource == null
                 }
             }
