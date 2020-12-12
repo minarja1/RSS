@@ -6,6 +6,7 @@ import com.prof.rssparser.Parser
 import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
+import cz.minarik.nasapp.base.network.ApiRequest
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.StarredArticleDao
@@ -13,9 +14,11 @@ import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
+import cz.minarik.nasapp.data.model.Article
 import cz.minarik.nasapp.data.model.ArticleFilterType
 import cz.minarik.nasapp.data.model.exception.GenericException
 import cz.minarik.nasapp.data.model.exception.NoConnectionException
+import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
 import kotlinx.coroutines.*
@@ -30,6 +33,7 @@ abstract class GenericArticlesFragmentViewModel(
     private val starredArticleDao: StarredArticleDao,
     val prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
+    private val rssApiService: RssApiService,
 ) : BaseViewModel() {
 
     private val parser by lazy {
@@ -39,6 +43,8 @@ abstract class GenericArticlesFragmentViewModel(
             .cacheExpirationMillis(cacheExpirationMillis)
             .build()
     }
+
+    private val useRetrofit = false
 
     private var currentArticleLoadingJob: Job? = null
 
@@ -57,7 +63,7 @@ abstract class GenericArticlesFragmentViewModel(
     var searchQuery: String? = null
 
     init {
-        loadArticles(true)
+        loadArticles(false)
     }
 
     /**
@@ -96,6 +102,42 @@ abstract class GenericArticlesFragmentViewModel(
         }
     }
 
+
+    /**
+     * Loads articles from given url into given list.
+     *
+     * @param url to load articles from
+     * @param flushCache whether to force cache flushing (meaning a network call would always happen)
+     * @param result the list into which the articles will be added
+     */
+    private suspend fun loadArticlesFromUrlRetrofit(
+        url: String,
+        flushCache: Boolean,
+        result: MutableList<Article>
+    ) {
+        try {
+            Timber.i("Loading articles for url: $url")
+            val source = sourceDao.getByUrl(url)
+            source?.let {
+                val apiResult = ApiRequest.getResult {
+                    rssApiService.getRss(source.url)
+                }
+                val articles = apiResult.data?.items?.map {
+                    Article.fromApi(it)
+                }
+                articles?.forEach {
+                    it.sourceUrl = source.url
+                    it.sourceName = source.title
+                }
+                synchronized(this@GenericArticlesFragmentViewModel) {
+                    result.addAll(articles ?: mutableListOf())
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+    }
+
     fun loadArticles(
         force: Boolean = false,
         scrollToTop: Boolean = false,
@@ -122,7 +164,11 @@ abstract class GenericArticlesFragmentViewModel(
 
                 //get articles from api
                 if (selectedSource != null) {
-                    loadArticlesFromUrl(selectedSource.url, force, allArticleList)
+                    if (useRetrofit) {
+                        loadArticlesFromUrlRetrofit(selectedSource.url, force, allArticleList)
+                    } else {
+                        loadArticlesFromUrl(selectedSource.url, force, allArticleList)
+                    }
                 }  //load all sources
                 else {
                     //todo something more sophisticated like lists etc.
@@ -130,7 +176,15 @@ abstract class GenericArticlesFragmentViewModel(
                     (allSources.indices).map {
                         ensureActive()
                         async(Dispatchers.IO) {
-                            loadArticlesFromUrl(allSources[it].url, force, allArticleList)
+                            if (useRetrofit) {
+                                loadArticlesFromUrlRetrofit(
+                                    allSources[it].url,
+                                    force,
+                                    allArticleList
+                                )
+                            } else {
+                                loadArticlesFromUrl(allSources[it].url, force, allArticleList)
+                            }
                         }
                     }.awaitAll()
                 }

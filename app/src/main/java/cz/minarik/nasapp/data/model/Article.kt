@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.data.model
 
 import com.prof.rssparser.Article
+import me.toptas.rssconverter.RssItem
 import java.io.Serializable
 
 data class Article(
@@ -34,6 +35,18 @@ data class Article(
                 video = article.video,
                 sourceName = article.sourceName,
                 sourceUrl = article.sourceUrl,
+            )
+        }
+
+        fun fromApi(article: RssItem): cz.minarik.nasapp.data.model.Article {
+            val guid = "${article.link}|${article.publishDate}"
+            return cz.minarik.nasapp.data.model.Article(
+                guid = guid,
+                title = article.title,
+                link = article.link,
+                pubDate = article.publishDate,
+                description = article.description,
+                image = article.image,
             )
         }
     }
