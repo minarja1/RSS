@@ -20,6 +20,7 @@ import cz.minarik.nasapp.data.model.exception.GenericException
 import cz.minarik.nasapp.data.model.exception.NoConnectionException
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.utils.Constants
 import cz.minarik.nasapp.utils.UniversePrefManager
 import kotlinx.coroutines.*
 import timber.log.Timber
@@ -40,17 +41,13 @@ abstract class GenericArticlesFragmentViewModel(
         Parser.Builder()
             .context(context)
             .charset(Charset.forName("UTF-8"))
-            .cacheExpirationMillis(cacheExpirationMillis)
+            .cacheExpirationMillis(Constants.articlesCacheExpiration)
             .build()
     }
 
     private val useRetrofit = false
 
     private var currentArticleLoadingJob: Job? = null
-
-    companion object {
-        const val cacheExpirationMillis = 1000L * 60L * 60L // 1 hour
-    }
 
     //all articles (without active filters)
     private val allArticles: MutableList<ArticleDTO> = mutableListOf()
