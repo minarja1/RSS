@@ -78,4 +78,6 @@ dependencies {
     implementation 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC2'
 
     implementation 'com.github.faruktoptas:RetrofitRssConverterFactory:0.1.0'
+
+    implementation 'com.liaoinstan.springview:library:1.7.0'
 }

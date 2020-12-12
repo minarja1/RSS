@@ -25,4 +25,5 @@
     <string name="search_hint">Filter by article title/description</string>
     <string name="share_article">Share article</string>
     <string name="common_connection_timeout">Connection tiemed out</string>
+    <string name="article_detail_warning">The content above might not be an exact representation of the original article. Swipe up to load full article.</string>
 </resources>

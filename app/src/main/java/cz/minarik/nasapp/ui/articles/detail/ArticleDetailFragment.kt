@@ -16,6 +16,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionInflater
 import coil.load
 import com.chimbori.crux.articles.Article
+import com.liaoinstan.springview.widget.SpringView
 import com.stfalcon.imageviewer.StfalconImageViewer
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.common.extensions.isInternetAvailable
@@ -58,6 +59,26 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         sourceNameTextView.text = articleDTO.sourceName
         dateTextView.text = articleDTO.date?.toTimeElapsed()
         stateView.attacheContentView(contentContainer)
+        initSpringView()
+    }
+
+    private fun initSpringView() {
+        springView.setListener(object : SpringView.OnFreshListener {
+            override fun onRefresh() {
+                openWebsite()
+            }
+
+            override fun onLoadmore() {
+                openWebsite()
+            }
+        })
+    }
+
+    private fun openWebsite() {
+        articleDTO.link?.toUri()?.let {
+            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+        }
+        springView.onFinishFreshAndLoad()
     }
 
     private fun initObserve() {
@@ -84,22 +105,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     }
 
     private fun initToolbar() {
-        toolbar?.let {
-            it.inflateMenu(R.menu.menu_article_detail)
-            it.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.openWebsiteAction -> {
-                        articleDTO.link?.toUri()?.let {
-                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
-                        }
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }
-
-
         toolbarExpandedImage.load(articleDTO.image)
         fakeTitleTextView.text = articleDTO.title
 
@@ -141,6 +146,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             )
 
             Handler(Looper.getMainLooper()).postDelayed({
+                webViewContainer.isVisible = true
                 webView?.isVisible = true
                 shimmerViewContainer?.isVisible = false
             }, 100) //to prevent white screen from flashing (webView still loading styles)
