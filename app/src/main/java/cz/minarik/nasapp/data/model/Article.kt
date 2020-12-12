@@ -1,7 +1,6 @@
 package cz.minarik.nasapp.data.model
 
 import com.prof.rssparser.Article
-import tw.ktrssreader.model.item.RssStandardItemData
 import java.io.Serializable
 
 data class Article(
