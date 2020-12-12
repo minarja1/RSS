@@ -2,7 +2,6 @@ package cz.minarik.nasapp.ui.articles
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import com.prof.rssparser.Article
 import com.prof.rssparser.Parser
 import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.NetworkState
@@ -21,8 +20,6 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.UniversePrefManager
 import kotlinx.coroutines.*
 import timber.log.Timber
-import tw.ktrssreader.Reader
-import tw.ktrssreader.model.channel.RssStandardChannelData
 import java.io.IOException
 import java.nio.charset.Charset
 
@@ -73,7 +70,7 @@ abstract class GenericArticlesFragmentViewModel(
     private suspend fun loadArticlesFromUrl(
         url: String,
         flushCache: Boolean,
-        result: MutableList<Article>
+        result: MutableList<cz.minarik.nasapp.data.model.Article>
     ) {
         try {
             Timber.i("Loading articles for url: $url")
@@ -83,14 +80,15 @@ abstract class GenericArticlesFragmentViewModel(
             }
             val source = sourceDao.getByUrl(url)
             source?.let {
-                val articleNew = Reader.read<RssStandardChannelData>(source.url)
                 val articles = parser.getChannel(source.url).articles
                 articles.forEach {
                     it.sourceUrl = source.url
                     it.sourceName = source.title
                 }
                 synchronized(this) {
-                    result.addAll(articles)
+                    result.addAll(articles.map {
+                        cz.minarik.nasapp.data.model.Article.fromLibrary(it)
+                    })
                 }
             }
         } catch (e: Exception) {
@@ -117,7 +115,7 @@ abstract class GenericArticlesFragmentViewModel(
                     return@launch
                 }
 
-                val allArticleList = mutableListOf<Article>()
+                val allArticleList = mutableListOf<cz.minarik.nasapp.data.model.Article>()
 
                 ensureActive()
                 val selectedSource = getSource()
@@ -142,7 +140,7 @@ abstract class GenericArticlesFragmentViewModel(
 
                 val mappedArticles = allArticleList.map { article ->
                     ensureActive()
-                    ArticleDTO.fromApi(article).apply {
+                    ArticleDTO.fromModel(article).apply {
                         guid?.let {
                             read = readArticleDao.getByGuid(it) != null
                             starred = articlesRepository.getByGuid(it) != null

@@ -198,7 +198,7 @@ data class ArticleDTO(
         }
 
     companion object {
-        fun fromApi(article: Article): ArticleDTO {
+        fun fromModel(article: cz.minarik.nasapp.data.model.Article): ArticleDTO {
             val image = if (article.image.isNullOrEmpty()) {
                 article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
             } else {
