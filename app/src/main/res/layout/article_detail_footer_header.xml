@@ -13,7 +13,6 @@
         android:layout_height="50dp"
         app:lottie_autoPlay="false"
         app:lottie_fileName="open_website_lottie_anim.json"
-        app:lottie_loop="true"
         app:lottie_speed=".65" />
 
     <TextView

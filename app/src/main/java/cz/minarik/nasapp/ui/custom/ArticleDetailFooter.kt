@@ -21,12 +21,12 @@ class ArticleDetailFooter : BaseSimpleFooter() {
     }
 
     override fun onLimitDes(rootView: View?, upORdown: Boolean) {
-        view.findViewById<LottieAnimationView>(R.id.footerAnimationView)?.run {
+        getLottieAnimationView()?.run {
             if (upORdown) {
+                speed = 0.65f
                 playAnimation()
             } else {
-                pauseAnimation()
-                progress = 0f
+                speed = -.65f
             }
         }
     }
@@ -35,5 +35,13 @@ class ArticleDetailFooter : BaseSimpleFooter() {
     }
 
     override fun onFinishAnim() {
+        getLottieAnimationView()?.run {
+            pauseAnimation()
+            progress = 0f
+        }
+    }
+
+    private fun getLottieAnimationView(): LottieAnimationView? {
+        return view.findViewById(R.id.footerAnimationView)
     }
 }
