@@ -45,10 +45,11 @@ val appModule = module {
         )
     }
 
-    viewModel { (articleUrl: String?, context: Context) ->
+    viewModel { (articleUrl: String?) ->
         ArticleDetailFragmentViewModel(
             articleUrl,
-            context,
+            androidContext(),
+            get(),
             get(),
         )
     }

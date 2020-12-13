@@ -1,7 +1,6 @@
 package cz.minarik.nasapp.ui.articles
 
 import android.content.ComponentName
-import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -117,14 +116,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                         }
 
                         override fun onShare() {
-                            val sendIntent: Intent = Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, article.link)
-                                type = "text/plain"
-                            }
-
-                            val shareIntent = Intent.createChooser(sendIntent, null)
-                            startActivity(shareIntent)
+                            shareArticle(article)
                         }
 
                     }
@@ -149,8 +141,9 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 }
             },
             preloadUrl = {
-                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
-                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
+                //todo podle nastaveni
+//                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
+//                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
             },
             filterBySource = {
                 val action = ArticlesFragmentDirections.actionArticlesToSimpleArticles(it ?: "")
@@ -163,11 +156,12 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         super.onCreate(savedInstanceState)
 
         //init Custom tabs services
-        CustomTabsClient.bindCustomTabsService(
+        val success = CustomTabsClient.bindCustomTabsService(
             requireContext(),
             CHROME_PACKAGE,
             customTabsConnection
         )
+        Timber.i("Binding Custom Tabs service ${if (success) "SUCCESSFUL" else "FAILED"}")
     }
 
     private fun initCustomTabs() {
@@ -193,8 +187,14 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         searchView = view?.findViewById(R.id.search_view)
         toolbarContentContainer = view?.findViewById(R.id.toolbarContentContainer)
 
-        articlesRecyclerView?.dividerMedium()
-        articlesRecyclerView?.adapter = articlesAdapter
+        articlesRecyclerView?.apply {
+            dividerMedium()
+            layoutManager =
+                LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            //todo swiping not working when uncommented
+//            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+            adapter = articlesAdapter
+        }
         initToolbar()
         initSearchView()
         setupFilters(view)

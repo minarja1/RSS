@@ -80,4 +80,6 @@ dependencies {
     implementation 'com.github.faruktoptas:RetrofitRssConverterFactory:0.1.0'
 
     implementation 'com.liaoinstan.springview:library:1.7.0'
+
+    implementation "com.airbnb.android:lottie:3.5.0"
 }

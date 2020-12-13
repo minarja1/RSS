@@ -2,17 +2,25 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bottom_sheet_background"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:background="@drawable/bottom_sheet_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorSurface"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/articleTitleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Universe.Title"
+            tools:text="lskdj falskd j;aslkjf ;lasdk flasd flajksdl fasldf j" />
 
         <LinearLayout
             android:id="@+id/starButton"
@@ -38,7 +46,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Star item"
                 android:textAppearance="@style/TextAppearance.Universe.Title" />
 
         </LinearLayout>
@@ -67,7 +74,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Mark as read"
                 android:textAppearance="@style/TextAppearance.Universe.Title" />
 
         </LinearLayout>

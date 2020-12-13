@@ -2,6 +2,7 @@ package cz.minarik.nasapp.utils
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,8 +22,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsCallback
+import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
+import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -35,7 +39,9 @@ import com.chimbori.crux.articles.Article
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.pxToDp
 import cz.minarik.base.common.extensions.toast
+import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants.Companion.RECYCLER_MAX_VERTICAL_OFFEST_FOR_SMOOTH_SCROLLING
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import org.jsoup.nodes.Document
@@ -47,6 +53,17 @@ import org.koin.core.qualifier.Qualifier
 import timber.log.Timber
 import java.net.URL
 import java.util.*
+
+fun BaseFragment.shareArticle(article: ArticleDTO) {
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, article.link)
+        type = "text/plain"
+    }
+
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    startActivity(shareIntent)
+}
 
 fun String?.toImageSharedTransitionName(): String {
     return "image|${this}"
@@ -211,6 +228,36 @@ val Article.imgUrlSafe: String?
 
 
 //todo move to Base________________________________________________________________________________
+
+
+/**
+ * Custom Tabs warmUp routine with optional Uri preloading.
+ */
+fun Context.warmUpBrowser(uriToPreload: Uri? = null) {
+    val customTabsConnection = object : CustomTabsServiceConnection() {
+        override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
+            client.run {
+                warmup(0)
+                uriToPreload?.let {
+                    val customTabsSession = newSession(object : CustomTabsCallback() {})
+                    val success = customTabsSession?.mayLaunchUrl(it, null, null)
+                    Timber.i("Preloading url $it ${if (success == true) "SUCCESSFUL" else "FAILED"}")
+                }
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+    }
+    //init Custom tabs services
+    val success = CustomTabsClient.bindCustomTabsService(
+        this,
+        CHROME_PACKAGE,
+        customTabsConnection
+    )
+    Timber.i("Binding Custom Tabs service ${if (success) "SUCCESSFUL" else "FAILED"}")
+}
+
 
 fun <T> compareLists(first: List<T>, second: List<T>): Boolean {
 

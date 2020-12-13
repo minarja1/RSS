@@ -13,7 +13,8 @@
     <string name="no_results">No results</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="press_back_again_to_leave">Press back again to leave</string>
-    <string name="star_item">Star item</string>
+    <string name="star_article">Star article</string>
+    <string name="remove_star">Remove star</string>
     <string name="generic_error">Oops! Something went wrong :(</string>
     <string name="gallery">Gallery</string>
     <string name="visit_website">Visit website</string>
@@ -26,4 +27,7 @@
     <string name="share_article">Share article</string>
     <string name="common_connection_timeout">Connection tiemed out</string>
     <string name="article_detail_warning">The content above might not be an exact representation of the original article. Swipe up to load full article.</string>
+    <string name="mark_article_as_unread">Mark article as unread</string>
+    <string name="mark_article_as_read">Mark article as read</string>
+    <string name="action_more_options">More options</string>
 </resources>

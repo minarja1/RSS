@@ -2,22 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="55dp"
     android:background="@color/colorBackground"
     android:gravity="center"
     android:orientation="horizontal">
 
-    <ImageView
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/ic_icons8_website_64"
-        app:tint="@color/textColorSecondary" />
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/footerAnimationView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:lottie_autoPlay="false"
+        app:lottie_fileName="open_website_lottie_anim.json"
+        app:lottie_loop="true"
+        app:lottie_speed=".65" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="@string/action_open_web"
-        android:textAppearance="@style/TextAppearance.Universe.Title" />
+        android:textAppearance="@style/TextAppearance.Universe.Title"
+        android:textColor="@color/textColorPrimary" />
 
 </LinearLayout>

@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/openWebsiteAction"
-        android:title="@string/action_open_web"
-        android:icon="@drawable/ic_icons8_website_64"
-        app:showAsAction="ifRoom"/>
+        android:id="@+id/articleShareItem"
+        android:icon="@drawable/ic_baseline_share_24"
+        android:title="@string/share_article"
+        app:showAsAction="always" />
 
 </menu>

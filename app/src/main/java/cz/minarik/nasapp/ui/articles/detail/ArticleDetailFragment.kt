@@ -7,6 +7,7 @@ import android.transition.Transition
 import android.view.View
 import android.widget.ImageView
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
@@ -23,6 +24,8 @@ import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.custom.ArticleDetailFooter
+import cz.minarik.nasapp.ui.custom.ArticleDetailHeader
 import cz.minarik.nasapp.ui.custom.GalleryViewClickListener
 import cz.minarik.nasapp.ui.custom.GalleryViewImageDTO
 import cz.minarik.nasapp.utils.*
@@ -60,9 +63,35 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         dateTextView.text = articleDTO.date?.toTimeElapsed()
         stateView.attacheContentView(contentContainer)
         initSpringView()
+        requireContext().warmUpBrowser(articleDTO.link?.toUri())
+        initArticleStarred()
+        updateArticleStarred()
+    }
+
+    private fun updateArticleStarred() {
+        starImageButton.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                if (articleDTO.starred) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_outline_24
+            )
+        )
+    }
+
+    private fun initArticleStarred() {
+        starImageButton.setOnClickListener {
+            viewModel.markArticleAsStarred(articleDTO)
+        }
     }
 
     private fun initSpringView() {
+        springView.footer = ArticleDetailFooter()
+        springView.header = ArticleDetailHeader()
+        springView.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.colorBackground
+            )
+        )
         springView.setListener(object : SpringView.OnFreshListener {
             override fun onRefresh() {
                 openWebsite()
@@ -82,6 +111,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     }
 
     private fun initObserve() {
+        viewModel.articleStarredLiveData.observe {
+            updateArticleStarred()
+        }
         viewModel.articleLiveData.observe { article ->
             updateArticleViews(article)
         }
@@ -105,6 +137,19 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     }
 
     private fun initToolbar() {
+        toolbar?.let {
+            it.inflateMenu(R.menu.menu_article_detail)
+            it.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.articleShareItem -> {
+                        shareArticle(articleDTO)
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+
         toolbarExpandedImage.load(articleDTO.image)
         fakeTitleTextView.text = articleDTO.title
 
