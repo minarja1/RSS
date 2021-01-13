@@ -22,6 +22,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
@@ -36,6 +37,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.chimbori.crux.articles.Article
+import cz.minarik.base.common.extensions.LastDividerItemDecorator
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.pxToDp
 import cz.minarik.base.common.extensions.toast
@@ -228,6 +230,17 @@ val Article.imgUrlSafe: String?
 
 
 //todo move to Base________________________________________________________________________________
+
+
+fun RecyclerView.dividerFullWidth() {
+    val listDivider = LastDividerItemDecorator(
+        AppCompatResources.getDrawable(
+            context,
+            R.drawable.recyclerview_divider_full_horizontal
+        )!!
+    )
+    addItemDecoration(listDivider)
+}
 
 
 /**

@@ -72,12 +72,6 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
                 if (article.read) R.color.colorWindowBackground else R.color.colorSurface
             )
         )
-        sourceCard.setCardBackgroundColor(
-            ContextCompat.getColor(
-                context,
-                if (article.read) R.color.colorWindowBackground else R.color.colorSurface
-            )
-        )
 
         titleTextView.text = article.title
         dateTextView.text = article.date?.toTimeElapsed()
@@ -98,18 +92,16 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         subtitleTextView.text = article.description?.toHtml()
 
         sourceNameTextView.text = article.sourceName
-        sourceCard.setOnClickListener {
-            filterBySource?.invoke(article.sourceUrl)
-        }
+
         try {
             val url = URL(article.sourceUrl)
             sourceImageView.load(url.getFavIcon())
         } catch (e: Exception) {
         }
 
-        sourceCard.isVisible = article.showSource && !article.sourceUrl.isNullOrEmpty()
-
         starImageView.isVisible = article.starred
+
+        sourceContainer.isVisible = article.showSource
 
         expand(true)
     }
@@ -151,13 +143,14 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             val contentPadding = if (expanded) 16.dpToPx else 8.dpToPx
             contentLayout.setPadding(contentPadding, contentPadding, contentPadding, contentPadding)
 
-            val contentPaddingSmall = if (expanded) 8.dpToPx else 4.dpToPx
+            val contentPaddingSmall = if (expanded) 4.dpToPx else 2.dpToPx
             val layoutParams = LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             layoutParams.setMargins(0, contentPaddingSmall, 0, 0)
-            sourceCard.layoutParams = layoutParams
+            sourceContainer.layoutParams = layoutParams
+            dateContainer.setPadding(0,contentPaddingSmall, 0,0)
 
             expandButton.load(if (expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
 

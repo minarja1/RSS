@@ -119,6 +119,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                             shareArticle(article)
                         }
 
+                        override fun onSource(sourceUrl: String) {
+                            filterBySource(sourceUrl)
+                        }
+
                     }
                     sheet.show(childFragmentManager, Constants.ARTICLE_BOTTOM_SHEET_TAG)
                 }
@@ -146,10 +150,16 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 //                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
             },
             filterBySource = {
-                val action = ArticlesFragmentDirections.actionArticlesToSimpleArticles(it ?: "")
-                findNavController().navigate(action)
+                if (it != null) {
+                    filterBySource(it)
+                }
             }
         )
+    }
+
+    private fun filterBySource(sourceUrl: String) {
+        val action = ArticlesFragmentDirections.actionArticlesToSimpleArticles(sourceUrl)
+        findNavController().navigate(action)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

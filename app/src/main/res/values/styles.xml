@@ -26,6 +26,13 @@
         <item name="android:focusable">true</item>
     </style>
 
+    <style name="MaterialCardBorderLess" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/colorSurface</item>
+        <item name="cardElevation">0dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
     <style name="ClickableCard" parent="@style/Widget.MaterialComponents.CardView">
         <item name="cardCornerRadius">@dimen/rounded_corner_small</item>
         <item name="cardBackgroundColor">@color/colorWindowBackground</item>
@@ -47,7 +54,7 @@
 
 
     <style name="TextAppearance.Base" parent="TextAppearance.MaterialComponents.Headline1">
-        <item name="fontFamily">sans-serif-condensed</item>
+        <item name="fontFamily">sans-serif</item>
         <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:lineSpacingExtra">2sp</item>
     </style>

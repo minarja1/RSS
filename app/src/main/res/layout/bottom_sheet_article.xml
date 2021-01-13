@@ -36,8 +36,8 @@
 
             <ImageView
                 android:id="@+id/starImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_baseline_star_24"
                 app:tint="@color/yellow" />
 
@@ -64,8 +64,8 @@
 
             <ImageView
                 android:id="@+id/readImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_baseline_check_24"
                 app:tint="@color/colorAccent" />
 
@@ -91,8 +91,8 @@
             android:paddingEnd="16dp">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_baseline_share_24"
                 app:tint="@color/colorAccent" />
 
@@ -101,6 +101,33 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="@string/share_article"
+                android:textAppearance="@style/TextAppearance.Universe.Title" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sourceButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/custom_ripple"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:id="@+id/sourceImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+
+            <TextView
+                android:id="@+id/sourceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                tools:text="more from Space.com"
                 android:textAppearance="@style/TextAppearance.Universe.Title" />
 
         </LinearLayout>

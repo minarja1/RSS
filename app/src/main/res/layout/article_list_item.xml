@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/cardView"
-            style="@style/MaterialCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:clickable="true"
-            android:focusable="true"
-            android:minHeight="@dimen/article_list_item_collapsed_height">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardView"
+    style="@style/MaterialCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="@dimen/article_list_item_collapsed_height">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -103,6 +103,7 @@
                         android:orientation="vertical">
 
                         <LinearLayout
+                            android:id="@+id/dateContainer"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
@@ -115,7 +116,7 @@
                                 android:layout_marginEnd="4dp"
                                 android:scaleType="fitCenter"
                                 android:src="@drawable/ic_baseline_star_24"
-                                android:tint="@color/yellow" />
+                                app:tint="@color/yellow" />
 
                             <TextView
                                 android:id="@+id/dateTextView"
@@ -126,56 +127,42 @@
                                 android:maxLines="1"
                                 android:minLines="1"
                                 android:textAlignment="viewStart"
+                                android:textSize="12sp"
                                 android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                                 android:textColor="@color/textColorSecondary"
                                 tools:text="26. 01. 1994" />
                         </LinearLayout>
 
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/sourceCard"
-                            style="@style/ClickableCard"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:id="@+id/sourceContainer"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="4dp"
+                            android:layout_gravity="center_vertical"
                             android:orientation="horizontal"
-                            app:contentPaddingTop="3dp"
-                            app:contentPaddingBottom="3dp"
-                            app:contentPaddingLeft="6dp"
-                            app:contentPaddingRight="6dp">
+                            android:paddingEnd="38dp">
 
-                            <LinearLayout
+                            <ImageView
+                                android:id="@+id/sourceImageView"
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginEnd="4dp" />
+
+                            <TextView
+                                android:id="@+id/sourceNameTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
-                                android:orientation="horizontal">
+                                android:ellipsize="end"
+                                android:lines="1"
+                                android:maxLines="1"
+                                android:minLines="1"
+                                android:textAppearance="@style/TextAppearance.Universe.Subtitle"
+                                android:textColor="@color/textColorSecondary"
+                                android:textSize="14sp"
+                                tools:text="space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com " />
 
-                                <ImageView
-                                    android:id="@+id/sourceImageView"
-                                    android:layout_width="14dp"
-                                    android:layout_height="14dp"
-                                    android:layout_gravity="center_vertical"
-                                    android:layout_marginEnd="4dp" />
-
-                                <TextView
-                                    android:id="@+id/sourceNameTextView"
-                                    android:layout_width="wrap_content"
-                                    android:layout_gravity="center_vertical"
-                                    android:layout_height="wrap_content"
-                                    android:ellipsize="end"
-                                    android:lines="1"
-                                    android:maxLines="1"
-                                    android:minLines="1"
-                                    android:textAlignment="viewStart"
-                                    android:textAppearance="@style/TextAppearance.Universe.Subtitle"
-                                    android:textColor="@color/textColorSecondary"
-                                    android:textSize="14sp"
-                                    tools:text="space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com space.com " />
-
-                            </LinearLayout>
-
-                        </com.google.android.material.card.MaterialCardView>
+                        </LinearLayout>
 
                     </LinearLayout>
 

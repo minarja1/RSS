@@ -3,12 +3,16 @@ package cz.minarik.nasapp.ui.articles.bottomSheet
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
+import coil.load
+import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.base.BaseBottomSheet
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
-import cz.minarik.nasapp.utils.loadImageWithDefaultSettings
 import kotlinx.android.synthetic.main.bottom_sheet_article.*
+import java.net.MalformedURLException
+import java.net.URL
 
 class ArticleBottomSheet : BaseBottomSheet() {
 
@@ -66,6 +70,25 @@ class ArticleBottomSheet : BaseBottomSheet() {
         shareButton.setOnClickListener {
             listener?.onShare()
             dismiss()
+        }
+
+        sourceButton.isVisible = article.showSource
+
+        article.sourceUrl?.let { sourceUrl ->
+            try {
+                val url = URL(sourceUrl)
+                sourceImageView.load(url.getFavIcon())
+            } catch (e: MalformedURLException) {
+            }
+
+            article.sourceName?.let {
+                val sourceText = "${getString(R.string.more_from)} $it"
+                sourceTextView.text = sourceText
+            }
+            sourceButton.setOnClickListener {
+                listener?.onSource(sourceUrl)
+                dismiss()
+            }
         }
     }
 

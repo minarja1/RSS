@@ -88,14 +88,14 @@ open class StateView @JvmOverloads constructor(
         button?.let {
             it.text = buttonFirst
             it.isInvisible = onClick == null
-            setOnClickListener {
+            it.setOnClickListener {
                 onClick?.invoke()
             }
         }
         secondButton?.let {
             it.text = buttonSecond
             it.isInvisible = onSecondClick == null
-            setOnClickListener {
+            it.setOnClickListener {
                 onSecondClick?.invoke()
             }
         }

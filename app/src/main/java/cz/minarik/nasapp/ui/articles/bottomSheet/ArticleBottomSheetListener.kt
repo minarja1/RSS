@@ -4,4 +4,5 @@ interface ArticleBottomSheetListener {
     fun onStarred()
     fun onRead()
     fun onShare()
+    fun onSource(sourceUrl:String)
 }

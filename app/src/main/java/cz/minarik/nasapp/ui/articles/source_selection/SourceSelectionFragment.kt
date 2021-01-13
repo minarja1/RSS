@@ -4,12 +4,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import cz.minarik.base.common.extensions.dividerMedium
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.dialog.ArticleSourceAdapter
+import cz.minarik.nasapp.utils.dividerFullWidth
 import kotlinx.android.synthetic.main.fragment_source_selection.*
-import kotlinx.coroutines.delay
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 
@@ -41,6 +42,9 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
     }
 
     private fun initViews() {
+        articleSourcesRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+        articleSourcesRecyclerView.dividerFullWidth()
         adapter = ArticleSourceAdapter(mutableListOf()) {
             viewModel.onSourceSelected(it)
 
@@ -50,7 +54,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                 Timber.e(e)
             }
         }
-        articleSourcesRecyclerView.dividerMedium()
         articleSourcesRecyclerView.adapter = adapter
     }
 
