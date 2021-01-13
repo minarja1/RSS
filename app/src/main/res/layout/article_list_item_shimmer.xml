@@ -70,15 +70,14 @@
                         android:layout_marginTop="4dp"
                         android:background="@color/shimmer_block" />
 
-                    <com.google.android.material.card.MaterialCardView
+                    <View
                         style="@style/ClickableCard"
                         android:layout_width="150dp"
                         android:layout_height="15dp"
                         android:layout_marginTop="4dp"
                         android:background="@color/shimmer_block"
                         android:clickable="false"
-                        android:gravity="center_vertical"
-                        app:cardBackgroundColor="@color/shimmer_block" />
+                        android:gravity="center_vertical" />
 
                 </LinearLayout>
 

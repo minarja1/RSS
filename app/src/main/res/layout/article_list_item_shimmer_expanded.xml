@@ -96,15 +96,13 @@
                         android:layout_marginTop="8dp"
                         android:background="@color/shimmer_block" />
 
-                    <com.google.android.material.card.MaterialCardView
-                        style="@style/ClickableCard"
+                    <View
                         android:layout_width="150dp"
                         android:layout_height="15dp"
                         android:layout_marginTop="8dp"
                         android:background="@color/shimmer_block"
                         android:clickable="false"
-                        android:gravity="center_vertical"
-                        app:cardBackgroundColor="@color/shimmer_block" />
+                        android:gravity="center_vertical"/>
                 </LinearLayout>
 
             </LinearLayout>
