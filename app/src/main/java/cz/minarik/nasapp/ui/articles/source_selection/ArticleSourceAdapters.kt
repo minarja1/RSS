@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import coil.load
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
-import cz.minarik.nasapp.data.domain.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.ui.base.BaseAdapter
 import cz.minarik.nasapp.ui.base.BaseListAdapter
 import kotlinx.android.synthetic.main.item_product_section_title.view.*
@@ -39,19 +39,19 @@ class TitleAdapter(
 }
 
 class ArticleSourceAdapter(
-    private var onItemClicked: ((item: RSSSourceDTO) -> Unit)?
-) : BaseListAdapter<RSSSourceDTO>(
-    R.layout.row_source_item, object : DiffUtil.ItemCallback<RSSSourceDTO>() {
+    private var onItemClicked: ((item: RSSSource) -> Unit)?
+) : BaseListAdapter<RSSSource>(
+    R.layout.row_source_item, object : DiffUtil.ItemCallback<RSSSource>() {
         override fun areItemsTheSame(
-            oldItem: RSSSourceDTO,
-            newItem: RSSSourceDTO
+            oldItem: RSSSource,
+            newItem: RSSSource
         ): Boolean {
             return oldItem.title == newItem.title
         }
 
         override fun areContentsTheSame(
-            oldItem: RSSSourceDTO,
-            newItem: RSSSourceDTO
+            oldItem: RSSSource,
+            newItem: RSSSource
         ): Boolean {
             return oldItem == newItem
         }
@@ -59,7 +59,7 @@ class ArticleSourceAdapter(
 ) {
     override fun bind(
         itemView: View,
-        item: RSSSourceDTO,
+        item: RSSSource,
         position: Int,
         viewHolder: BaseViewHolderImp
     ) {
@@ -86,6 +86,9 @@ class ArticleSourceButtonAdapter(
         viewHolder: BaseViewHolderImp
     ) {
         itemView.run {
+            sourceButtonBackground.setOnClickListener {
+                onItemClicked?.invoke()
+            }
             item.imageRes?.let {
                 sourceButtonImageView.load(item.imageRes)
             }

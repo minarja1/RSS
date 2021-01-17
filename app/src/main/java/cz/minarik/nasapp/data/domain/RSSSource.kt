@@ -5,7 +5,7 @@ import cz.minarik.nasapp.data.db.entity.RSSSourceListDataEntity
 import cz.minarik.nasapp.utils.compareLists
 import java.io.Serializable
 
-data class RSSSourceDTO(
+data class RSSSource(
     val title: String? = null,
     val URLs: List<String> = emptyList(),
     val imageUrl: String? = null,
@@ -18,8 +18,8 @@ data class RSSSourceDTO(
     companion object {
         fun fromEntity(
             source: RSSSourceEntity,
-        ): RSSSourceDTO {
-            return RSSSourceDTO(
+        ): RSSSource {
+            return RSSSource(
                 title = source.title,
                 URLs = listOf(source.url),
                 imageUrl = source.imageUrl,
@@ -30,8 +30,8 @@ data class RSSSourceDTO(
 
         fun fromEntity(
             source: RSSSourceListDataEntity,
-        ): RSSSourceDTO {
-            return RSSSourceDTO(
+        ): RSSSource {
+            return RSSSource(
                 title = source.rssSourceEntity.title,
                 URLs = source.sources.map {
                     it.url
@@ -46,7 +46,7 @@ data class RSSSourceDTO(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is RSSSourceDTO) return false
+        if (other !is RSSSource) return false
 
         if (title != other.title) return false
         if (!compareLists(URLs, other.URLs)) return false

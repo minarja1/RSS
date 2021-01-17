@@ -16,7 +16,7 @@ import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.domain.Article
 import cz.minarik.nasapp.data.domain.ArticleFilterType
-import cz.minarik.nasapp.data.domain.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
 import cz.minarik.nasapp.data.domain.exception.NoConnectionException
 import cz.minarik.nasapp.data.network.RssApiService
@@ -367,7 +367,7 @@ abstract class GenericArticlesFragmentViewModel(
         articles.postValue(applySearchQueryFilters(mapped))
     }
 
-    abstract suspend fun getSource(): RSSSourceDTO?
+    abstract suspend fun getSource(): RSSSource?
 
 }
 

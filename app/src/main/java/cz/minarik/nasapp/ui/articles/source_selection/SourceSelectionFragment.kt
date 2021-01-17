@@ -2,12 +2,14 @@ package cz.minarik.nasapp.ui.articles.source_selection
 
 import android.os.Bundle
 import android.view.View
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
+import cz.minarik.nasapp.ui.articles.ArticlesFragmentDirections
 import kotlinx.android.synthetic.main.fragment_source_selection.*
 import org.koin.android.ext.android.inject
 
@@ -57,7 +59,8 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                     R.drawable.ic_baseline_tap_and_play_24
                 )
             ), onItemClicked = {
-                //todo
+                val action = ArticlesFragmentDirections.actionArticlesToSourceManagement()
+                findNavController().navigate(action)
             })
 
         sourceListAdapter = ArticleSourceAdapter {
@@ -71,7 +74,7 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         concatAdapter =
             ConcatAdapter(
                 manageSourcesAdapter,
-                TitleAdapter(listOf("Lists"), onItemClicked = {
+                TitleAdapter(listOf(getString(R.string.lists)), onItemClicked = {
                     listsVisible = if (listsVisible) {
                         concatAdapter.removeAdapter(sourceListAdapter)
                         false
@@ -81,7 +84,7 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                     }
                 }),
                 sourceListAdapter,
-                TitleAdapter(listOf("Sources"), onItemClicked = {
+                TitleAdapter(listOf(getString(R.string.sources)), onItemClicked = {
                     sourcesVisible = if (sourcesVisible) {
                         concatAdapter.removeAdapter(sourcesAdapter)
                         false

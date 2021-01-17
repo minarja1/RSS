@@ -395,7 +395,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         val showShimmer = loading && articlesEmpty && !isError
         shimmerLayout.isVisible = showShimmer
 
-        val showLoadingSwipeRefresh = loading && !showShimmer && !isError
+        val showLoadingSwipeRefresh = loadingArticles && !showShimmer && !isError
         swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
         swipeRefreshLayout.isEnabled = !showShimmer
 

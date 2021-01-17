@@ -11,7 +11,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
-import cz.minarik.nasapp.data.domain.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.utils.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -36,8 +36,8 @@ class RSSSourceRepository(
             context: Context,
             allUrls: List<String>,
             selected: Boolean
-        ): RSSSourceDTO {
-            return RSSSourceDTO(
+        ): RSSSource {
+            return RSSSource(
                 context.getString(R.string.all_articles),
                 allUrls,
                 imageUrl = null,

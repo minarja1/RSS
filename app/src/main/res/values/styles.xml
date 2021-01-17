@@ -54,6 +54,16 @@
     </style>
 
 
+    <style name="AppTheme.TabLayout" parent="@style/Widget.MaterialComponents.TabLayout">
+        <item name="tabGravity">center</item>
+        <item name="tabTextColor">@color/textColorSecondary</item>
+        <item name="tabSelectedTextColor">@color/textColorPrimary</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Universe.Subtitle</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:background">@drawable/bg_bottom_line</item>
+        <item name="tabMode">fixed</item>
+    </style>
+
     <style name="TextAppearance.Base" parent="TextAppearance.MaterialComponents.Headline1">
         <item name="fontFamily">sans-serif</item>
         <item name="android:textColor">@color/textColorPrimary</item>

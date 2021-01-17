@@ -9,6 +9,7 @@ import cz.minarik.nasapp.ui.articles.ArticlesFragmentViewModel
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragmentViewModel
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragmentViewModel
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
+import cz.minarik.nasapp.ui.articles.sources_manage.sources.ManageSourcesViewModel
 import cz.minarik.nasapp.utils.UniversePrefManager
 import me.toptas.rssconverter.RssConverterFactory
 import org.koin.android.ext.koin.androidApplication
@@ -62,6 +63,10 @@ val appModule = module {
             get(),
             get(),
         )
+    }
+
+    viewModel {
+        ManageSourcesViewModel()
     }
 
     single {

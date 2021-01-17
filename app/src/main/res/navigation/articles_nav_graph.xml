@@ -6,11 +6,24 @@
 
     <fragment
         android:id="@+id/drawerFragment"
-        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment" />
+        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment"/>
+
+    <fragment
+        android:id="@+id/manageSourcesFragment"
+        android:label="Manage sources"
+        android:name="cz.minarik.nasapp.ui.articles.sources_manage.ManageSourcesParentFragment" />
 
     <fragment
         android:id="@+id/articlesFragment"
         android:name="cz.minarik.nasapp.ui.articles.ArticlesFragment">
+
+        <action
+            android:id="@+id/action_articles_to_source_management"
+            app:destination="@id/manageSourcesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
 
         <action
             android:id="@+id/action_articles_to_simple_articles"

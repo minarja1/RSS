@@ -8,7 +8,7 @@ import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.StarredArticleDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
-import cz.minarik.nasapp.data.domain.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.articles.GenericArticlesFragmentViewModel
 import cz.minarik.nasapp.utils.UniversePrefManager
@@ -50,9 +50,9 @@ class SimpleArticlesFragmentViewModel(
         }
     }
 
-    override suspend fun getSource(): RSSSourceDTO? {
+    override suspend fun getSource(): RSSSource? {
         return sourceDao.getByUrl(sourceUrl)?.let {
-            RSSSourceDTO.fromEntity(it)
+            RSSSource.fromEntity(it)
         }
     }
 

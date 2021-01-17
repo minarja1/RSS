@@ -1,14 +1,13 @@
 package cz.minarik.nasapp.ui.articles
 
 import android.content.Context
-import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.StarredArticleDao
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
-import cz.minarik.nasapp.data.domain.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.utils.UniversePrefManager
 
@@ -31,11 +30,11 @@ class ArticlesFragmentViewModel(
     sourceListDao,
     rssApiService,
 ) {
-    override suspend fun getSource(): RSSSourceDTO? {
+    override suspend fun getSource(): RSSSource? {
         return sourceDao.getSelected()?.let {
-            RSSSourceDTO.fromEntity(it)
+            RSSSource.fromEntity(it)
         } ?: sourceListDao.getSelected()?.let {
-            RSSSourceDTO.fromEntity(it)
+            RSSSource.fromEntity(it)
         } ?: RSSSourceRepository.createFakeListItem(context, sourceDao.getAll().map { it.url }, true)
     }
 }

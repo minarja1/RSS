@@ -6,7 +6,7 @@ import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
-import cz.minarik.nasapp.data.domain.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.RSSSource
 import kotlinx.coroutines.launch
 
 class SourceSelectionViewModel(
@@ -16,8 +16,8 @@ class SourceSelectionViewModel(
     private val sourceListDao: RSSSourceListDao,
 ) : BaseViewModel() {
 
-    val sourcesData = MutableLiveData<MutableList<RSSSourceDTO>>()
-    val sourceListsData = MutableLiveData<MutableList<RSSSourceDTO>>()
+    val sourcesData = MutableLiveData<MutableList<RSSSource>>()
+    val sourceListsData = MutableLiveData<MutableList<RSSSource>>()
     val selectedSourceChanged = MutableLiveData<Boolean>()
     val selectedSourceName = MutableLiveData<String?>()
     val selectedSourceImage = MutableLiveData<String>()
@@ -29,10 +29,10 @@ class SourceSelectionViewModel(
 
     fun updateSources() {
         defaultScope.launch {
-            val allSources: MutableList<RSSSourceDTO> = mutableListOf()
+            val allSources: MutableList<RSSSource> = mutableListOf()
             var selectedSourceFound = false
             allSources.addAll(sourceDao.getAll().map {
-                RSSSourceDTO.fromEntity(it)
+                RSSSource.fromEntity(it)
             })
             allSources.firstOrNull { it.selected }?.let {
                 selectedSourceName.postValue(it.title)
@@ -40,9 +40,9 @@ class SourceSelectionViewModel(
                 selectedSourceFound = true
             }
 
-            val allLists: MutableList<RSSSourceDTO> = mutableListOf()
+            val allLists: MutableList<RSSSource> = mutableListOf()
             allLists.addAll(sourceListDao.getAll().map {
-                RSSSourceDTO.fromEntity(it)
+                RSSSource.fromEntity(it)
             })
             allLists.firstOrNull { it.selected }?.let {
                 selectedSourceName.postValue(it.title)
@@ -70,19 +70,19 @@ class SourceSelectionViewModel(
         }
     }
 
-    fun onSourceSelected(sourceSelectionDTO: RSSSourceDTO) {
+    fun onSourceSelected(sourceSelection: RSSSource) {
         launch {
             when {
-                sourceSelectionDTO.isFake -> {
+                sourceSelection.isFake -> {
                     sourceRepository.unselectAll()
                 }
-                sourceSelectionDTO.isList -> {
-                    sourceSelectionDTO.listId?.let {
+                sourceSelection.isList -> {
+                    sourceSelection.listId?.let {
                         sourceRepository.setSelectedList(it)
                     }
                 }
                 else -> {
-                    sourceRepository.setSelected(sourceSelectionDTO.URLs.firstOrNull())
+                    sourceRepository.setSelected(sourceSelection.URLs.firstOrNull())
                 }
             }
             selectedSourceChanged.postValue(true)

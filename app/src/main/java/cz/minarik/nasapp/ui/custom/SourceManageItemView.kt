@@ -11,7 +11,7 @@ import cz.minarik.nasapp.data.domain.RSSSource
 import kotlinx.android.synthetic.main.source_selection_list_item.view.*
 
 
-class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
+class SourceManageItemView(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs) {
 
     init {
