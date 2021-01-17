@@ -2,23 +2,25 @@ package cz.minarik.nasapp.ui.articles.source_selection
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.dialog.ArticleSourceAdapter
-import cz.minarik.nasapp.utils.dividerFullWidth
+import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import kotlinx.android.synthetic.main.fragment_source_selection.*
 import org.koin.android.ext.android.inject
-import timber.log.Timber
 
 class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection) {
 
     override val viewModel: SourceSelectionViewModel by inject()
 
-    private lateinit var adapter: ArticleSourceAdapter
+    private lateinit var concatAdapter: ConcatAdapter
+    private lateinit var sourcesAdapter: ArticleSourceAdapter
+    private lateinit var sourceListAdapter: ArticleSourceAdapter
+
+    private var listsVisible = true
+    private var sourcesVisible = true
 
     override fun showError(error: String?) {
     }
@@ -35,27 +37,63 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
     }
 
     private fun initObserve() {
-        viewModel.sourcesData.observe {
-            adapter.sources = it
-            adapter.notifyDataSetChanged()
+        viewModel.sourceListsData.observe { sources ->
+            sourceListAdapter.submitList(sources)
+        }
+        viewModel.sourcesData.observe { sources ->
+            sourcesAdapter.submitList(sources)
         }
     }
 
     private fun initViews() {
         articleSourcesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        articleSourcesRecyclerView.dividerFullWidth()
-        adapter = ArticleSourceAdapter(mutableListOf()) {
+
+
+        val manageSourcesAdapter = ArticleSourceButtonAdapter(
+            listOf(
+                ArticleSourceButton(
+                    getString(R.string.manage_sources),
+                    R.drawable.ic_baseline_tap_and_play_24
+                )
+            ), onItemClicked = {
+                //todo
+            })
+
+        sourceListAdapter = ArticleSourceAdapter {
             viewModel.onSourceSelected(it)
-
-            try {
-                (view?.parent?.parent as? DrawerLayout)?.closeDrawer(GravityCompat.START)
-            } catch (e: Exception) {
-                Timber.e(e)
-            }
         }
-        articleSourcesRecyclerView.adapter = adapter
-    }
 
+        sourcesAdapter = ArticleSourceAdapter {
+            viewModel.onSourceSelected(it)
+        }
+
+        concatAdapter =
+            ConcatAdapter(
+                manageSourcesAdapter,
+                TitleAdapter(listOf("Lists"), onItemClicked = {
+                    listsVisible = if (listsVisible) {
+                        concatAdapter.removeAdapter(sourceListAdapter)
+                        false
+                    } else {
+                        concatAdapter.addAdapter(2, sourceListAdapter)
+                        true
+                    }
+                }),
+                sourceListAdapter,
+                TitleAdapter(listOf("Sources"), onItemClicked = {
+                    sourcesVisible = if (sourcesVisible) {
+                        concatAdapter.removeAdapter(sourcesAdapter)
+                        false
+                    } else {
+                        concatAdapter.addAdapter(concatAdapter.adapters.size, sourcesAdapter)
+                        true
+                    }
+                }),
+                sourcesAdapter,
+            )
+
+        articleSourcesRecyclerView.adapter = concatAdapter
+    }
 
 }

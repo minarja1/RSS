@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.data.model
+package cz.minarik.nasapp.data.domain
 
 import com.prof.rssparser.Article
 import me.toptas.rssconverter.RssItem
@@ -24,8 +24,8 @@ data class Article(
         get() = !guid.isNullOrEmpty() && pubDate != null
 
     companion object {
-        fun fromLibrary(article: Article): cz.minarik.nasapp.data.model.Article {
-            return cz.minarik.nasapp.data.model.Article(
+        fun fromLibrary(article: Article): cz.minarik.nasapp.data.domain.Article {
+            return cz.minarik.nasapp.data.domain.Article(
                 guid = article.guid,
                 title = article.title,
                 author = article.author,
@@ -41,9 +41,9 @@ data class Article(
             )
         }
 
-        fun fromApi(article: RssItem): cz.minarik.nasapp.data.model.Article {
+        fun fromApi(article: RssItem): cz.minarik.nasapp.data.domain.Article {
             val guid = "${article.link}|${article.publishDate}"
-            return cz.minarik.nasapp.data.model.Article(
+            return cz.minarik.nasapp.data.domain.Article(
                 guid = guid,
                 title = article.title,
                 link = article.link,

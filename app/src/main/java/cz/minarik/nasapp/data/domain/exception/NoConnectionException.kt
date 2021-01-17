@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.data.model.exception
+package cz.minarik.nasapp.data.domain.exception
 
 import androidx.annotation.Keep
 import cz.minarik.nasapp.R

@@ -5,7 +5,7 @@ import cz.minarik.base.common.extensions.booleanPreference
 import cz.minarik.base.common.extensions.longPreference
 import cz.minarik.base.common.extensions.stringPreference
 import cz.minarik.base.common.prefs.PrefManager
-import cz.minarik.nasapp.data.model.ArticleFilterType
+import cz.minarik.nasapp.data.domain.ArticleFilterType
 
 class UniversePrefManager(context: Context) : PrefManager(context) {
 

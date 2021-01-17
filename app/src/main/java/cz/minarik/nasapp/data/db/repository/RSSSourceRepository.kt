@@ -9,7 +9,9 @@ import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseRepository
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
+import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
+import cz.minarik.nasapp.data.domain.RSSSourceDTO
 import cz.minarik.nasapp.utils.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -21,13 +23,29 @@ import java.nio.charset.Charset
 
 class RSSSourceRepository(
     private val context: Context,
-    private val dao: RSSSourceDao,
+    private val sourceDao: RSSSourceDao,
+    private val sourceListDao: RSSSourceListDao,
     private val prefManager: UniversePrefManager,
 ) : BaseRepository(),
     RealtimeDatabaseQueryListener<List<RealtimeDatabaseHelper.RssFeedDTO>> {
 
     companion object {
         const val cacheExpirationMillis = 1000L * 60L * 60L * 24 // 1 day
+
+        fun createFakeListItem(
+            context: Context,
+            allUrls: List<String>,
+            selected: Boolean
+        ): RSSSourceDTO {
+            return RSSSourceDTO(
+                context.getString(R.string.all_articles),
+                allUrls,
+                imageUrl = null,
+                selected,
+                isFake = true,
+                isList = true,
+            )
+        }
     }
 
     val state = MutableLiveData<NetworkState>()
@@ -46,7 +64,7 @@ class RSSSourceRepository(
             .build()
 
         GlobalScope.launch {
-            val allDB = dao.getNonUserAdded()
+            val allDB = sourceDao.getNonUserAdded()
 
             val dbUrls = allDB.map { it.url }
             val allServerUrls = allFromServer.map { it?.url }
@@ -55,7 +73,7 @@ class RSSSourceRepository(
             for (dbUrl in dbUrls) {
                 if (!allServerUrls.contains(dbUrl)) {
                     allDB.find { it.url == dbUrl }?.let {
-                        dao.delete(it)
+                        sourceDao.delete(it)
                     }
                 }
             }
@@ -68,7 +86,7 @@ class RSSSourceRepository(
                 async {
                     feed?.url?.let {
                         try {
-                            var entity = dao.getByUrl(it)
+                            var entity = sourceDao.getByUrl(it)
                             val url = URL(it)
                             if (entity == null) {
                                 val channel = parser.getChannel(it)
@@ -83,7 +101,7 @@ class RSSSourceRepository(
                                 entity.imageUrl = url.getFavIcon()
                             }
 
-                            dao.insert(entity)
+                            sourceDao.insert(entity)
                         } catch (e: Exception) {
                             Timber.e(e)
                         }
@@ -91,7 +109,7 @@ class RSSSourceRepository(
                 }
             }.awaitAll()
 
-            val newDb = dao.getNonUserAdded()
+            val newDb = sourceDao.getNonUserAdded()
             if (!compareLists(allDB, newDb)) {
                 sourcesChanged.postValue(true)
             }
@@ -109,10 +127,41 @@ class RSSSourceRepository(
     }
 
     suspend fun setSelected(selectedUrl: String?) {
-        for (source in dao.getAll()) {
+        //select given source
+        for (source in sourceDao.getAll()) {
             source.isSelected = source.url == selectedUrl
-            dao.update(source)
+            sourceDao.update(source)
+        }
+
+        unselectAllLists()
+    }
+
+    private suspend fun unselectAllLists() {
+        for (list in sourceListDao.getAll()) {
+            list.rssSourceEntity.isSelected = false
+            sourceListDao.update(list.rssSourceEntity)
         }
     }
 
+    private suspend fun unselectAllSources() {
+        for (source in sourceDao.getAll()) {
+            source.isSelected = false
+            sourceDao.update(source)
+        }
+    }
+
+    suspend fun setSelectedList(id: Long) {
+        //select given list
+        for (list in sourceListDao.getAll()) {
+            list.rssSourceEntity.isSelected = list.rssSourceEntity.id == id
+            sourceListDao.update(list.rssSourceEntity)
+        }
+
+        unselectAllSources()
+    }
+
+    suspend fun unselectAll() {
+        unselectAllLists()
+        unselectAllSources()
+    }
 }

@@ -8,16 +8,17 @@ import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.base.network.ApiRequest
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
+import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.StarredArticleDao
-import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
-import cz.minarik.nasapp.data.model.Article
-import cz.minarik.nasapp.data.model.ArticleFilterType
-import cz.minarik.nasapp.data.model.exception.GenericException
-import cz.minarik.nasapp.data.model.exception.NoConnectionException
+import cz.minarik.nasapp.data.domain.Article
+import cz.minarik.nasapp.data.domain.ArticleFilterType
+import cz.minarik.nasapp.data.domain.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.exception.GenericException
+import cz.minarik.nasapp.data.domain.exception.NoConnectionException
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
@@ -34,6 +35,7 @@ abstract class GenericArticlesFragmentViewModel(
     private val starredArticleDao: StarredArticleDao,
     val prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
+    private val sourceListDao: RSSSourceListDao,
     private val rssApiService: RssApiService,
 ) : BaseViewModel() {
 
@@ -160,35 +162,24 @@ abstract class GenericArticlesFragmentViewModel(
                 ensureActive()
                 val selectedSource = getSource()
 
-                //get articles from api
-                if (selectedSource != null) {
-                    if (useRetrofit) {
-                        loadArticlesFromUrlRetrofit(selectedSource.url, force, allArticleList)
-                    } else {
-                        loadArticlesFromUrl(selectedSource.url, force, allArticleList)
-                    }
-                }  //load all sources
-                else {
-                    //todo something more sophisticated like lists etc.
-                    val allSources = sourceDao.getAll()
-                    (allSources.indices).map {
-                        ensureActive()
-                        async(Dispatchers.IO) {
-                            if (useRetrofit) {
-                                loadArticlesFromUrlRetrofit(
-                                    allSources[it].url,
-                                    force,
-                                    allArticleList
-                                )
-                            } else {
-                                loadArticlesFromUrl(allSources[it].url, force, allArticleList)
-                            }
+                //todo something more sophisticated like lists etc.
+                (selectedSource?.URLs?.indices)?.map {
+                    ensureActive()
+                    async(Dispatchers.IO) {
+                        if (useRetrofit) {
+                            loadArticlesFromUrlRetrofit(
+                                selectedSource.URLs[it],
+                                force,
+                                allArticleList
+                            )
+                        } else {
+                            loadArticlesFromUrl(selectedSource.URLs[it], force, allArticleList)
                         }
-                    }.awaitAll()
-                }
+                    }
+                }?.awaitAll()
 
                 ensureActive()
-                val shouldShowSource = selectedSource == null
+                val shouldShowSource = selectedSource?.isList ?: false
 
                 val mappedArticles = allArticleList.map { article ->
                     ensureActive()
@@ -355,10 +346,12 @@ abstract class GenericArticlesFragmentViewModel(
     private suspend fun loadStarredArticles() {
         Timber.i("loading starred articles")
         val selectedSource = getSource()
-        val fromDB = if (selectedSource == null) {
-            articlesRepository.getAll()
-        } else {
-            articlesRepository.getBySourceUrl(selectedSource.url)
+        val fromDB: MutableList<StarredArticleEntity> = mutableListOf()
+
+        selectedSource?.let {
+            for (url in it.URLs) {
+                fromDB.addAll(articlesRepository.getBySourceUrl(url))
+            }
         }
 
         val mapped = fromDB.map { starredEntity ->
@@ -374,7 +367,7 @@ abstract class GenericArticlesFragmentViewModel(
         articles.postValue(applySearchQueryFilters(mapped))
     }
 
-    abstract suspend fun getSource(): RSSSourceEntity?
+    abstract suspend fun getSource(): RSSSourceDTO?
 
 }
 

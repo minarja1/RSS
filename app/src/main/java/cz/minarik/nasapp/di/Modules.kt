@@ -1,6 +1,5 @@
 package cz.minarik.nasapp.di
 
-import android.content.Context
 import androidx.room.Room
 import cz.minarik.nasapp.data.db.UniverseDatabase
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
@@ -30,12 +29,14 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     viewModel { (sourceUrl: String) ->
         SimpleArticlesFragmentViewModel(
             sourceUrl,
             androidContext(),
+            get(),
             get(),
             get(),
             get(),
@@ -59,6 +60,7 @@ val appModule = module {
             androidContext(),
             get(),
             get(),
+            get(),
         )
     }
 
@@ -66,7 +68,7 @@ val appModule = module {
         UniversePrefManager(androidContext())
     }
     single {
-        RSSSourceRepository(androidContext(), get(), get())
+        RSSSourceRepository(androidContext(), get(), get(), get())
     }
     single {
         ArticlesRepository(get(), get())
@@ -100,6 +102,7 @@ val dbModule = module {
     // Dao
     single { get<UniverseDatabase>().readArticleDao() }
     single { get<UniverseDatabase>().rssSourceDao() }
+    single { get<UniverseDatabase>().rssSourceListDao() }
     single { get<UniverseDatabase>().starredArticleDao() }
 
 }

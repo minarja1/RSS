@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.data.model
+package cz.minarik.nasapp.data.domain
 
 import cz.minarik.nasapp.R
 

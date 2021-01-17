@@ -11,7 +11,7 @@ import coil.load
 import com.google.android.material.card.MaterialCardView
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.data.model.RSSSourceDTO
+import cz.minarik.nasapp.data.domain.RSSSourceDTO
 
 
 class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :

@@ -11,16 +11,16 @@
         android:id="@+id/sourceBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center_vertical"
         android:background="?selectableItemBackground"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="@dimen/drawer_content_padding">
 
         <ImageView
-            android:layout_marginStart="4dp"
             android:id="@+id/sourceImageView"
             android:layout_width="24dp"
-            android:layout_height="24dp" />
+            android:layout_height="24dp"
+            android:layout_marginStart="4dp" />
 
         <TextView
             android:id="@+id/sourceNameTextView"
@@ -28,9 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:ellipsize="end"
-            android:lines="3"
-            android:maxLines="3"
-            android:minLines="1"
+            android:maxLines="1"
             android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.Universe.Subtitle"
             android:textColor="@color/textColorPrimary"

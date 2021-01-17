@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
 import androidx.core.view.isVisible
 import coil.load
-import com.prof.rssparser.Article
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.common.extensions.toDateFromRSS
@@ -191,7 +190,7 @@ data class ArticleDTO(
         }
 
     companion object {
-        fun fromModel(article: cz.minarik.nasapp.data.model.Article): ArticleDTO {
+        fun fromModel(article: cz.minarik.nasapp.data.domain.Article): ArticleDTO {
             val image = if (article.image.isNullOrEmpty()) {
                 article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
             } else {

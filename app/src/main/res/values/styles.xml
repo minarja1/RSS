@@ -6,6 +6,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        <item name="android:navigationBarColor">@color/colorBackground</item>
     </style>
 
     <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
@@ -70,6 +71,9 @@
         <item name="android:textColor">@color/textColorSecondary</item>
     </style>
 
+    <style name="TextAppearance.BeerSport.Headline7" parent="TextAppearance.Base">
+        <item name="android:textSize">12sp</item>
+    </style>
 
     <style name="OutlinedButton" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:theme">@style/AppTheme</item>

@@ -14,7 +14,6 @@ import coil.load
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
-import cz.minarik.base.data.Status
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
@@ -111,7 +110,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override fun initObserve() {
         super.initObserve()
-        sourcesViewModel.selectedSource.toFreshLiveData().observe {
+        sourcesViewModel.selectedSourceChanged.toFreshLiveData().observe {
             viewModel.loadArticles(scrollToTop = true)
             drawerLayout.closeDrawer(GravityCompat.START)
         }

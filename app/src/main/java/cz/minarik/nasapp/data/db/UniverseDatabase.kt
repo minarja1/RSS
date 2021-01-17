@@ -8,9 +8,11 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
 import cz.minarik.base.common.extensions.moshi
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
+import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.StarredArticleDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
+import cz.minarik.nasapp.data.db.entity.RSSSourceListEntity
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
 import java.util.*
@@ -19,6 +21,7 @@ import java.util.*
     entities = [
         ReadArticleEntity::class,
         RSSSourceEntity::class,
+        RSSSourceListEntity::class,
         StarredArticleEntity::class,
     ],
     version = UniverseDatabase.Version
@@ -34,6 +37,7 @@ abstract class UniverseDatabase : RoomDatabase() {
 
     abstract fun readArticleDao(): ReadArticleDao
     abstract fun rssSourceDao(): RSSSourceDao
+    abstract fun rssSourceListDao(): RSSSourceListDao
     abstract fun starredArticleDao(): StarredArticleDao
 }
 
