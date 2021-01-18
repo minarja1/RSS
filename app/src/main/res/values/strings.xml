@@ -34,4 +34,8 @@
     <string name="manage_sources">Manage sources</string>
     <string name="lists">Lists</string>
     <string name="sources">Sources</string>
+    <string name="show_articles">Show</string>
+    <string name="add_to_list">Add to list</string>
+    <string name="block">Block</string>
+    <string name="unblock">Unblock</string>
 </resources>

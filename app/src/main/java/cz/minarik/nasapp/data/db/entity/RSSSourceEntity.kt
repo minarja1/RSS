@@ -13,6 +13,7 @@ data class RSSSourceEntity(
     var imageUrl: String? = null,
     var isUserAdded: Boolean = false,
     var isSelected: Boolean = false,
+    var isBlocked: Boolean = false,
 
     ) {
     override fun equals(other: Any?): Boolean {
@@ -27,6 +28,7 @@ data class RSSSourceEntity(
         if (imageUrl != other.imageUrl) return false
         if (isUserAdded != other.isUserAdded) return false
         if (isSelected != other.isSelected) return false
+        if (isBlocked != other.isBlocked) return false
 
         return true
     }
@@ -37,6 +39,7 @@ data class RSSSourceEntity(
         result = 31 * result + (imageUrl?.hashCode() ?: 0)
         result = 31 * result + isUserAdded.hashCode()
         result = 31 * result + isSelected.hashCode()
+        result = 31 * result + isBlocked.hashCode()
         return result
     }
 }

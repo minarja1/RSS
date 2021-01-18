@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sourceCard"
+    style="@style/MaterialCardBorderLess"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="1dp"
+    android:clickable="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/sourceBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/sourceImageView"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="4dp" />
+
+            <TextView
+                android:id="@+id/sourceNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.Universe.Title"
+                android:textColor="@color/textColorPrimary"
+                tools:text="Space.com" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/showButton"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    android:text="@string/show_articles"
+                    android:textAppearance="@style/TextAppearance.Universe.Subtitle"
+                    app:drawableStartCompat="@drawable/ic_baseline_remove_red_eye_24" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/addToListButton"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    android:text="@string/add_to_list"
+                    android:textAppearance="@style/TextAppearance.Universe.Subtitle"
+                    app:drawableStartCompat="@drawable/ic_baseline_add_24" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/blockButton"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/blockTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    android:text="@string/block"
+                    android:textAppearance="@style/TextAppearance.Universe.Subtitle"
+                    app:drawableStartCompat="@drawable/ic_baseline_not_interested_24" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

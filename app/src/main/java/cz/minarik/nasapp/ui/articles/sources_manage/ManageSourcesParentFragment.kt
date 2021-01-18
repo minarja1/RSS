@@ -8,21 +8,22 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.tabs.TabLayoutMediator
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
 import cz.minarik.nasapp.ui.articles.sources_manage.lists.ManageSourceListsFragment
 import cz.minarik.nasapp.ui.articles.sources_manage.sources.ManageSourcesFragment
-import cz.minarik.nasapp.ui.articles.sources_manage.sources.ManageSourcesViewModel
 import kotlinx.android.synthetic.main.fragment_manage_sources_parent.*
+import org.koin.android.ext.android.inject
 
 class ManageSourcesParentFragment : BaseFragment(R.layout.fragment_manage_sources_parent) {
 
     //todo odstranit z base
-    override val viewModel by lazy {
-        ViewModelProvider(requireActivity()).get(ManageSourcesViewModel::class.java)
-    }
+    override val viewModel: SourceSelectionViewModel by inject()
+
 
     override fun showError(error: String?) {
     }
@@ -38,6 +39,14 @@ class ManageSourcesParentFragment : BaseFragment(R.layout.fragment_manage_source
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = valuablesPagerAdapter.getPageTitle(position)
         }.attach()
+        viewPager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    if (position == 0) fab.hide() else fab.show()
+                }
+            }
+        )
 
         val navController = findNavController()
         val appBarConfiguration = AppBarConfiguration(navController.graph)

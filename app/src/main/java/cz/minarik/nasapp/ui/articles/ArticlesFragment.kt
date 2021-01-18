@@ -112,7 +112,9 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         super.initObserve()
         sourcesViewModel.selectedSourceChanged.toFreshLiveData().observe {
             viewModel.loadArticles(scrollToTop = true)
-            drawerLayout.closeDrawer(GravityCompat.START)
+            Handler(Looper.getMainLooper()).postDelayed({
+                drawerLayout.closeDrawer(GravityCompat.START)
+            },350)
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
@@ -128,7 +130,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             if (it == NetworkState.SUCCESS) {
-                sourcesViewModel.updateSources()
+                sourcesViewModel.updateSourcesSelection()
             }
             viewState.loadingSourcesState = it
         }

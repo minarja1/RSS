@@ -39,10 +39,10 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
     }
 
     private fun initObserve() {
-        viewModel.sourceListsData.observe { sources ->
+        viewModel.sourceSelectionsListsData.observe { sources ->
             sourceListAdapter.submitList(sources)
         }
-        viewModel.sourcesData.observe { sources ->
+        viewModel.sourcesSelectionData.observe { sources ->
             sourcesAdapter.submitList(sources)
         }
     }
@@ -59,16 +59,19 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                     R.drawable.ic_baseline_tap_and_play_24
                 )
             ), onItemClicked = {
-                val action = ArticlesFragmentDirections.actionArticlesToSourceManagement()
-                findNavController().navigate(action)
+                try {
+                    val action = ArticlesFragmentDirections.actionArticlesToSourceManagement()
+                    findNavController().navigate(action)
+                } catch (e: Exception) {
+                }
             })
 
         sourceListAdapter = ArticleSourceAdapter {
-            viewModel.onSourceSelected(it)
+            if (!it.selected) viewModel.onSourceSelected(it)
         }
 
         sourcesAdapter = ArticleSourceAdapter {
-            viewModel.onSourceSelected(it)
+            if (!it.selected) viewModel.onSourceSelected(it)
         }
 
         concatAdapter =

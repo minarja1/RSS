@@ -128,7 +128,7 @@ class RSSSourceRepository(
 
     suspend fun setSelected(selectedUrl: String?) {
         //select given source
-        for (source in sourceDao.getAll()) {
+        for (source in sourceDao.getAllUnblocked()) {
             source.isSelected = source.url == selectedUrl
             sourceDao.update(source)
         }
@@ -144,7 +144,7 @@ class RSSSourceRepository(
     }
 
     private suspend fun unselectAllSources() {
-        for (source in sourceDao.getAll()) {
+        for (source in sourceDao.getAllUnblocked()) {
             source.isSelected = false
             sourceDao.update(source)
         }

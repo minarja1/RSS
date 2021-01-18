@@ -43,24 +43,6 @@ class ArticleDetailFragmentViewModel(
         }
     }
 
-
-    fun markArticleAsRead(article: ArticleDTO) {
-        launch(defaultState = null) {
-            val read = !article.read
-            article.read = read
-            article.guid?.let { guid ->
-                article.date?.let { date ->
-                    val entity = ReadArticleEntity(guid, date)
-                    if (read) {
-                        readArticleDao.insert(entity)
-                    } else {
-                        readArticleDao.delete(entity)
-                    }
-                }
-            }
-        }
-    }
-
     fun markArticleAsStarred(article: ArticleDTO) {
         launch(defaultState = null) {
             val starred = !article.starred

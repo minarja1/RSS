@@ -13,32 +13,34 @@ data class RSSSource(
     var listId: Long? = null,
     var isFake: Boolean = false,//"all articles"
     var isList: Boolean = false,
+    var isBlocked: Boolean = false,
 ) : Serializable {
 
     companion object {
         fun fromEntity(
-            source: RSSSourceEntity,
+            entity: RSSSourceEntity,
         ): RSSSource {
             return RSSSource(
-                title = source.title,
-                URLs = listOf(source.url),
-                imageUrl = source.imageUrl,
-                selected = source.isSelected,
+                title = entity.title,
+                URLs = listOf(entity.url),
+                imageUrl = entity.imageUrl,
+                selected = entity.isSelected,
                 isList = false,
+                isBlocked = entity.isBlocked
             )
         }
 
         fun fromEntity(
-            source: RSSSourceListDataEntity,
+            entity: RSSSourceListDataEntity,
         ): RSSSource {
             return RSSSource(
-                title = source.rssSourceEntity.title,
-                URLs = source.sources.map {
+                title = entity.rssSourceEntity.title,
+                URLs = entity.sources.filter { !it.isBlocked }.map {
                     it.url
                 },
-                imageUrl = source.rssSourceEntity.imageUrl,
-                selected = source.rssSourceEntity.isSelected,
-                listId = source.rssSourceEntity.id,
+                imageUrl = entity.rssSourceEntity.imageUrl,
+                selected = entity.rssSourceEntity.isSelected,
+                listId = entity.rssSourceEntity.id,
                 isList = true,
             )
         }
@@ -55,6 +57,7 @@ data class RSSSource(
         if (listId != other.listId) return false
         if (isFake != other.isFake) return false
         if (isList != other.isList) return false
+        if (isBlocked != other.isBlocked) return false
 
         return true
     }
@@ -67,6 +70,7 @@ data class RSSSource(
         result = 31 * result + (listId?.hashCode() ?: 0)
         result = 31 * result + isFake.hashCode()
         result = 31 * result + isList.hashCode()
+        result = 31 * result + isBlocked.hashCode()
         return result
     }
 

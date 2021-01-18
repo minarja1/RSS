@@ -16,22 +16,45 @@ class SourceSelectionViewModel(
     private val sourceListDao: RSSSourceListDao,
 ) : BaseViewModel() {
 
-    val sourcesData = MutableLiveData<MutableList<RSSSource>>()
-    val sourceListsData = MutableLiveData<MutableList<RSSSource>>()
+    val sourcesSelectionData = MutableLiveData<MutableList<RSSSource>>()
+    val sourceSelectionsListsData = MutableLiveData<MutableList<RSSSource>>()
+
+    val sourcesManagementData = MutableLiveData<MutableList<RSSSource>>()
+    val sourceManagementListsData = MutableLiveData<MutableList<RSSSource>>()
+
     val selectedSourceChanged = MutableLiveData<Boolean>()
     val selectedSourceName = MutableLiveData<String?>()
     val selectedSourceImage = MutableLiveData<String>()
 
     init {
         sourceRepository.updateRSSSourcesFromRealtimeDB()
-        updateSources()
+        updateSourcesSelection()
+        updateSourcesManagement()
     }
 
-    fun updateSources() {
+    private fun updateSourcesManagement() {
+        defaultScope.launch {
+            val allSources: MutableList<RSSSource> = mutableListOf()
+            allSources.addAll(sourceDao.getALl().map {
+                RSSSource.fromEntity(it)
+            })
+
+            val allLists: MutableList<RSSSource> = mutableListOf()
+            allLists.addAll(sourceListDao.getAll().map {
+                RSSSource.fromEntity(it)
+            })
+
+            sourcesManagementData.postValue(allSources)
+            sourceManagementListsData.postValue(allLists)
+        }
+    }
+
+
+    fun updateSourcesSelection() {
         defaultScope.launch {
             val allSources: MutableList<RSSSource> = mutableListOf()
             var selectedSourceFound = false
-            allSources.addAll(sourceDao.getAll().map {
+            allSources.addAll(sourceDao.getAllUnblocked().map {
                 RSSSource.fromEntity(it)
             })
             allSources.firstOrNull { it.selected }?.let {
@@ -65,8 +88,8 @@ class SourceSelectionViewModel(
                 selectedSourceImage.postValue("")
             }
 
-            sourcesData.postValue(allSources)
-            sourceListsData.postValue(allLists)
+            sourcesSelectionData.postValue(allSources)
+            sourceSelectionsListsData.postValue(allLists)
         }
     }
 
@@ -86,7 +109,21 @@ class SourceSelectionViewModel(
                 }
             }
             selectedSourceChanged.postValue(true)
-            updateSources()
+            updateSourcesSelection()
+        }
+    }
+
+
+    fun markAsBlocked(source: RSSSource, blocked: Boolean) {
+        launch(defaultState = null) {
+            source.URLs.firstOrNull()?.let {
+                val entity = sourceDao.getByUrl(it)
+                entity?.let {
+                    entity.isBlocked = blocked
+                    sourceDao.update(entity)
+                    updateSourcesSelection()
+                }
+            }
         }
     }
 }

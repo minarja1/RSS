@@ -35,6 +35,6 @@ class ArticlesFragmentViewModel(
             RSSSource.fromEntity(it)
         } ?: sourceListDao.getSelected()?.let {
             RSSSource.fromEntity(it)
-        } ?: RSSSourceRepository.createFakeListItem(context, sourceDao.getAll().map { it.url }, true)
+        } ?: RSSSourceRepository.createFakeListItem(context, sourceDao.getAllUnblocked().map { it.url }, true)
     }
 }

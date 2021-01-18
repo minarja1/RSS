@@ -6,12 +6,31 @@
 
     <fragment
         android:id="@+id/drawerFragment"
-        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment"/>
+        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment" />
+
 
     <fragment
         android:id="@+id/manageSourcesFragment"
-        android:label="Manage sources"
-        android:name="cz.minarik.nasapp.ui.articles.sources_manage.ManageSourcesParentFragment" />
+        android:name="cz.minarik.nasapp.ui.articles.sources_manage.ManageSourcesParentFragment"
+        android:label="Manage sources">
+
+        <action
+            android:id="@+id/action_manage_sources_to_source_list_detail"
+            app:destination="@id/sourceListDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_manage_sources_to_simple_articles"
+            app:destination="@id/simpleArticlesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/articlesFragment"
@@ -48,15 +67,6 @@
             app:argType="string" />
 
         <action
-            android:id="@+id/action_simple_articles_to_articles"
-            app:enterAnim="@anim/slide_out_left"
-            app:exitAnim="@anim/slide_in_right"
-            app:popEnterAnim="@android:anim/slide_out_right"
-            app:popExitAnim="@android:anim/slide_in_left"
-            app:popUpTo="@+id/articlesFragment" />
-
-
-        <action
             android:id="@+id/action_simple_articles_to_article_detail"
             app:destination="@id/articleDetailFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
@@ -70,18 +80,15 @@
         <argument
             android:name="article"
             app:argType="cz.minarik.nasapp.ui.custom.ArticleDTO" />
+    </fragment>
 
-        <action
-            android:id="@+id/action_article_detail_to_articles"
-            app:popEnterAnim="@android:anim/slide_out_right"
-            app:popExitAnim="@android:anim/slide_in_left"
-            app:popUpTo="@+id/articlesFragment" />
 
-        <action
-            android:id="@+id/action_article_detail_to_simple_articles"
-            app:popEnterAnim="@android:anim/slide_out_right"
-            app:popExitAnim="@android:anim/slide_in_left"
-            app:popUpTo="@+id/simpleArticlesFragment" />
+    <fragment
+        android:id="@+id/sourceListDetailFragment"
+        android:name="cz.minarik.nasapp.ui.articles.sources_manage.source_detail.SourceListDetailFragment">
+        <argument
+            android:name="source"
+            app:argType="cz.minarik.nasapp.data.domain.RSSSource" />
     </fragment>
 
 </navigation>
