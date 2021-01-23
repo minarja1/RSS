@@ -5,7 +5,7 @@ import android.view.View
 import androidx.navigation.fragment.navArgs
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
+import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -18,11 +18,11 @@ class SourceListDetailFragment : BaseFragment(R.layout.fragment_recycler) {
         args.source
     }
 
-    override val viewModel by viewModel<SourceSelectionViewModel> {
+    override val viewModel by viewModel<SourcesViewModel> {
         parametersOf(source)
     }
 
-    private val sourceSelectionViewModel: SourceSelectionViewModel by inject()
+    private val sourceSelectionViewModel: SourcesViewModel by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

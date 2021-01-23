@@ -5,7 +5,7 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import java.util.*
 
 @Entity(primaryKeys = ["guid", "date"])
-data class StarredArticleEntity(
+data class ArticleEntity(
     var guid: String,
     val date: Date,
     var title: String? = null,
@@ -24,8 +24,8 @@ data class StarredArticleEntity(
 ) {
 
     companion object {
-        fun fromModel(article: ArticleDTO): StarredArticleEntity {
-            return StarredArticleEntity(
+        fun fromModel(article: ArticleDTO): ArticleEntity {
+            return ArticleEntity(
                 guid = article.guid ?: "",
                 title = article.title,
                 image = article.image,

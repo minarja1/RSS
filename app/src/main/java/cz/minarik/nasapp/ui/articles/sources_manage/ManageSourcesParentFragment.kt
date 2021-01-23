@@ -3,7 +3,6 @@ package cz.minarik.nasapp.ui.articles.sources_manage
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -13,7 +12,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.tabs.TabLayoutMediator
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
+import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
 import cz.minarik.nasapp.ui.articles.sources_manage.lists.ManageSourceListsFragment
 import cz.minarik.nasapp.ui.articles.sources_manage.sources.ManageSourcesFragment
 import kotlinx.android.synthetic.main.fragment_manage_sources_parent.*
@@ -22,7 +21,7 @@ import org.koin.android.ext.android.inject
 class ManageSourcesParentFragment : BaseFragment(R.layout.fragment_manage_sources_parent) {
 
     //todo odstranit z base
-    override val viewModel: SourceSelectionViewModel by inject()
+    override val viewModel: SourcesViewModel by inject()
 
 
     override fun showError(error: String?) {

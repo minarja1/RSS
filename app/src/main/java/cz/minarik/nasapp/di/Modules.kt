@@ -4,11 +4,12 @@ import androidx.room.Room
 import cz.minarik.nasapp.data.db.UniverseDatabase
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.articles.ArticlesFragmentViewModel
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragmentViewModel
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragmentViewModel
-import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
+import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
 import cz.minarik.nasapp.ui.articles.sources_manage.source_detail.SourceListDetailViewModel
 import cz.minarik.nasapp.utils.UniversePrefManager
 import me.toptas.rssconverter.RssConverterFactory
@@ -57,7 +58,7 @@ val appModule = module {
     }
 
     single {
-        SourceSelectionViewModel(
+        SourcesViewModel(
             androidContext(),
             get(),
             get(),
@@ -65,8 +66,8 @@ val appModule = module {
         )
     }
 
-    viewModel {
-        SourceListDetailViewModel()
+    viewModel { (source: RSSSource)->
+        SourceListDetailViewModel(source)
     }
 
     single {

@@ -4,7 +4,7 @@ import android.content.Context
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
-import cz.minarik.nasapp.data.db.dao.StarredArticleDao
+import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.RSSSource
@@ -15,7 +15,7 @@ class ArticlesFragmentViewModel(
     private val context: Context,
     readArticleDao: ReadArticleDao,
     articlesRepository: ArticlesRepository,
-    starredArticleDao: StarredArticleDao,
+    articleDao: ArticleDao,
     prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
     private val sourceListDao: RSSSourceListDao,
@@ -24,7 +24,7 @@ class ArticlesFragmentViewModel(
     context,
     readArticleDao,
     articlesRepository,
-    starredArticleDao,
+    articleDao,
     prefManager,
     sourceDao,
     sourceListDao,

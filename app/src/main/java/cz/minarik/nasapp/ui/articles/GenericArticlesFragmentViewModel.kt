@@ -10,9 +10,9 @@ import cz.minarik.nasapp.base.network.ApiRequest
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
-import cz.minarik.nasapp.data.db.dao.StarredArticleDao
+import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
-import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
+import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.domain.Article
 import cz.minarik.nasapp.data.domain.ArticleFilterType
@@ -32,7 +32,7 @@ abstract class GenericArticlesFragmentViewModel(
     private val context: Context,
     private val readArticleDao: ReadArticleDao,
     private val articlesRepository: ArticlesRepository,
-    private val starredArticleDao: StarredArticleDao,
+    private val articleDao: ArticleDao,
     val prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
     private val sourceListDao: RSSSourceListDao,
@@ -291,12 +291,12 @@ abstract class GenericArticlesFragmentViewModel(
             val starred = !(articleToStar?.starred ?: true)
             articleToStar?.starred = starred
             article.guid?.let {
-                val entity = StarredArticleEntity.fromModel(article)
+                val entity = ArticleEntity.fromModel(article)
 
                 if (starred) {
-                    starredArticleDao.insert(entity)
+                    articleDao.insert(entity)
                 } else {
-                    starredArticleDao.delete(entity)
+                    articleDao.delete(entity)
                 }
             }
         }
@@ -346,7 +346,7 @@ abstract class GenericArticlesFragmentViewModel(
     private suspend fun loadStarredArticles() {
         Timber.i("loading starred articles")
         val selectedSource = getSource()
-        val fromDB: MutableList<StarredArticleEntity> = mutableListOf()
+        val fromDB: MutableList<ArticleEntity> = mutableListOf()
 
         selectedSource?.let {
             for (url in it.URLs) {

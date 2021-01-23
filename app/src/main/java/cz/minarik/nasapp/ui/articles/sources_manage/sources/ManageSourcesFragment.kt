@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
+import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
 import cz.minarik.nasapp.ui.articles.sources_manage.ManageSourcesParentFragmentDirections
 import cz.minarik.nasapp.utils.dividerFullWidth
 import kotlinx.android.synthetic.main.fragment_recycler.*
@@ -16,7 +16,7 @@ import org.koin.android.ext.android.inject
 
 class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
 
-    override val viewModel: SourceSelectionViewModel by inject()
+    override val viewModel: SourcesViewModel by inject()
 
     private lateinit var manageSourcesAdapter: ManageSourcesAdapter
 

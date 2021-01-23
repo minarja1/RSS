@@ -9,7 +9,7 @@ import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.RSSSource
 import kotlinx.coroutines.launch
 
-class SourceSelectionViewModel(
+class SourcesViewModel(
     private val context: Context,
     val sourceRepository: RSSSourceRepository,
     private val sourceDao: RSSSourceDao,
@@ -28,6 +28,10 @@ class SourceSelectionViewModel(
 
     init {
         sourceRepository.updateRSSSourcesFromRealtimeDB()
+        updateAll()
+    }
+
+    fun updateAll() {
         updateSourcesSelection()
         updateSourcesManagement()
     }
@@ -50,7 +54,7 @@ class SourceSelectionViewModel(
     }
 
 
-    fun updateSourcesSelection() {
+    private fun updateSourcesSelection() {
         defaultScope.launch {
             val allSources: MutableList<RSSSource> = mutableListOf()
             var selectedSourceFound = false
@@ -120,6 +124,7 @@ class SourceSelectionViewModel(
                 val entity = sourceDao.getByUrl(it)
                 entity?.let {
                     entity.isBlocked = blocked
+                    entity.isSelected = false
                     sourceDao.update(entity)
                     updateSourcesSelection()
                 }

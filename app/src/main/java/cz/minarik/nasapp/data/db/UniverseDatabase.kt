@@ -10,11 +10,11 @@ import cz.minarik.base.common.extensions.moshi
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
-import cz.minarik.nasapp.data.db.dao.StarredArticleDao
+import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.RSSSourceListEntity
 import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
-import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
+import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import java.util.*
 
 @Database(
@@ -22,7 +22,7 @@ import java.util.*
         ReadArticleEntity::class,
         RSSSourceEntity::class,
         RSSSourceListEntity::class,
-        StarredArticleEntity::class,
+        ArticleEntity::class,
     ],
     version = UniverseDatabase.Version
 )
@@ -38,7 +38,7 @@ abstract class UniverseDatabase : RoomDatabase() {
     abstract fun readArticleDao(): ReadArticleDao
     abstract fun rssSourceDao(): RSSSourceDao
     abstract fun rssSourceListDao(): RSSSourceListDao
-    abstract fun starredArticleDao(): StarredArticleDao
+    abstract fun starredArticleDao(): ArticleDao
 }
 
 class BaseRoomDatabaseConverters {

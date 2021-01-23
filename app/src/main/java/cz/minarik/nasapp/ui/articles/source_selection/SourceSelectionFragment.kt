@@ -15,7 +15,7 @@ import org.koin.android.ext.android.inject
 
 class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection) {
 
-    override val viewModel: SourceSelectionViewModel by inject()
+    override val viewModel: SourcesViewModel by inject()
 
     private lateinit var concatAdapter: ConcatAdapter
     private lateinit var sourcesAdapter: ArticleSourceAdapter

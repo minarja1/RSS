@@ -17,7 +17,7 @@ import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.common.extensions.toDateFromRSS
 import cz.minarik.base.common.extensions.toHtml
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.data.db.entity.StarredArticleEntity
+import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.article_list_item.view.*
 import java.io.Serializable
@@ -219,7 +219,7 @@ data class ArticleDTO(
             )
         }
 
-        fun fromDb(article: StarredArticleEntity): ArticleDTO {
+        fun fromDb(article: ArticleEntity): ArticleDTO {
             val image = if (article.image.isNullOrEmpty()) {
                 article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
             } else {

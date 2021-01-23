@@ -16,7 +16,7 @@ import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment
-import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionViewModel
+import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.isScrolledToTop
 import cz.minarik.nasapp.utils.scrollToTop
@@ -29,7 +29,7 @@ import org.koin.android.ext.android.inject
 
 class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
-    private val sourcesViewModel: SourceSelectionViewModel by inject()
+    private val sourcesViewModel: SourcesViewModel by inject()
 
     override val viewModel by sharedGraphViewModel<ArticlesFragmentViewModel>(R.id.articles_nav_graph)
 
@@ -114,7 +114,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewModel.loadArticles(scrollToTop = true)
             Handler(Looper.getMainLooper()).postDelayed({
                 drawerLayout.closeDrawer(GravityCompat.START)
-            },350)
+            }, 350)
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
@@ -130,7 +130,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             if (it == NetworkState.SUCCESS) {
-                sourcesViewModel.updateSourcesSelection()
+                sourcesViewModel.updateAll()
             }
             viewState.loadingSourcesState = it
         }
