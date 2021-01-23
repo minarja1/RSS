@@ -125,7 +125,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
 
         sourcesViewModel.sourceRepository.sourcesChanged.toFreshLiveData().observe {
-            if (it) viewModel.loadArticles()
+            if (it) viewModel.loadArticles(updateDb = true)
         }
 
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
@@ -138,7 +138,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private fun initSwipeToRefresh() {
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadArticles(true)
+            viewModel.loadArticles(true, true)
         }
     }
 

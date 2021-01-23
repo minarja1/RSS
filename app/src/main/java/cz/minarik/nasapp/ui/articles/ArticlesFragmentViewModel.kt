@@ -1,10 +1,10 @@
 package cz.minarik.nasapp.ui.articles
 
 import android.content.Context
+import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
-import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.RSSSource
@@ -35,6 +35,10 @@ class ArticlesFragmentViewModel(
             RSSSource.fromEntity(it)
         } ?: sourceListDao.getSelected()?.let {
             RSSSource.fromEntity(it)
-        } ?: RSSSourceRepository.createFakeListItem(context, sourceDao.getAllUnblocked().map { it.url }, true)
+        } ?: RSSSourceRepository.createFakeListItem(
+            context,
+            sourceDao.getAllUnblocked().map { it.url },
+            true
+        )
     }
 }

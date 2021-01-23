@@ -46,13 +46,12 @@ class ArticleDetailFragmentViewModel(
         launch(defaultState = null) {
             val starred = !article.starred
             article.starred = starred
-            article.guid?.let {
-                val entity = ArticleEntity.fromModel(article)
-
-                if (starred) {
-                    articleDao.insert(entity)
-                } else {
-                    articleDao.delete(entity)
+            article.guid?.let {guid->
+                article.date?.let {date->
+                    articleDao.getByGuidAndDate(guid, article.date)?.run {
+                        this.starred = starred
+                        articleDao.update(this)
+                    }
                 }
             }
             articleStarredLiveData.postValue(true)

@@ -35,6 +35,9 @@ import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.base.FailedWithError
+import cz.minarik.nasapp.base.Loading
+import cz.minarik.nasapp.base.ViewModelState
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
@@ -353,6 +356,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             viewState.loadingArticlesState = it
         }
 
+        viewModel.articlesRepository.state.observe {
+            viewState.loadingArticlesFromServer = it
+        }
+
         viewModel.articles.observe {
             viewState.articles = it
             articlesAdapter.submitList(it)
@@ -385,7 +392,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
 
     private fun updateViews() {
-        val loadingArticles = viewState.loadingArticlesState == NetworkState.LOADING
+        val loadingArticles =
+            viewState.loadingArticlesState == NetworkState.LOADING || viewState.loadingArticlesFromServer == Loading
         val loadingSources = viewState.loadingSourcesState == NetworkState.LOADING
         val loading = loadingArticles || loadingSources
         val isError = viewState.loadingArticlesState?.status == Status.FAILED
@@ -422,6 +430,11 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     inner class ViewState {
         var loadingArticlesState: NetworkState? = null
+            set(value) {
+                field = value
+                updateViews()
+            }
+        var loadingArticlesFromServer: ViewModelState? = null
             set(value) {
                 field = value
                 updateViews()

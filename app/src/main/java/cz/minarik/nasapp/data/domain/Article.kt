@@ -1,8 +1,10 @@
 package cz.minarik.nasapp.data.domain
 
 import com.prof.rssparser.Article
+import cz.minarik.base.common.extensions.toDateFromRSS
 import me.toptas.rssconverter.RssItem
 import java.io.Serializable
+import java.util.*
 
 data class Article(
     var guid: String? = null,
@@ -22,6 +24,9 @@ data class Article(
 
     val isValid: Boolean
         get() = !guid.isNullOrEmpty() && pubDate != null
+
+    val formattedDate: Date?
+        get() = pubDate?.toDateFromRSS()
 
     companion object {
         fun fromLibrary(article: Article): cz.minarik.nasapp.data.domain.Article {

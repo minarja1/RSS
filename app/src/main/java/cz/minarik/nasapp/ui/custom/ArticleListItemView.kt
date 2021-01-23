@@ -190,35 +190,6 @@ data class ArticleDTO(
         }
 
     companion object {
-        fun fromModel(article: cz.minarik.nasapp.data.domain.Article): ArticleDTO {
-            val image = if (article.image.isNullOrEmpty()) {
-                article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
-            } else {
-                article.image
-            }
-
-            val description = article.description?.replace(Regex("<img.+?>"), "")
-
-            val date = article.pubDate?.toDateFromRSS()
-
-            return ArticleDTO(
-                guid = article.guid,
-                title = article.title,
-                image = image,
-                date = date,
-                link = article.link,
-                description = description,
-                content = article.content?.toHtml().toString(),
-                audio = article.audio,
-                video = article.video,
-                sourceName = article.sourceName,
-                sourceUrl = article.sourceUrl,
-                categories = article.categories,
-                domain = article.link?.getHostFromUrl(),
-                expandable = true,
-            )
-        }
-
         fun fromDb(article: ArticleEntity): ArticleDTO {
             val image = if (article.image.isNullOrEmpty()) {
                 article.description?.toHtml()?.getSpans<ImageSpan>()?.getOrNull(0)?.source ?: ""
@@ -227,7 +198,7 @@ data class ArticleDTO(
             }
 
             return ArticleDTO(
-                starred = true,
+                starred = article.starred,
                 guid = article.guid,
                 title = article.title,
                 image = image,
@@ -242,6 +213,7 @@ data class ArticleDTO(
                 categories = article.categories,
                 domain = article.link?.getHostFromUrl(),
                 expandable = true,
+                read = article.read,
             )
         }
     }
@@ -271,6 +243,7 @@ data class ArticleDTO(
         if (starred != other.starred) return false
         if (domain != other.domain) return false
         if (showSource != other.showSource) return false
+        if (read != other.read) return false
 
         return true
     }
@@ -294,6 +267,7 @@ data class ArticleDTO(
         result = 31 * result + starred.hashCode()
         result = 31 * result + (domain?.hashCode() ?: 0)
         result = 31 * result + (showSource?.hashCode() ?: 0)
+        result = 31 * result + (read?.hashCode() ?: 0)
         return result
     }
 

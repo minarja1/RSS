@@ -6,19 +6,15 @@ import com.prof.rssparser.Parser
 import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
-import cz.minarik.nasapp.base.network.ApiRequest
+import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ReadArticleDao
-import cz.minarik.nasapp.data.db.dao.ArticleDao
-import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
-import cz.minarik.nasapp.data.domain.Article
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
-import cz.minarik.nasapp.data.domain.exception.NoConnectionException
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
@@ -31,25 +27,13 @@ import java.nio.charset.Charset
 abstract class GenericArticlesFragmentViewModel(
     private val context: Context,
     private val readArticleDao: ReadArticleDao,
-    private val articlesRepository: ArticlesRepository,
+    val articlesRepository: ArticlesRepository,
     private val articleDao: ArticleDao,
     val prefManager: UniversePrefManager,
     private val sourceDao: RSSSourceDao,
     private val sourceListDao: RSSSourceListDao,
     private val rssApiService: RssApiService,
 ) : BaseViewModel() {
-
-    private val parser by lazy {
-        Parser.Builder()
-            .context(context)
-            .charset(Charset.forName("UTF-8"))
-            .cacheExpirationMillis(Constants.articlesCacheExpiration)
-            .build()
-    }
-
-    private val useRetrofit = false
-
-    private var currentArticleLoadingJob: Job? = null
 
     //all articles (without active filters)
     private val allArticles: MutableList<ArticleDTO> = mutableListOf()
@@ -62,154 +46,63 @@ abstract class GenericArticlesFragmentViewModel(
     var searchQuery: String? = null
 
     init {
-        loadArticles(false)
+        loadArticles(false, true)
     }
 
-    /**
-     * Loads articles from given url into given list.
-     *
-     * @param url to load articles from
-     * @param flushCache whether to force cache flushing (meaning a network call would always happen)
-     * @param result the list into which the articles will be added
-     */
-    private suspend fun loadArticlesFromUrl(
-        url: String,
-        flushCache: Boolean,
-        result: MutableList<Article>
-    ) {
-        try {
-            Timber.i("Loading articles for url: $url")
-            if (flushCache) {
-                Timber.i("flushing cache for url: $url")
-                parser.flushCache(url)
-            }
-            val source = sourceDao.getByUrl(url)
-            source?.let {
-                val articles = parser.getChannel(source.url).articles
-                articles.forEach {
-                    it.sourceUrl = source.url
-                    it.sourceName = source.title
-                }
-                synchronized(this) {
-                    result.addAll(articles.map {
-                        Article.fromLibrary(it)
-                    }.filter { it.isValid }
-                    )
+    fun updateDb() {
+        if(context.isInternetAvailable){
+            launch {
+                articlesRepository.updateArticles(getSource()) {
+                    loadArticles()
                 }
             }
-        } catch (e: Exception) {
-            Timber.e(e)
-        }
-    }
-
-
-    /**
-     * Loads articles from given url into given list.
-     *
-     * @param url to load articles from
-     * @param flushCache whether to force cache flushing (meaning a network call would always happen)
-     * @param result the list into which the articles will be added
-     */
-    private suspend fun loadArticlesFromUrlRetrofit(
-        url: String,
-        flushCache: Boolean,
-        result: MutableList<Article>
-    ) {
-        try {
-            Timber.i("Loading articles for url: $url")
-            val source = sourceDao.getByUrl(url)
-            source?.let {
-                val apiResult = ApiRequest.getResult {
-                    rssApiService.getRss(source.url)
-                }
-                val articles = apiResult.data?.items?.map {
-                    Article.fromApi(it)
-                }
-                articles?.forEach {
-                    it.sourceUrl = source.url
-                    it.sourceName = source.title
-                }
-                synchronized(this@GenericArticlesFragmentViewModel) {
-                    result.addAll(articles ?: mutableListOf())
-                }
-            }
-        } catch (e: Exception) {
-            Timber.e(e)
         }
     }
 
     fun loadArticles(
-        force: Boolean = false,
         scrollToTop: Boolean = false,
+        updateDb: Boolean = false
     ) {
-        Timber.i("loading articles, force = $force")
+        Timber.i("loading article@")
         state.postValue(NetworkState.LOADING)
-        currentArticleLoadingJob?.cancel()
-        currentArticleLoadingJob = defaultScope.launch {
+        ioScope.launch {
             try {
                 val startTime = System.currentTimeMillis()
 
-                if (prefManager.getArticleFilter() == ArticleFilterType.Starred) {
-                    loadStarredArticles()
-                }
-                if (!context.isInternetAvailable) {
-                    state.postValue(NetworkState.Companion.error(NoConnectionException()))
-                    return@launch
-                }
-
-                val allArticleList = mutableListOf<Article>()
-
                 ensureActive()
+
+                Timber.i("loading starred articles")
+
+                if (updateDb) updateDb()
+
                 val selectedSource = getSource()
 
-                //todo something more sophisticated like lists etc.
-                (selectedSource?.URLs?.indices)?.map {
-                    ensureActive()
-                    async(Dispatchers.IO) {
-                        if (useRetrofit) {
-                            loadArticlesFromUrlRetrofit(
-                                selectedSource.URLs[it],
-                                force,
-                                allArticleList
-                            )
-                        } else {
-                            loadArticlesFromUrl(selectedSource.URLs[it], force, allArticleList)
-                        }
+                val fromDB: MutableList<ArticleEntity> = mutableListOf()
+
+                selectedSource?.let {
+                    for (url in it.URLs) {
+                        fromDB.addAll(articlesRepository.getBySourceUrl(url))
                     }
-                }?.awaitAll()
+                }
 
-                ensureActive()
-                val shouldShowSource = selectedSource?.isList ?: false
-
-                val mappedArticles = allArticleList.map { article ->
-                    ensureActive()
-                    ArticleDTO.fromModel(article).apply {
+                val mapped = fromDB.map { entity ->
+                    ArticleDTO.fromDb(entity).apply {
                         guid?.let { guid ->
-                            date?.let { date ->
-                                read = readArticleDao.getByGuidAndDate(guid, date) != null
-                                starred = articlesRepository.getByGuidAndDate(guid, date) != null
-                            }
-                            showSource = shouldShowSource
+                            showSource = selectedSource?.isList ?: false
                         }
                     }
-                }.filter {
-                    ensureActive()
-                    it.isValid
-                }.toMutableList()
-                ensureActive()
+                }
 
                 allArticles.clear()
-                allArticles.addAll(mappedArticles)
+                allArticles.addAll(mapped)
 
-                if (prefManager.getArticleFilter() != ArticleFilterType.Starred) {
-                    this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
-                    val result = applyFilters()
+                this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
+                val result = applyFilters()
 
-                    articles.postValue(result)
-                }
+                articles.postValue(result)
                 state.postValue(NetworkState.SUCCESS)
                 val duration = System.currentTimeMillis() - startTime
-                Timber.i("Fetching articles finished in $duration ms")
+                Timber.i("ViewModel: loading articles finished in $duration ms")
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))
@@ -247,6 +140,13 @@ abstract class GenericArticlesFragmentViewModel(
                     result.add(it.copy())
                 }
             }
+            ArticleFilterType.Starred -> {
+                articles.filter {
+                    it.starred
+                }.forEach {
+                    result.add(it.copy())
+                }
+            }
             else -> articles.forEach {
                 result.add(it.copy())
             }
@@ -276,9 +176,10 @@ abstract class GenericArticlesFragmentViewModel(
             allArticles.find { it.guid == article.guid }?.read = true
             article.guid?.let { guid ->
                 article.date?.let { date ->
-                    readArticleDao.insert(
-                        ReadArticleEntity(guid = guid, date = date)
-                    )
+                    articleDao.getByGuidAndDate(guid, date)?.run {
+                        read = true
+                        articleDao.update(this)
+                    }
                 }
             }
         }
@@ -290,13 +191,12 @@ abstract class GenericArticlesFragmentViewModel(
             val articleToStar = allArticles.find { it.guid == article.guid }
             val starred = !(articleToStar?.starred ?: true)
             articleToStar?.starred = starred
-            article.guid?.let {
-                val entity = ArticleEntity.fromModel(article)
-
-                if (starred) {
-                    articleDao.insert(entity)
-                } else {
-                    articleDao.delete(entity)
+            article.guid?.let { guid ->
+                article.date?.let { date ->
+                    articleDao.getByGuidAndDate(guid, date)?.run {
+                        this.starred = starred
+                        articleDao.update(this)
+                    }
                 }
             }
         }
@@ -310,11 +210,9 @@ abstract class GenericArticlesFragmentViewModel(
             articleToMark?.read = read
             article.guid?.let { guid ->
                 article.date?.let { date ->
-                    val entity = ReadArticleEntity(guid, date)
-                    if (read) {
-                        readArticleDao.insert(entity)
-                    } else {
-                        readArticleDao.delete(entity)
+                    articleDao.getByGuidAndDate(guid, date)?.run {
+                        this.read = read
+                        articleDao.update(this)
                     }
                 }
             }
@@ -323,16 +221,11 @@ abstract class GenericArticlesFragmentViewModel(
 
     fun filterArticles(filterType: ArticleFilterType) {
         prefManager.setArticleFilter(filterType)
-        if (filterType == ArticleFilterType.Starred) {
+
+        if (allArticles.isNotEmpty()) {//do nothing if currently loading (filters will be applied when loading is finished)
             launch(defaultState = null) {
-                loadStarredArticles()
-            }
-        } else {
-            if (allArticles.isNotEmpty()) {//do nothing if currently loading (filters will be applied when loading is finished)
-                launch(defaultState = null) {
-                    val result = applyFilters()
-                    articles.postValue(result)
-                }
+                val result = applyFilters()
+                articles.postValue(result)
             }
         }
     }
@@ -343,7 +236,7 @@ abstract class GenericArticlesFragmentViewModel(
         filterArticles(prefManager.getArticleFilter())
     }
 
-    private suspend fun loadStarredArticles() {
+    private suspend fun loadArticlesFromDB() {
         Timber.i("loading starred articles")
         val selectedSource = getSource()
         val fromDB: MutableList<ArticleEntity> = mutableListOf()
@@ -354,13 +247,10 @@ abstract class GenericArticlesFragmentViewModel(
             }
         }
 
-        val mapped = fromDB.map { starredEntity ->
-            ArticleDTO.fromDb(starredEntity).apply {
+        val mapped = fromDB.map { entity ->
+            ArticleDTO.fromDb(entity).apply {
                 guid?.let { guid ->
-                    date?.let { date ->
-                        read = readArticleDao.getByGuidAndDate(guid, date) != null
-                    }
-                    showSource = selectedSource == null
+                    showSource = selectedSource?.isList ?: false
                 }
             }
         }
