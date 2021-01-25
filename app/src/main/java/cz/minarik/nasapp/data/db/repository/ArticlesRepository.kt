@@ -34,35 +34,6 @@ class ArticlesRepository(
             .build()
     }
 
-    suspend fun getBySourceUrl(sourceUrl: String): List<ArticleEntity> {
-        val list = dao.getBySourceUrl(sourceUrl)
-        list.map { article ->
-            updateSourceByDB(article)
-        }
-        return list
-    }
-
-    suspend fun getByGuidAndDate(guid: String, date: Date): ArticleEntity? {
-        val entity = dao.getByGuidAndDate(guid, date)
-        updateSourceByDB(entity)
-        return entity
-    }
-
-    suspend fun getAll(): List<ArticleEntity> {
-        val list = dao.getAll()
-        list.map { article ->
-            updateSourceByDB(article)
-        }
-        return list
-    }
-
-    private suspend fun updateSourceByDB(entity: ArticleEntity?) {
-        val source = sourceDao.getByUrl(entity?.sourceUrl ?: "")
-        entity?.sourceName = source?.title
-        entity?.sourceUrl = source?.url
-    }
-
-
     /**
      * Loads articles from given url into given list.
      *

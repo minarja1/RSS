@@ -45,6 +45,8 @@ abstract class GenericArticlesFragmentViewModel(
 
     var searchQuery: String? = null
 
+    var isFromSwipeRefresh: Boolean = false
+
     init {
         loadArticles(false, true)
     }
@@ -61,8 +63,10 @@ abstract class GenericArticlesFragmentViewModel(
 
     fun loadArticles(
         scrollToTop: Boolean = false,
-        updateDb: Boolean = false
+        updateDb: Boolean = false,
+        isFromSwipeRefresh: Boolean = false,
     ) {
+        this.isFromSwipeRefresh = isFromSwipeRefresh
         Timber.i("loading article@")
         state.postValue(NetworkState.LOADING)
         ioScope.launch {
@@ -73,15 +77,13 @@ abstract class GenericArticlesFragmentViewModel(
 
                 Timber.i("loading starred articles")
 
-                if (updateDb) updateDb()
-
                 val selectedSource = getSource()
 
                 val fromDB: MutableList<ArticleEntity> = mutableListOf()
 
                 selectedSource?.let {
                     for (url in it.URLs) {
-                        fromDB.addAll(articlesRepository.getBySourceUrl(url))
+                        fromDB.addAll(articleDao.getBySourceUrl(url))
                     }
                 }
 
@@ -102,7 +104,10 @@ abstract class GenericArticlesFragmentViewModel(
                 articles.postValue(result)
                 state.postValue(NetworkState.SUCCESS)
                 val duration = System.currentTimeMillis() - startTime
+
+                if (updateDb) updateDb()
                 Timber.i("ViewModel: loading articles finished in $duration ms")
+                this@GenericArticlesFragmentViewModel.isFromSwipeRefresh = false
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))
@@ -243,7 +248,7 @@ abstract class GenericArticlesFragmentViewModel(
 
         selectedSource?.let {
             for (url in it.URLs) {
-                fromDB.addAll(articlesRepository.getBySourceUrl(url))
+                fromDB.addAll(articleDao.getBySourceUrl(url))
             }
         }
 

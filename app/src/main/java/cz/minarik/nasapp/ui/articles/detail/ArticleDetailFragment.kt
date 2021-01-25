@@ -191,7 +191,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             )
 
             Handler(Looper.getMainLooper()).postDelayed({
-                webViewContainer.isVisible = true
+                webViewContainer?.isVisible = true
                 webView?.isVisible = true
                 shimmerViewContainer?.isVisible = false
             }, 100) //to prevent white screen from flashing (webView still loading styles)

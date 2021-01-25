@@ -1,10 +1,15 @@
 package cz.minarik.nasapp.data.db.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import timber.log.Timber
 
-@Entity
+@Entity(
+    indices = [
+        Index(value = ["url"]),
+    ]
+)
 data class RSSSourceEntity(
     @PrimaryKey
     var url: String,

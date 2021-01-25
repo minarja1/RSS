@@ -138,7 +138,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private fun initSwipeToRefresh() {
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadArticles(true, true)
+            viewModel.loadArticles(scrollToTop = false, updateDb = true, isFromSwipeRefresh = true)
         }
     }
 

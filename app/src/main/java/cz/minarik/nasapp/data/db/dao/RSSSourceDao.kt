@@ -20,7 +20,6 @@ interface RSSSourceDao : BaseDao<RSSSourceEntity> {
     @Query("Select * From RSSSourceEntity Where url = :url")
     suspend fun getByUrl(url: String): RSSSourceEntity?
 
-
     @Query("Select * From RSSSourceEntity Where isSelected == 1")
     suspend fun getSelected(): RSSSourceEntity?
 

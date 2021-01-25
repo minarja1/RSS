@@ -35,7 +35,6 @@ import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.base.FailedWithError
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.ViewModelState
 import cz.minarik.nasapp.data.domain.ArticleFilterType
@@ -89,7 +88,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                             imageView.transitionName = this.guid?.toImageSharedTransitionName()
                             titleTextView.transitionName = this.guid?.toTitleSharedTransitionName()
                             val extras = FragmentNavigatorExtras(
-                                //todo i title?
                                 imageView to this.guid.toImageSharedTransitionName(),
                                 titleTextView to this.guid.toTitleSharedTransitionName(),
                             )
@@ -212,6 +210,20 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         initSearchView()
         setupFilters(view)
         initSwipeGestures()
+
+
+        swipeRefreshLayout.setColorSchemeColors(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.colorOnSurface
+            )
+        )
+        swipeRefreshLayout.setProgressBackgroundColorSchemeColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.colorSurface
+            )
+        )
     }
 
     private fun initSearchView() {
@@ -403,7 +415,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         val showShimmer = loading && articlesEmpty && !isError
         shimmerLayout.isVisible = showShimmer
 
-        val showLoadingSwipeRefresh = loadingArticles && !showShimmer && !isError
+        val showLoadingSwipeRefresh =
+            loadingArticles && !showShimmer && !isError && viewModel.isFromSwipeRefresh
         swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
         swipeRefreshLayout.isEnabled = !showShimmer
 

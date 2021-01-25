@@ -63,6 +63,7 @@ data class ArticleEntity(
                 video = article.video,
                 categories = article.categories,
                 sourceUrl = article.sourceUrl,
+                sourceName = article.sourceName,
             )
         }
     }
