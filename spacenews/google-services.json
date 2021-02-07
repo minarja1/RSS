@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1035812499551",
+    "project_id": "spacenews-9a76c",
+    "storage_bucket": "spacenews-9a76c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1035812499551:android:70818b06ec09b136752bea",
+        "android_client_info": {
+          "package_name": "cz.minarik.spacenews"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1035812499551-fetdji68htnpivtaqhabqcujo6pgrd7k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6sNqLEiG4SUb7WvO_dweMfHfshDWW7zA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1035812499551-fetdji68htnpivtaqhabqcujo6pgrd7k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
