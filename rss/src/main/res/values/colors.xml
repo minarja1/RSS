@@ -9,6 +9,7 @@
 
     <color name="colorBackground">#000000</color>
     <color name="colorOnBackground">#FFFFFF</color>
+    <color name="colorOnBackgroundLight">#26FFFFFF</color>
 
     <color name="colorSurface">#202124</color>
     <color name="colorOnSurface">#FFFFFF</color>

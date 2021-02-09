@@ -15,6 +15,9 @@ data class RSSSourceEntity(
     var url: String,
 
     var title: String? = null,
+    var description: String? = null,
+    var homePage: String? = null,
+    var contactUrl: String? = null,
     var imageUrl: String? = null,
     var isUserAdded: Boolean = false,
     var isSelected: Boolean = false,
@@ -34,6 +37,7 @@ data class RSSSourceEntity(
         if (isUserAdded != other.isUserAdded) return false
         if (isSelected != other.isSelected) return false
         if (isBlocked != other.isBlocked) return false
+        if (description != other.description) return false
 
         return true
     }
@@ -44,6 +48,7 @@ data class RSSSourceEntity(
         result = 31 * result + (imageUrl?.hashCode() ?: 0)
         result = 31 * result + isUserAdded.hashCode()
         result = 31 * result + isSelected.hashCode()
+        result = 31 * result + description.hashCode()
         result = 31 * result + isBlocked.hashCode()
         return result
     }

@@ -1,7 +1,10 @@
-package cz.minarik.nasapp.ui.articles.source_selection
+package cz.minarik.nasapp.ui.sources.selection
 
+import android.view.Gravity
+import android.view.MenuItem
 import android.view.View
 import android.view.animation.LinearInterpolator
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import coil.load
 import cz.minarik.nasapp.R
@@ -9,10 +12,10 @@ import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.ui.base.BaseAdapter
 import cz.minarik.nasapp.ui.base.BaseListAdapter
+import cz.minarik.nasapp.utils.iconizeMenu
 import kotlinx.android.synthetic.main.item_product_section_title.view.*
 import kotlinx.android.synthetic.main.row_article_source_button.view.*
 import kotlinx.android.synthetic.main.row_source_item.view.*
-
 
 class TitleAdapter(
     items: List<String> = emptyList(),
@@ -39,7 +42,10 @@ class TitleAdapter(
 }
 
 class ArticleSourceAdapter(
-    private var onItemClicked: ((item: RSSSource) -> Unit)?
+    private var onItemClicked: ((item: RSSSource) -> Unit)?,
+    private var onItemBlocked: ((item: RSSSource) -> Unit)? = null,
+    private var onItemInfo: ((item: RSSSource) -> Unit)? = null,
+    private var showPopupMenu: Boolean = true,
 ) : BaseListAdapter<RSSSource>(
     R.layout.row_source_item, object : DiffUtil.ItemCallback<RSSSource>() {
         override fun areItemsTheSame(
@@ -57,6 +63,7 @@ class ArticleSourceAdapter(
         }
     }
 ) {
+
     override fun bind(
         itemView: View,
         item: RSSSource,
@@ -67,6 +74,34 @@ class ArticleSourceAdapter(
             sourceSelectionView.set(item)
             sourceSelectionView.setOnClickListener {
                 onItemClicked?.invoke(item)
+            }
+            if (showPopupMenu) {
+                sourceSelectionView.setOnLongClickListener {
+                    val popup = PopupMenu(context, this)
+                    popup.menuInflater.inflate(R.menu.menu_rss_source, popup.menu)
+
+                    popup.setOnMenuItemClickListener { menuItem: MenuItem ->
+                        when (menuItem.itemId) {
+                            R.id.unblockAction, R.id.blockAction -> {
+                                onItemBlocked?.invoke(item)
+                            }
+                            R.id.infoAction -> {
+                                onItemInfo?.invoke(item)
+                            }
+                        }
+                        true
+                    }
+
+                    popup.iconizeMenu(resources)
+
+                    popup.gravity = Gravity.END
+
+                    popup.menu.findItem(R.id.blockAction).isVisible = !item.isBlocked
+                    popup.menu.findItem(R.id.unblockAction).isVisible = item.isBlocked
+
+                    popup.show()
+                    true
+                }
             }
         }
     }
@@ -79,6 +114,7 @@ class ArticleSourceButtonAdapter(
     R.layout.row_article_source_button,
     buttons
 ) {
+
     override fun bind(
         itemView: View,
         item: ArticleSourceButton,

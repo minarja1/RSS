@@ -13,7 +13,7 @@ object RealtimeDatabaseHelper {
     private const val newsKey = "rssFeeds"
 
     fun getNewsFeeds(listener: RealtimeDatabaseQueryListener<List<RssFeedDTO>>) {
-        val databaseRef = Firebase.database("https://spacenews-6be8d.firebaseio.com/").getReference(newsKey)
+        val databaseRef = Firebase.database("https://spacenews-9a76c-default-rtdb.europe-west1.firebasedatabase.app/").getReference(newsKey)
 
         databaseRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -32,7 +32,8 @@ object RealtimeDatabaseHelper {
 
 
     data class RssFeedDTO(
-        val title: String? = null,
+        val homePage: String? = null,
+        val contact: String? = null,
         val url: String? = null,
     )
 }

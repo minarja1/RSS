@@ -15,8 +15,8 @@ import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment
-import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
+import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
+import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.isScrolledToTop
 import cz.minarik.nasapp.utils.scrollToTop

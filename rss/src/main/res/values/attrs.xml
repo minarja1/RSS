@@ -5,4 +5,9 @@
         <attr name="emptyImageRes" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="BorderedButton">
+        <attr name="buttonText" format="reference" />
+        <attr name="buttonTitle" format="reference" />
+        <attr name="buttonImage" format="reference" />
+    </declare-styleable>
 </resources>

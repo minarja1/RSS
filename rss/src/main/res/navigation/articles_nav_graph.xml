@@ -6,12 +6,12 @@
 
     <fragment
         android:id="@+id/drawerFragment"
-        android:name="cz.minarik.nasapp.ui.articles.source_selection.SourceSelectionFragment" />
+        android:name="cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment" />
 
 
     <fragment
         android:id="@+id/manageSourcesFragment"
-        android:name="cz.minarik.nasapp.ui.articles.sources_manage.ManageSourcesParentFragment"
+        android:name="cz.minarik.nasapp.ui.sources.manage.ManageSourcesParentFragment"
         android:label="Manage sources">
 
         <action
@@ -57,6 +57,14 @@
             app:destination="@id/articleDetailFragment"
             app:popEnterAnim="@android:anim/slide_in_left"
             app:popExitAnim="@android:anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_articles_to_source_detail"
+            app:destination="@id/sourceDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -80,15 +88,31 @@
         <argument
             android:name="article"
             app:argType="cz.minarik.nasapp.ui.custom.ArticleDTO" />
+
+        <action
+            android:id="@+id/action_article_detail_to_source_detail"
+            app:destination="@id/sourceDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 
 
     <fragment
         android:id="@+id/sourceListDetailFragment"
-        android:name="cz.minarik.nasapp.ui.articles.sources_manage.source_detail.SourceListDetailFragment">
+        android:name="cz.minarik.nasapp.ui.sources.manage.source_detail.SourceListDetailFragment">
         <argument
             android:name="source"
             app:argType="cz.minarik.nasapp.data.domain.RSSSource" />
     </fragment>
 
+
+    <fragment
+        android:id="@+id/sourceDetailFragment"
+        android:name="cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment">
+        <argument
+            android:name="sourceUrl"
+            app:argType="string" />
+    </fragment>
 </navigation>

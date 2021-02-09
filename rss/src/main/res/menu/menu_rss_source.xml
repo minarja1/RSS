@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/blockAction"
+        android:icon="@drawable/ic_baseline_not_interested_24"
+        android:title="@string/block" />
+
+
+    <item
+        android:id="@+id/unblockAction"
+        android:icon="@drawable/ic_baseline_arrow_circle_up_24"
+        android:title="@string/unblock" />
+
+    <item
+        android:id="@+id/infoAction"
+        android:icon="@drawable/ic_baseline_info_24"
+        android:title="@string/source_info" />
+
+</menu>

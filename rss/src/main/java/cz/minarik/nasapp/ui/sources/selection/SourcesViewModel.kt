@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.ui.articles.source_selection
+package cz.minarik.nasapp.ui.sources.selection
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
@@ -58,7 +58,7 @@ class SourcesViewModel(
         defaultScope.launch {
             val allSources: MutableList<RSSSource> = mutableListOf()
             var selectedSourceFound = false
-            allSources.addAll(sourceDao.getAllUnblocked().map {
+            allSources.addAll(sourceDao.getALl().map {
                 RSSSource.fromEntity(it)
             })
             allSources.firstOrNull { it.selected }?.let {

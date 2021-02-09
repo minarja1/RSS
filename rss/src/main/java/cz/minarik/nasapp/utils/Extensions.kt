@@ -1,10 +1,8 @@
 package cz.minarik.nasapp.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
@@ -12,17 +10,23 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Build
 import android.text.format.DateUtils
+import android.util.TypedValue
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.annotation.MenuRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.PopupMenu
 import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
@@ -230,7 +234,41 @@ val Article.imgUrlSafe: String?
 
 
 //todo move to Base________________________________________________________________________________
+fun Context.copyToClipBoard(label: String, text: String) {
+    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText(label, text)
+    clipboard.setPrimaryClip(clip)
+}
 
+@SuppressLint("RestrictedApi")
+fun PopupMenu.iconizeMenu(resources: Resources, iconPadding: Int = 4.dpToPx) {
+    if (menu is MenuBuilder) {
+        val menuBuilder = menu as MenuBuilder
+        menuBuilder.setOptionalIconsVisible(true)
+        for (item in menuBuilder.visibleItems) {
+            val iconMarginPx =
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    iconPadding.toFloat(),
+                    resources.displayMetrics
+                ).toInt()
+            if (item.icon != null) {
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+                    item.icon =
+                        InsetDrawable(item.icon, iconMarginPx, 0, iconMarginPx, 0)
+                } else {
+                    item.icon =
+                        object :
+                            InsetDrawable(item.icon, iconMarginPx, 0, iconMarginPx, 0) {
+                            override fun getIntrinsicWidth(): Int {
+                                return intrinsicHeight + iconMarginPx + iconMarginPx
+                            }
+                        }
+                }
+            }
+        }
+    }
+}
 
 fun RecyclerView.dividerFullWidth() {
     val listDivider = LastDividerItemDecorator(

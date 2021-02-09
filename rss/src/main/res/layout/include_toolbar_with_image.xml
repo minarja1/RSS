@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/colorToolbar"
+    android:fitsSystemWindows="false"
+    android:theme="@style/AppTheme.AppBarOverlayInverse"
+    app:contentInsetEnd="?attr/actionBarSize"
+    app:contentInsetStart="0dp"
+    app:contentInsetStartWithNavigation="0dp"
+    app:layout_collapseMode="pin"
+    app:popupTheme="@style/AppTheme.PopupOverlay">
+
+    <LinearLayout
+        android:id="@+id/toolbarContentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:gravity="start"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/toolbarImageView"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
+            tools:src="@drawable/ic_baseline_article_24" />
+
+        <TextView
+            android:id="@+id/toolbarTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingBottom="0dp"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="18sp"
+            tools:text="Budapest" />
+
+    </LinearLayout>
+
+</androidx.appcompat.widget.Toolbar>

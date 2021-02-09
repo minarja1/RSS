@@ -1,24 +1,22 @@
-package cz.minarik.nasapp.ui.articles.sources_manage.sources
+package cz.minarik.nasapp.ui.sources.manage.lists
 
 import android.os.Bundle
 import android.view.View
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
-import cz.minarik.nasapp.ui.articles.sources_manage.ManageSourcesParentFragmentDirections
+import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.dividerFullWidth
 import kotlinx.android.synthetic.main.fragment_recycler.*
 import org.koin.android.ext.android.inject
 
-class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
+class ManageSourceListsFragment : BaseFragment(R.layout.fragment_recycler) {
 
     override val viewModel: SourcesViewModel by inject()
 
-    private lateinit var manageSourcesAdapter: ManageSourcesAdapter
+    private lateinit var manageSourcesAdapter: ManageListsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -27,29 +25,16 @@ class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
     }
 
     private fun initObserve() {
-        viewModel.sourcesManagementData.observe {
+        viewModel.sourceManagementListsData.observe {
             manageSourcesAdapter.submitList(it)
         }
     }
 
     private fun initViews(view: View) {
-        manageSourcesAdapter = ManageSourcesAdapter(
-            onShow = { source ->
-                source.URLs.firstOrNull()?.let {
-                    val action =
-                        ManageSourcesParentFragmentDirections.actionManageSourcesToSimpleArticles(it)
-                    findNavController().navigate(action)
-                }
-            },
-            onAdd = {
-
-            },
-            onBlock = { source, position ->
-                val blocked = !source.isBlocked
-                source.isBlocked = blocked
-                manageSourcesAdapter.notifyItemChanged(position)
-                viewModel.markAsBlocked(source, blocked)
-            },
+        manageSourcesAdapter = ManageListsAdapter(
+            onItemClicked = { source ->
+                //todo
+            }
         )
 
         recyclerView.run {
@@ -66,5 +51,6 @@ class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
 
     override fun showLoading(show: Boolean) {
     }
+
 
 }

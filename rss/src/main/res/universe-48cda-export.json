@@ -1,0 +1,134 @@
+{
+  "rssFeeds": [
+    {
+      "url": "https://www.space.com/feeds/all",
+      "homePage": "https://www.space.com/",
+      "contact": "https://www.space.com/41418-about-us.html"
+    },
+    {
+      "url": "https://www.portaltotheuniverse.org/rss/news/featured/",
+      "homePage": "https://www.portaltotheuniverse.org/",
+      "contact": "https://www.portaltotheuniverse.org/contact/"
+    },
+    {
+      "url": "https://www.esa.int/rssfeed/TopNews",
+      "homePage": "https://www.esa.int/",
+      "contact": "https://www.esa.int/Services/Contacts"
+    },
+    {
+      "url": "https://skyandtelescope.org/feed/",
+      "homePage": "https://skyandtelescope.org/",
+      "contact": "https://skyandtelescope.org/contact-us/"
+    },
+    {
+      "url": "https://www.universetoday.com/feed/",
+      "homePage": "https://www.universetoday.com/",
+      "contact": "https://www.universetoday.com/248/contact-me/"
+    },
+    {
+      "url": "https://spaceflightnow.com/feed/",
+      "homePage": "https://spaceflightnow.com/",
+      "contact": "https://www.facebook.com/spaceflightnow"
+    },
+    {
+      "url": "https://astronomynow.com/feed/",
+      "homePage": "https://astronomynow.com/",
+      "contact": "https://astronomynow.com/contact-us/"
+    },
+    {
+      "url": "https://blogs.nasa.gov/spacestation/feed/",
+      "homePage": "https://blogs.nasa.gov/spacestation/",
+      "contact": "https://www.nasa.gov/about/contact/index.html"
+    },
+    {
+      "url": "https://www.planetary.org/rss/articles",
+      "homePage": "https://www.planetary.org/",
+      "contact": "https://www.planetary.org/about/contact"
+    },
+    {
+      "url": "https://www.theguardian.com/science/space/rss",
+      "homePage": "https://www.theguardian.com/science/space",
+      "contact": "https://www.theguardian.com/help/contact-us"
+    },
+    {
+      "url": "https://feeds.npr.org/1026/rss.xml",
+      "homePage": "https://www.npr.org/sections/space/",
+      "contact": "https://help.npr.org/contact/s/"
+    },
+    {
+      "url": "https://phys.org/rss-feed/space-news/",
+      "homePage": "https://phys.org/",
+      "contact": "https://sciencex.com/help/feedback/"
+    },
+    {
+      "url": "https://www.newscientist.com/subject/space/feed/",
+      "homePage": "https://www.newscientist.com/subject/space/",
+      "contact": "https://www.newscientist.com/contact-us/"
+    },
+    {
+      "url": "https://earthsky.org/space/feed",
+      "homePage": "https://earthsky.org/space/",
+      "contact": "https://earthsky.org/contact-us"
+    },
+    {
+      "url": "https://spacenews.com/feed/",
+      "homePage": "https://spacenews.com/",
+      "contact": "https://spacenews.com/about/"
+    },
+    {
+      "url": "https://www.spacedaily.com/spacedaily.xml",
+      "homePage": "https://www.spacedaily.com/",
+      "contact": "https://www.spacedaily.com/whoweare.html"
+    },
+    {
+      "url": "https://www.spaceflightinsider.com/feed/",
+      "homePage": "https://www.spaceflightinsider.com/",
+      "contact": "https://www.spaceflightinsider.com/contact/"
+    },
+    {
+      "url": "https://skynews.ca/feed/",
+      "homePage": "https://skynews.ca/",
+      "contact": "https://skynews.ca/contact-the-skynews-team/"
+    },
+    {
+      "url": "https://spaceq.ca/feed/",
+      "homePage": "https://spaceq.ca/",
+      "contact": "https://spaceq.ca/about/"
+    },
+    {
+      "url": "https://www.leonarddavid.com/feed/",
+      "homePage": "https://spaceq.ca/",
+      "contact": "https://www.leonarddavid.com/leonard-david-bio/"
+    },
+    {
+      "url": "https://www.spacenewsfeed.com/index.php?format=feed&type=rss",
+      "homePage": "https://www.spacenewsfeed.com/",
+      "contact": "https://www.spacenewsfeed.com/index.php/contact-us"
+    },
+    {
+      "url": "https://nasaspxa.com/feed/",
+      "homePage": "https://nasaspxa.com/",
+      "contact": "https://www.facebook.com/nasaspxgeek/"
+    },
+    {
+      "url": "https://explainingscience.org/feed/",
+      "homePage": "https://explainingscience.org/",
+      "contact": "https://explainingscience.org/about/"
+    },
+    {
+      "url": "https://spacewatch.global/feed/",
+      "homePage": "https://spacewatch.global/",
+      "contact": "https://spacewatch.global/about-us/"
+    },
+    {
+      "url": "http://feeds.feedburner.com/IeeeSpectrumFullText",
+      "homePage": "https://spectrum.ieee.org/",
+      "contact": "https://spectrum.ieee.org/static/contactus"
+    },
+    {
+      "url": "https://www.spaceflightinsider.com/feed/",
+      ",homePage": "https://www.spaceflightinsider.com/",
+      "contact": "https://www.spaceflightinsider.com/contact/"
+    }
+  ]
+}

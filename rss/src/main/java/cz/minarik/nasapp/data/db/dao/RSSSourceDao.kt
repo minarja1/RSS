@@ -8,10 +8,10 @@ import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 @Dao
 interface RSSSourceDao : BaseDao<RSSSourceEntity> {
 
-    @Query("Select * From RSSSourceEntity where isBlocked = 0 order by title, isBlocked")
+    @Query("Select * From RSSSourceEntity where isBlocked = 0 order by isBlocked, title")
     suspend fun getAllUnblocked(): List<RSSSourceEntity>
 
-    @Query("Select * From RSSSourceEntity order by isSelected desc, title, isBlocked")
+    @Query("Select * From RSSSourceEntity order by isBlocked, title")
     suspend fun getALl(): List<RSSSourceEntity>
 
     @Query("Select * From RSSSourceEntity where isUserAdded = 0 order by title")

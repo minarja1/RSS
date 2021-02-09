@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.ui.articles.source_selection
+package cz.minarik.nasapp.ui.sources.selection
 
 import android.os.Bundle
 import android.view.View
@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.ui.articles.ArticlesFragmentDirections
 import kotlinx.android.synthetic.main.fragment_source_selection.*
@@ -66,17 +67,26 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                 }
             })
 
-        sourceListAdapter = ArticleSourceAdapter {
-            if (!it.selected) viewModel.onSourceSelected(it)
-        }
+        sourceListAdapter = ArticleSourceAdapter(
+            onItemClicked = { if (!it.selected) viewModel.onSourceSelected(it) },
+            showPopupMenu = false
+        )
 
-        sourcesAdapter = ArticleSourceAdapter {
-            if (!it.selected) viewModel.onSourceSelected(it)
-        }
+        sourcesAdapter = ArticleSourceAdapter(
+            onItemClicked = { if (!it.selected) viewModel.onSourceSelected(it) },
+            onItemBlocked = { viewModel.markAsBlocked(it, !it.isBlocked) },
+            onItemInfo = {
+                val action = ArticlesFragmentDirections.actionArticlesToSourceDetail(it.URLs[0])
+                findNavController().navigate(action)
+            },
+        )
 
-        concatAdapter =
-            ConcatAdapter(
-                manageSourcesAdapter,
+        val allowSourceManagement = RSSApp.sharedInstance.allowSourceManagement
+        concatAdapter = ConcatAdapter()
+
+        if (allowSourceManagement) {
+            concatAdapter.addAdapter(manageSourcesAdapter)
+            concatAdapter.addAdapter(
                 TitleAdapter(listOf(getString(R.string.lists)), onItemClicked = {
                     listsVisible = if (listsVisible) {
                         concatAdapter.removeAdapter(sourceListAdapter)
@@ -86,7 +96,11 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                         true
                     }
                 }),
-                sourceListAdapter,
+            )
+        }
+        concatAdapter.addAdapter(sourceListAdapter)
+        if (allowSourceManagement) {
+            concatAdapter.addAdapter(
                 TitleAdapter(listOf(getString(R.string.sources)), onItemClicked = {
                     sourcesVisible = if (sourcesVisible) {
                         concatAdapter.removeAdapter(sourcesAdapter)
@@ -95,9 +109,10 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                         concatAdapter.addAdapter(concatAdapter.adapters.size, sourcesAdapter)
                         true
                     }
-                }),
-                sourcesAdapter,
+                })
             )
+        }
+        concatAdapter.addAdapter(sourcesAdapter)
 
         articleSourcesRecyclerView.adapter = concatAdapter
     }

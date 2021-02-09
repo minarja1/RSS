@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -66,6 +67,13 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         requireContext().warmUpBrowser(articleDTO.link?.toUri())
         initArticleStarred()
         updateArticleStarred()
+        sourceInfoBackground.setOnClickListener {
+            articleDTO.sourceUrl?.let {
+                val action =
+                    ArticleDetailFragmentDirections.actionArticleDetailToSourceDetail(it)
+                findNavController().navigate(action)
+            }
+        }
     }
 
     private fun updateArticleStarred() {

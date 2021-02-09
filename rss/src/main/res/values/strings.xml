@@ -38,4 +38,9 @@
     <string name="add_to_list">Add to list</string>
     <string name="block">Block</string>
     <string name="unblock">Unblock</string>
+    <string name="source_info">Source info</string>
+    <string name="home_page">Home Page</string>
+    <string name="contact_info">Contact info</string>
+    <string name="feed_url">Feed url</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
 </resources>

@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.ui.articles.sources_manage.lists
+package cz.minarik.nasapp.ui.sources.manage.sources
 
 import android.view.View
 import androidx.recyclerview.widget.DiffUtil
@@ -6,12 +6,14 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.ui.base.BaseListAdapter
 import kotlinx.android.synthetic.main.row_manage_source_item.view.*
-import kotlinx.android.synthetic.main.row_source_item.view.*
 
-class ManageListsAdapter(
-    private var onItemClicked: ((item: RSSSource) -> Unit)?
+
+class ManageSourcesAdapter(
+    var onShow: ((source: RSSSource) -> Unit),
+    var onAdd: ((source: RSSSource) -> Unit),
+    var onBlock: ((source: RSSSource, position: Int) -> Unit),
 ) : BaseListAdapter<RSSSource>(
-    R.layout.row_source_item, object : DiffUtil.ItemCallback<RSSSource>() {
+    R.layout.row_manage_source_item, object : DiffUtil.ItemCallback<RSSSource>() {
         override fun areItemsTheSame(
             oldItem: RSSSource,
             newItem: RSSSource
@@ -34,10 +36,9 @@ class ManageListsAdapter(
         viewHolder: BaseViewHolderImp
     ) {
         itemView.run {
-            sourceSelectionView.set(item)
-            sourceSelectionView.setOnClickListener {
-                onItemClicked?.invoke(item)
-            }
+            sourceManageView.set(item, onShow, onAdd, onBlock = {
+                onBlock.invoke(it, position)
+            })
         }
     }
 }

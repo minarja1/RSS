@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.ui.articles.sources_manage
+package cz.minarik.nasapp.ui.sources.manage
 
 import android.os.Bundle
 import android.view.View
@@ -12,9 +12,9 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.tabs.TabLayoutMediator
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
-import cz.minarik.nasapp.ui.articles.sources_manage.lists.ManageSourceListsFragment
-import cz.minarik.nasapp.ui.articles.sources_manage.sources.ManageSourcesFragment
+import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
+import cz.minarik.nasapp.ui.sources.manage.lists.ManageSourceListsFragment
+import cz.minarik.nasapp.ui.sources.manage.sources.ManageSourcesFragment
 import kotlinx.android.synthetic.main.fragment_manage_sources_parent.*
 import org.koin.android.ext.android.inject
 

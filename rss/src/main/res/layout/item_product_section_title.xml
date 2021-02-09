@@ -22,7 +22,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.BeerSport.Headline7"
+        android:textAppearance="@style/TextAppearance.Universe.Headline7"
         android:textColor="@color/textColorSecondary"
         tools:text="Section name" />
 

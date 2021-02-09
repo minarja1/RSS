@@ -1,11 +1,11 @@
-package cz.minarik.nasapp.ui.articles.sources_manage.source_detail
+package cz.minarik.nasapp.ui.sources.manage.source_detail
 
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.articles.source_selection.SourcesViewModel
+import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf

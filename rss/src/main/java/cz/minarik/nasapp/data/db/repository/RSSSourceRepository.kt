@@ -93,7 +93,10 @@ class RSSSourceRepository(
                                 entity = RSSSourceEntity(
                                     url = it,
                                     title = channel.title,
-                                    imageUrl = url.getFavIcon()
+                                    description = channel.description,
+                                    imageUrl = url.getFavIcon(),
+                                    homePage = feed.homePage,
+                                    contactUrl = feed.contact,
                                 )
                             } else if (shouldUpdate) {
                                 val channel = parser.getChannel(it)

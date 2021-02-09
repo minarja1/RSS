@@ -5,9 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import com.chimbori.crux.articles.Article
 import com.chimbori.crux.articles.ArticleExtractor
 import cz.minarik.base.di.base.BaseViewModel
-import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.ArticleDao
-import cz.minarik.nasapp.data.db.entity.ArticleEntity
+import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
@@ -46,8 +45,8 @@ class ArticleDetailFragmentViewModel(
         launch(defaultState = null) {
             val starred = !article.starred
             article.starred = starred
-            article.guid?.let {guid->
-                article.date?.let {date->
+            article.guid?.let { guid ->
+                article.date?.let { date ->
                     articleDao.getByGuidAndDate(guid, article.date)?.run {
                         this.starred = starred
                         articleDao.update(this)
@@ -57,6 +56,4 @@ class ArticleDetailFragmentViewModel(
             articleStarredLiveData.postValue(true)
         }
     }
-
-
 }

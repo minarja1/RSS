@@ -44,11 +44,22 @@ class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
             )
         )
 
+        sourceNameTextView.setTextColor(
+            ContextCompat.getColor(
+                context,
+                if (source.isBlocked) R.color.textColorSecondary else R.color.textColorPrimary
+            )
+        )
+
         invalidate()
         requestLayout()
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
         sourceBackground.setOnClickListener(l)
+    }
+
+    override fun setOnLongClickListener(l: OnLongClickListener?) {
+        sourceBackground.setOnLongClickListener(l)
     }
 }
