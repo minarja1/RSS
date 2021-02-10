@@ -88,6 +88,7 @@ abstract class GenericArticlesFragmentViewModel(
                     ArticleDTO.fromDb(entity).apply {
                         guid?.let { guid ->
                             showSource = selectedSource?.isList ?: false
+                            openExternally = selectedSource?.openExternally ?:false
                         }
                     }
                 }
@@ -253,6 +254,7 @@ abstract class GenericArticlesFragmentViewModel(
             ArticleDTO.fromDb(entity).apply {
                 guid?.let { guid ->
                     showSource = selectedSource?.isList ?: false
+                    openExternally = selectedSource?.openExternally ?: false
                 }
             }
         }

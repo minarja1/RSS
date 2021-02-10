@@ -98,7 +98,8 @@
     {
       "url": "https://www.leonarddavid.com/feed/",
       "homePage": "https://spaceq.ca/",
-      "contact": "https://www.leonarddavid.com/leonard-david-bio/"
+      "contact": "https://www.leonarddavid.com/leonard-david-bio/",
+      "forceOpenExternal": true
     },
     {
       "url": "https://www.spacenewsfeed.com/index.php?format=feed&type=rss",

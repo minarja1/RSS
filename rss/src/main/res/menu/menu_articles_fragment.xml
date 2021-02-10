@@ -8,10 +8,4 @@
         android:icon="@drawable/ic_baseline_search_24"
         app:showAsAction="ifRoom"/>
 
-    <item
-        android:id="@+id/filterAction"
-        android:title="@string/action_filter"
-        android:icon="@drawable/ic_baseline_filter_list_24"
-        app:showAsAction="ifRoom"/>
-
 </menu>

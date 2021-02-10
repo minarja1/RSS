@@ -178,6 +178,7 @@ data class ArticleDTO(
     var starred: Boolean = false,
     var domain: String? = null,
     var showSource: Boolean = true,
+    var openExternally: Boolean = false,
 ) : Serializable {
 
     override fun toString(): String {
@@ -244,6 +245,7 @@ data class ArticleDTO(
         if (domain != other.domain) return false
         if (showSource != other.showSource) return false
         if (read != other.read) return false
+        if (openExternally != other.openExternally) return false
 
         return true
     }
@@ -267,6 +269,7 @@ data class ArticleDTO(
         result = 31 * result + starred.hashCode()
         result = 31 * result + (domain?.hashCode() ?: 0)
         result = 31 * result + (showSource?.hashCode() ?: 0)
+        result = 31 * result + (openExternally?.hashCode() ?: 0)
         result = 31 * result + (read?.hashCode() ?: 0)
         return result
     }

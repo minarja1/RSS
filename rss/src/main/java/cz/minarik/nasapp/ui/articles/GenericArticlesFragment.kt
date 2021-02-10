@@ -82,16 +82,20 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                         read = true
                         viewModel.markArticleAsRead(this)
                         link?.toUri()?.let {
-                            //todo pridat do nastaveni moznost volby
-//                            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
-
-                            imageView.transitionName = this.guid?.toImageSharedTransitionName()
-                            titleTextView.transitionName = this.guid?.toTitleSharedTransitionName()
-                            val extras = FragmentNavigatorExtras(
-                                imageView to this.guid.toImageSharedTransitionName(),
-                                titleTextView to this.guid.toTitleSharedTransitionName(),
-                            )
-                            navigateToArticleDetail(extras, this)
+                            if (openExternally) {
+                                link?.toUri()?.let {
+                                    requireContext().openCustomTabs(it)
+                                }
+                            } else {
+                                imageView.transitionName = this.guid?.toImageSharedTransitionName()
+                                titleTextView.transitionName =
+                                    this.guid?.toTitleSharedTransitionName()
+                                val extras = FragmentNavigatorExtras(
+                                    imageView to this.guid.toImageSharedTransitionName(),
+                                    titleTextView to this.guid.toTitleSharedTransitionName(),
+                                )
+                                navigateToArticleDetail(extras, this)
+                            }
                         }
                     }
                     notifyItemChanged(position)
@@ -336,7 +340,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun setupFilters(view: View?) {
-        filterChipGroup?.isVisible = viewModel.prefManager.showArticleFilters
         viewModel.prefManager.getArticleFilter().let {
             view?.findViewById<Chip>(it.chipId)?.isChecked = true
         }
@@ -356,11 +359,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 viewModel.filterArticles(ArticleFilterType.Unread)
             }
         }
-    }
-
-    private fun showFilterViews() {
-        filterChipGroup?.isVisible = !(filterChipGroup?.isVisible ?: false)
-        viewModel.prefManager.showArticleFilters = filterChipGroup?.isVisible ?: false
     }
 
     open fun initObserve() {
@@ -384,20 +382,11 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun initToolbar() {
-        toolbarTitle?.text = getString(R.string.articles_title)
+        toolbarTitle?.text = getString(R.string.app_name)
         toolbar?.let { toolbar ->
             initToolbar(toolbar)
             toolbar.inflateMenu(R.menu.menu_articles_fragment)
             searchView?.setMenuItem(toolbar.menu.findItem(R.id.searchAction))
-            toolbar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.filterAction -> {
-                        showFilterViews()
-                        true
-                    }
-                    else -> false
-                }
-            }
         }
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
     }

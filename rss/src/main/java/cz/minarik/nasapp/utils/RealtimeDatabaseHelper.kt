@@ -35,6 +35,7 @@ object RealtimeDatabaseHelper {
         val homePage: String? = null,
         val contact: String? = null,
         val url: String? = null,
+        val forceOpenExternal: Boolean =false
     )
 }
 

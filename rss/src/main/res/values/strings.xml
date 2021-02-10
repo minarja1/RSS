@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Universe</string>
+    <string name="app_name">RSS</string>
     <string name="common_base_error">Oops! Something went wrong.</string>
     <string name="articles_title">Articles</string>
     <string name="action_filter">Filter</string>
@@ -36,11 +36,12 @@
     <string name="sources">Sources</string>
     <string name="show_articles">Show</string>
     <string name="add_to_list">Add to list</string>
-    <string name="block">Block</string>
-    <string name="unblock">Unblock</string>
+    <string name="hide">Hide</string>
+    <string name="show">Show</string>
     <string name="source_info">Source info</string>
     <string name="home_page">Home Page</string>
     <string name="contact_info">Contact info</string>
     <string name="feed_url">Feed url</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="description">Description</string>
 </resources>

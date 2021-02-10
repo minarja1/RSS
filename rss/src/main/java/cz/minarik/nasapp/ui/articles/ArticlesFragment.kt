@@ -113,7 +113,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         sourcesViewModel.selectedSourceChanged.toFreshLiveData().observe {
             viewModel.loadArticles(scrollToTop = true)
             Handler(Looper.getMainLooper()).postDelayed({
-                drawerLayout.closeDrawer(GravityCompat.START)
+                drawerLayout?.closeDrawer(GravityCompat.START)
             }, 350)
         }
         sourcesViewModel.selectedSourceName.observe {

@@ -123,7 +123,7 @@ class SourcesViewModel(
             source.URLs.firstOrNull()?.let {
                 val entity = sourceDao.getByUrl(it)
                 entity?.let {
-                    entity.isBlocked = blocked
+                    entity.isHidden = blocked
                     entity.isSelected = false
                     sourceDao.update(entity)
                     updateSourcesSelection()

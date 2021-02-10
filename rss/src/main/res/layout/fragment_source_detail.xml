@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     android:orientation="vertical">
 
     <include layout="@layout/include_toolbar_with_image" />
@@ -14,12 +15,32 @@
         android:layout_margin="16dp"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/descriptionTextView"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:id="@+id/descriptionContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.Universe.Body1"
-            tools:text="sdklf ladsfkj lasdkj flaskdj flasdj flkj" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/description"
+                android:textAllCaps="true"
+                android:textAppearance="@style/TextAppearance.Universe.Button"
+                android:textColor="@color/textColorSecondary" />
+
+            <TextView
+                android:id="@+id/descriptionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Universe.Body1"
+                tools:text="sdklf ladsfkj lasdkj flaskdj flasdj flkj" />
+
+        </LinearLayout>
 
         <cz.minarik.nasapp.ui.custom.BorderedButton
             android:id="@+id/feedUrlButton"

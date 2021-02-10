@@ -1,10 +1,16 @@
 package cz.minarik.nasapp.ui.articles.detail
 
+import android.annotation.SuppressLint
+import android.annotation.TargetApi
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.transition.Transition
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
+import android.webkit.*
 import android.widget.ImageView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
@@ -16,26 +22,29 @@ import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionInflater
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import coil.load
 import com.chimbori.crux.articles.Article
-import com.liaoinstan.springview.widget.SpringView
+import com.google.android.material.appbar.AppBarLayout
 import com.stfalcon.imageviewer.StfalconImageViewer
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
+import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.custom.ArticleDetailFooter
-import cz.minarik.nasapp.ui.custom.ArticleDetailHeader
 import cz.minarik.nasapp.ui.custom.GalleryViewClickListener
 import cz.minarik.nasapp.ui.custom.GalleryViewImageDTO
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*
-import okhttp3.HttpUrl
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
+import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
+import kotlin.math.abs
+
 
 class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     GalleryViewClickListener {
@@ -48,6 +57,10 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         args.article
     }
 
+    private var userInteracted = false
+
+    private var urlsBeingLoaded = mutableListOf<String>()
+
     override val viewModel by viewModel<ArticleDetailFragmentViewModel> {
         parametersOf(articleDTO.link, requireContext())
     }
@@ -59,11 +72,13 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     }
 
     private fun initViews() {
+        webView.restoreState(viewModel.webViewState)
+        prepareWebView()
+        loadArticleWebView()
         initToolbar()
         sourceNameTextView.text = articleDTO.sourceName
         dateTextView.text = articleDTO.date?.toTimeElapsed()
         stateView.attacheContentView(contentContainer)
-        initSpringView()
         requireContext().warmUpBrowser(articleDTO.link?.toUri())
         initArticleStarred()
         updateArticleStarred()
@@ -91,31 +106,10 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         }
     }
 
-    private fun initSpringView() {
-        springView.footer = ArticleDetailFooter()
-        springView.header = ArticleDetailHeader()
-        springView.setBackgroundColor(
-            ContextCompat.getColor(
-                requireContext(),
-                R.color.colorBackground
-            )
-        )
-        springView.setListener(object : SpringView.OnFreshListener {
-            override fun onRefresh() {
-                openWebsite()
-            }
-
-            override fun onLoadmore() {
-                openWebsite()
-            }
-        })
-    }
-
     private fun openWebsite() {
         articleDTO.link?.toUri()?.let {
             requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
         }
-        springView.onFinishFreshAndLoad()
     }
 
     private fun initObserve() {
@@ -149,14 +143,28 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             it.inflateMenu(R.menu.menu_article_detail)
             it.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
-                    R.id.articleShareItem -> {
+                    R.id.actionShareArticle -> {
                         shareArticle(articleDTO)
+                        true
+                    }
+                    R.id.actionOpenWeb -> {
+                        openWebsite()
                         true
                     }
                     else -> false
                 }
             }
         }
+
+        appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+            if (abs(verticalOffset) - appBarLayout.totalScrollRange == 0) {
+                // Collapsed
+                toolbarLayout.title = articleDTO.title
+            } else {
+                // Expanded
+                toolbarLayout.title = " "
+            }
+        })
 
         toolbarExpandedImage.load(articleDTO.image)
         fakeTitleTextView.text = articleDTO.title
@@ -168,6 +176,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         val appBarConfiguration = AppBarConfiguration(navController.graph)
 
         toolbarLayout.setupWithNavController(toolbar, navController, appBarConfiguration)
+        toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT)
 
         try {
             val url = URL(articleDTO.sourceUrl)
@@ -188,45 +197,155 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             }
         }
 
-        article?.document?.styleHtml(requireContext())
-        article?.document?.html()?.let {
-            webView.loadDataWithBaseURL(
-                "",
-                it.styleHtml(requireContext()),
-                "text/html",
-                "UTF-8",
-                null
-            )
+//        article?.document?.styleHtml(requireContext())
+//        article?.document?.html()?.let {
+//            webView.loadDataWithBaseURL(
+//                "",
+//                it.styleHtml(requireContext()),
+//                "text/html",
+//                "UTF-8",
+//                null
+//            )
+//
+//            Handler(Looper.getMainLooper()).postDelayed({
+//                webViewContainer?.isVisible = true
+//                webView?.isVisible = true
+//                shimmerViewContainer?.isVisible = false
+//            }, 100) //to prevent white screen from flashing (webView still loading styles)
+//        }
+//
+//        article?.images?.let {
+//            if (it.size > 1) {
+//                initGallery(it)
+//            }
+//        }
+//
+//        article?.videoUrl?.let {
+//            initVideo(it)
+//        }
+    }
 
-            Handler(Looper.getMainLooper()).postDelayed({
-                webViewContainer?.isVisible = true
-                webView?.isVisible = true
-                shimmerViewContainer?.isVisible = false
-            }, 100) //to prevent white screen from flashing (webView still loading styles)
+    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
+    private fun prepareWebView() {
+        webView.setOnTouchListener { v, event ->
+            userInteracted = true
+            false
         }
 
-        article?.images?.let {
-            if (it.size > 1) {
-                initGallery(it)
+        showLoading(true)
+        webView.settings.run {
+            javaScriptCanOpenWindowsAutomatically = true
+            javaScriptEnabled = true
+            cacheMode = WebSettings.LOAD_DEFAULT
+            allowContentAccess = true
+            loadWithOverviewMode = true
+            builtInZoomControls = true
+            builtInZoomControls = true
+        }
+        webView.webViewClient = ArticleWebViewClient()
+        webView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.action == MotionEvent.ACTION_UP
+                && webView.canGoBack()
+            ) {
+                webView.goBack()
+                return@OnKeyListener true
+            }
+            false
+        })
+
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+            WebSettingsCompat.setForceDark(webView.settings, WebSettingsCompat.FORCE_DARK_ON)
+        }
+
+        if (BuildConfig.DEBUG) {
+            WebView.setWebContentsDebuggingEnabled(true)
+        }
+    }
+
+    private fun loadArticleWebView() {
+        articleDTO.link?.let {
+            webView.loadUrl(it)
+        }
+    }
+
+
+    private inner class ArticleWebViewClient : WebViewClient() {
+        override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): Boolean {
+            if (userInteracted) {
+                articleDTO.link?.let { link ->
+                    if (request?.url?.toString()?.contains(link, true) == false) {
+                        request.url?.let {
+                            requireContext().openCustomTabs(it)
+                        }
+                    }
+                    return request?.url?.toString()?.contains(link, true) == false
+                }
+            }
+
+            return false
+        }
+
+        @TargetApi(Build.VERSION_CODES.M)
+        override fun onReceivedError(
+            view: WebView?,
+            request: WebResourceRequest?,
+            error: WebResourceError?
+        ) {
+            error?.let {
+                handleError(it.errorCode)
+            }
+
+            super.onReceivedError(view, request, error)
+        }
+
+        @SuppressWarnings("deprecation")
+        override fun onReceivedError(
+            view: WebView?,
+            errorCode: Int,
+            description: String?,
+            failingUrl: String?
+        ) {
+            handleError(errorCode)
+            super.onReceivedError(view, errorCode, description, failingUrl)
+        }
+
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            Timber.i("onPageFinished: $url")
+            url?.let {
+                urlsBeingLoaded.remove(url)
+                invalidateProgressBar()
             }
         }
 
-        article?.videoUrl?.let {
-            initVideo(it)
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            Timber.i("onPageStarted: $url")
+            url?.let {
+                urlsBeingLoaded.add(url)
+                invalidateProgressBar()
+            }
+            super.onPageStarted(view, url, favicon)
         }
-
     }
 
-    //todo handle video
-    private fun initVideo(videoUrl: HttpUrl) {
+    private fun invalidateProgressBar() {
+        progressBar?.isVisible = urlsBeingLoaded.size > 0
     }
 
-    private fun initGallery(images: List<Article.Image>) {
-        galleryView.setImages(images.map {
-            GalleryViewImageDTO.fromApi(it)
-        })
-        galleryView.setListener(this)
-        galleryContainer.isVisible = true
+    fun handleError(code: Int) {
+        if (code == -2) {
+            stateView?.noInternet(true) {
+                if (requireContext().isInternetAvailable) {
+                    stateView.loading(false)
+                    loadArticleWebView()
+                }
+            }
+        }
+        //other errors ignored because sometimes webView will just throw an error but the page is actually loaded
     }
 
     override fun showError(error: String?) {
@@ -262,10 +381,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
                     viewer?.updateTransitionImage(
                         toolbarExpandedImage
                     )
-                } else {
-                    viewer?.updateTransitionImage(
-                        galleryView.getImageForTransition(it - 1)
-                    )
                 }
             }
             .withHiddenStatusBar(false)
@@ -284,7 +399,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
                         }
 
                         override fun onTransitionEnd(transition: androidx.transition.Transition) {
-                            fakeTitleTextView.text = ""
                             toolbarLayout.title = articleDTO.title
                         }
 
@@ -314,5 +428,10 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
 
                     }
                 )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        webView.saveState(viewModel.webViewState)
     }
 }

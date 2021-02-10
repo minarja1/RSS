@@ -48,6 +48,7 @@ class SourceDetailFragment : BaseFragment(R.layout.fragment_source_detail) {
         viewModel.sourceLiveData.observe { rssSource ->
             toolbarTitleTextView.text = rssSource.title
             toolbarImageView.load(URL(sourceUrl).getFavIcon())
+            descriptionContainer.isVisible = rssSource.description != null
             descriptionTextView.text = rssSource.description
 
             feedUrlButton.setText(sourceUrl)

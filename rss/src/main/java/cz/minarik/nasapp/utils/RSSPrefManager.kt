@@ -23,8 +23,6 @@ class RSSPrefManager(context: Context) : PrefManager(context) {
 
     var lastSourcesUpdate by longPreference(lastSourcesUpdateFilterKey)
 
-    var showArticleFilters by booleanPreference(showArticleFiltersKey, false)
-
     fun getArticleFilter(): ArticleFilterType {
         return ArticleFilterType.fromKey(articleFilter ?: ArticleFilterType.All.key)
             ?: ArticleFilterType.All

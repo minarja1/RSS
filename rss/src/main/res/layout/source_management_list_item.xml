@@ -105,7 +105,7 @@
                     android:layout_gravity="center"
                     android:drawablePadding="4dp"
                     android:gravity="center"
-                    android:text="@string/block"
+                    android:text="@string/hide"
                     android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                     app:drawableStartCompat="@drawable/ic_baseline_not_interested_24" />
 

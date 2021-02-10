@@ -57,7 +57,7 @@ class SourceManageItemView(context: Context, attrs: AttributeSet? = null) :
         }
 
         blockTextView.text =
-            context.getString(if (source.isBlocked) R.string.unblock else R.string.block)
+            context.getString(if (source.isBlocked) R.string.show else R.string.hide)
         addToListButton.isVisible = !source.isBlocked
         blockTextView.setCompoundDrawablesWithIntrinsicBounds(
             ContextCompat.getDrawable(

@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.ui.articles.detail
 
 import android.content.Context
+import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
 import com.chimbori.crux.articles.Article
 import com.chimbori.crux.articles.ArticleExtractor
@@ -21,6 +22,7 @@ class ArticleDetailFragmentViewModel(
 
     val articleLiveData: MutableLiveData<Article?> = MutableLiveData()
     val articleStarredLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    var webViewState: Bundle = Bundle()
 
     init {
         loadArticleDetail()

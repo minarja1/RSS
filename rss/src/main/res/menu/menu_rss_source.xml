@@ -5,13 +5,13 @@
     <item
         android:id="@+id/blockAction"
         android:icon="@drawable/ic_baseline_not_interested_24"
-        android:title="@string/block" />
+        android:title="@string/hide" />
 
 
     <item
         android:id="@+id/unblockAction"
         android:icon="@drawable/ic_baseline_arrow_circle_up_24"
-        android:title="@string/unblock" />
+        android:title="@string/show" />
 
     <item
         android:id="@+id/infoAction"

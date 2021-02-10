@@ -97,6 +97,7 @@ class RSSSourceRepository(
                                     imageUrl = url.getFavIcon(),
                                     homePage = feed.homePage,
                                     contactUrl = feed.contact,
+                                    forceOpenExternally = feed.forceOpenExternal
                                 )
                             } else if (shouldUpdate) {
                                 val channel = parser.getChannel(it)
