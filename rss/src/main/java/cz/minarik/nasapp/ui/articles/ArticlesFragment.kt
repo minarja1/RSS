@@ -8,30 +8,28 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.FragmentNavigator
-import androidx.navigation.fragment.findNavController
 import coil.load
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
-import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.isScrolledToTop
 import cz.minarik.nasapp.utils.scrollToTop
-import cz.minarik.nasapp.utils.sharedGraphViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val sourcesViewModel: SourcesViewModel by inject()
 
-    override val viewModel by sharedGraphViewModel<ArticlesFragmentViewModel>(R.id.articles_nav_graph)
+    override val viewModel by viewModel<ArticlesFragmentViewModel>()
 
     private var doubleBackToExitPressedOnce = false
 
@@ -39,28 +37,35 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         super.onCreate(savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.closeDrawer(GravityCompat.START)
-            } else if (searchView?.isSearchOpen == true) {
-                searchView?.closeSearch()
-            } else if (articlesRecyclerView?.isScrolledToTop() == true) {
-                when {
-                    doubleBackToExitPressedOnce -> {
-                        requireActivity().finish()
-                    }
-                    else -> {
-                        doubleBackToExitPressedOnce = true;
-                        showToast(requireContext(), getString(R.string.press_back_again_to_leave))
-
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            doubleBackToExitPressedOnce = false
-                        }, 2000)
-
-                    }
-                }
+            if ((requireActivity() as MainActivity).getCurrentFragment() != this@ArticlesFragment) {
+                (requireActivity() as MainActivity).goBack()
             } else {
-                articlesRecyclerView?.scrollToTop()
-                appBarLayout.setExpanded(true)
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                } else if (searchView?.isSearchOpen == true) {
+                    searchView?.closeSearch()
+                } else if (articlesRecyclerView?.isScrolledToTop() == true) {
+                    when {
+                        doubleBackToExitPressedOnce -> {
+                            requireActivity().finish()
+                        }
+                        else -> {
+                            doubleBackToExitPressedOnce = true;
+                            showToast(
+                                requireContext(),
+                                getString(R.string.press_back_again_to_leave)
+                            )
+
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                doubleBackToExitPressedOnce = false
+                            }, 2000)
+
+                        }
+                    }
+                } else {
+                    articlesRecyclerView?.scrollToTop()
+                    appBarLayout.setExpanded(true)
+                }
             }
         }
     }
@@ -140,12 +145,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadArticles(scrollToTop = false, updateDb = true, isFromSwipeRefresh = true)
         }
-    }
-
-    override fun navigateToArticleDetail(extras: FragmentNavigator.Extras, articleDTO: ArticleDTO) {
-        val action =
-            ArticlesFragmentDirections.actionArticlesToArticleDetail(articleDTO)
-        findNavController().navigate(action, extras)
     }
 
 }

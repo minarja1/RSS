@@ -6,21 +6,15 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.transition.Transition
-import android.view.KeyEvent
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.webkit.*
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
 import androidx.transition.TransitionInflater
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
@@ -34,6 +28,8 @@ import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.GalleryViewClickListener
 import cz.minarik.nasapp.ui.custom.GalleryViewImageDTO
 import cz.minarik.nasapp.utils.*
@@ -49,12 +45,21 @@ import kotlin.math.abs
 class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     GalleryViewClickListener {
 
-    private val args: ArticleDetailFragmentArgs by navArgs()
+    companion object {
+        fun newInstance(
+            articleDTO: ArticleDTO
+        ): ArticleDetailFragment =
+            ArticleDetailFragment().apply {
+                arguments = bundleOf(
+                    Constants.argArticleDTO to articleDTO,
+                )
+            }
+    }
 
     private var viewer: StfalconImageViewer<GalleryViewImageDTO>? = null
 
     private val articleDTO by lazy {
-        args.article
+        arguments?.getSerializable(Constants.argArticleDTO) as ArticleDTO
     }
 
     private var userInteracted = false
@@ -84,9 +89,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         updateArticleStarred()
         sourceInfoBackground.setOnClickListener {
             articleDTO.sourceUrl?.let {
-                val action =
-                    ArticleDetailFragmentDirections.actionArticleDetailToSourceDetail(it)
-                findNavController().navigate(action)
+                (requireActivity() as MainActivity).navigateToSourceDetail(it)
             }
         }
     }
@@ -138,21 +141,35 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_article_detail, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.actionShareArticle -> {
+                shareArticle(articleDTO)
+                true
+            }
+            R.id.actionOpenWeb -> {
+                openWebsite()
+                true
+            }
+            android.R.id.home -> {
+                requireActivity().onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun initToolbar() {
-        toolbar?.let {
-            it.inflateMenu(R.menu.menu_article_detail)
-            it.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.actionShareArticle -> {
-                        shareArticle(articleDTO)
-                        true
-                    }
-                    R.id.actionOpenWeb -> {
-                        openWebsite()
-                        true
-                    }
-                    else -> false
-                }
+        toolbar.let {
+            (requireActivity() as AppCompatActivity).run {
+                setSupportActionBar(it)
+                supportActionBar?.setDisplayShowTitleEnabled(false)
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
             }
         }
 
@@ -172,10 +189,11 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
         fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
 
-        val navController = NavHostFragment.findNavController(this)
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
+//        val navController = NavHostFragment.findNavController(this)
+//        val appBarConfiguration = AppBarConfiguration(navController.graph)
+//
+//        toolbarLayout.setupWithNavController(toolbar, navController, appBarConfiguration)
 
-        toolbarLayout.setupWithNavController(toolbar, navController, appBarConfiguration)
         toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT)
 
         try {
@@ -390,44 +408,10 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         sharedElementEnterTransition =
             TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-                .addListener(
-                    object : Transition.TransitionListener,
-                        androidx.transition.Transition.TransitionListener {
-                        override fun onTransitionStart(transition: androidx.transition.Transition) {
-                        }
-
-                        override fun onTransitionEnd(transition: androidx.transition.Transition) {
-                            toolbarLayout.title = articleDTO.title
-                        }
-
-                        override fun onTransitionCancel(transition: androidx.transition.Transition) {
-                        }
-
-                        override fun onTransitionPause(transition: androidx.transition.Transition) {
-                        }
-
-                        override fun onTransitionResume(transition: androidx.transition.Transition) {
-                        }
-
-                        override fun onTransitionStart(transition: Transition?) {
-                        }
-
-                        override fun onTransitionEnd(transition: Transition?) {
-                        }
-
-                        override fun onTransitionCancel(transition: Transition?) {
-                        }
-
-                        override fun onTransitionPause(transition: Transition?) {
-                        }
-
-                        override fun onTransitionResume(transition: Transition?) {
-                        }
-
-                    }
-                )
+        sharedElementReturnTransition = null
     }
 
     override fun onDestroyView() {

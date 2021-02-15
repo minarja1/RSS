@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.ui.sources.manage.ManageSourcesParentFragmentDirections
 import cz.minarik.nasapp.utils.dividerFullWidth
@@ -36,9 +37,7 @@ class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
         manageSourcesAdapter = ManageSourcesAdapter(
             onShow = { source ->
                 source.URLs.firstOrNull()?.let {
-                    val action =
-                        ManageSourcesParentFragmentDirections.actionManageSourcesToSimpleArticles(it)
-                    findNavController().navigate(action)
+                    (requireActivity() as MainActivity).navigateToSimpleArticles(it)
                 }
             },
             onAdd = {

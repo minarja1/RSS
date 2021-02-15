@@ -1,22 +1,21 @@
 package cz.minarik.nasapp.ui.sources.detail
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
 import coil.load
-import com.google.android.material.appbar.MaterialToolbar
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.utils.Constants
 import cz.minarik.nasapp.utils.copyToClipBoard
 import cz.minarik.nasapp.utils.openCustomTabs
 import kotlinx.android.synthetic.main.fragment_source_detail.*
@@ -27,12 +26,22 @@ import java.net.URL
 
 class SourceDetailFragment : BaseFragment(R.layout.fragment_source_detail) {
 
-    private val args: SourceDetailFragmentArgs by navArgs()
     private lateinit var toolbarTitleTextView: TextView
     private lateinit var toolbarImageView: ImageView
 
+    companion object {
+        fun newInstance(
+            sourceUrl: String
+        ): SourceDetailFragment =
+            SourceDetailFragment().apply {
+                arguments = bundleOf(
+                    Constants.argSourceUrl to sourceUrl,
+                )
+            }
+    }
+
     val sourceUrl by lazy {
-        args.sourceUrl
+        requireArguments().getString(Constants.argSourceUrl) ?: ""
     }
     override val viewModel by viewModel<SourceDetailViewModel> {
         parametersOf(sourceUrl)
@@ -75,13 +84,29 @@ class SourceDetailFragment : BaseFragment(R.layout.fragment_source_detail) {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     private fun initViews(view: View) {
-        val navController = findNavController()
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
-        view.findViewById<MaterialToolbar>(R.id.toolbar)
-            .setupWithNavController(navController, appBarConfiguration)
+        (requireActivity() as AppCompatActivity).run {
+            setSupportActionBar(view.findViewById(R.id.toolbar))
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
+
         toolbarTitleTextView = view.findViewById(R.id.toolbarTitle)
         toolbarImageView = view.findViewById(R.id.toolbarImageView)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                requireActivity().onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun showError(error: String?) {

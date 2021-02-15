@@ -2,15 +2,12 @@ package cz.minarik.nasapp.ui.articles.simple
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.FragmentNavigator
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import coil.load
-import cz.minarik.base.data.NetworkState
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.articles.GenericArticlesFragment
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.utils.Constants
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -19,10 +16,21 @@ import org.koin.core.parameter.parametersOf
 
 class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
-    private val args: SimpleArticlesFragmentArgs by navArgs()
+    companion object {
+        fun newInstance(
+            sourceUrl: String,
+        ): SimpleArticlesFragment =
+            SimpleArticlesFragment().apply {
+                arguments = bundleOf(
+                    Constants.argSourceUrl to sourceUrl,
+                )
+            }
+    }
+
+    override val backEnabled = true
 
     val sourceUrl by lazy {
-        args.sourceUrl
+        requireArguments().getString(Constants.argSourceUrl)
     }
 
     override val viewModel by viewModel<SimpleArticlesFragmentViewModel> {
@@ -40,12 +48,6 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
         swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadArticles()
         }
-    }
-
-    override fun navigateToArticleDetail(extras: FragmentNavigator.Extras, articleDTO: ArticleDTO) {
-        val action =
-            SimpleArticlesFragmentDirections.actionSimpleArticlesToArticleDetail(articleDTO)
-        findNavController().navigate(action, extras)
     }
 
     override fun initObserve() {

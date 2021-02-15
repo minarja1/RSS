@@ -476,15 +476,6 @@ fun Activity.setTransparentStatusBar(transparent: Boolean = true) {
     }
 }
 
-inline fun <reified VM : ViewModel> Fragment.sharedGraphViewModel(
-    @IdRes navGraphId: Int,
-    qualifier: Qualifier? = null,
-    noinline parameters: ParametersDefinition? = null
-) = lazy {
-    val store = findNavController().getViewModelStoreOwner(navGraphId).viewModelStore
-    getKoin().getViewModel(ViewModelParameter(VM::class, qualifier, parameters, null, store, null))
-}
-
 fun Activity.hideKeyboard() {
     findViewById<View>(android.R.id.content).hideKeyboard()
 }

@@ -11,6 +11,7 @@ class Constants {
         const val ARTICLE_EXPAND_ANIMATION_DURATION: Long = 300L
 
         const val argArticleDTO = "argArticleDTO"
+        const val argSourceUrl = "argSourceUrl"
         const val ARTICLE_BOTTOM_SHEET_TAG = "ARTICLE_BOTTOM_SHEET_TAG"
     }
 }

@@ -1,63 +1,90 @@
 package cz.minarik.nasapp.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.navigation.NavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.fragment.app.Fragment
+import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.utils.setupWithNavController
+import cz.minarik.nasapp.ui.articles.ArticlesFragment
+import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment
+import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
+import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 
 class MainActivity : AppCompatActivity() {
 
-    private var currentNavController: LiveData<NavController>? = null
+    companion object {
+        const val fragmentTag = "fragmentTag"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
-            setupBottomNavigationBar()
-        } // Else, need to wait for onRestoreInstanceState
+            replaceFragment(ArticlesFragment())
+        }
     }
 
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        // Now that BottomNavigationBar has restored its instance state
-        // and its selectedItemId, we can proceed with setting up the
-        // BottomNavigationBar with Navigation
-        setupBottomNavigationBar()
+    fun getCurrentFragment(): Fragment? {
+        return supportFragmentManager.primaryNavigationFragment
     }
 
-    /**
-     * Called on first creation and when restoring state.
-     */
-    private fun setupBottomNavigationBar() {
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-
-        val navGraphIds = listOf(
-            R.navigation.articles_nav_graph,
-            R.navigation.map_nav_graph,
-            R.navigation.media_nav_graph,
-            R.navigation.settings_nav_graph
-        )
-
-        // Setup the bottom navigation view with a list of navigation graphs
-        val controller = bottomNavigationView.setupWithNavController(
-            navGraphIds = navGraphIds,
-            fragmentManager = supportFragmentManager,
-            containerId = R.id.nav_host_container,
-            intent = intent
-        )
-
-        // Whenever the selected controller changes, setup the action bar.
-//        controller.observe(this, { navController ->
-//            setupActionBarWithNavController(navController)
-//        })
-        currentNavController = controller
+    fun goBack() {
+        supportFragmentManager.popBackStack()
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return currentNavController?.value?.navigateUp() ?: false
+    private fun replaceFragment(
+        fragment: BaseFragment,
+        vararg sharedElements: Pair<View, String>,
+    ) {
+        if (supportFragmentManager.executePendingTransactions()) return
+
+        val currentFragment = supportFragmentManager.primaryNavigationFragment
+        if (fragment.javaClass == currentFragment?.javaClass) return
+
+        val transaction = supportFragmentManager.beginTransaction().apply {
+//            if (sharedElements.isEmpty()) {
+            setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left,
+                android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right
+            )
+//            }
+            setReorderingAllowed(true)
+        }
+
+        currentFragment?.let {
+            transaction.hide(it)
+        }
+
+        transaction.add(R.id.nav_host_container, fragment, fragmentTag)
+
+        //todo sharedElements not working properly with recycler
+//        for (sharedElement in sharedElements) {
+//            transaction.addSharedElement(sharedElement.first, sharedElement.second)
+//        }
+
+        transaction.apply {
+            setPrimaryNavigationFragment(fragment)
+            addToBackStack(null)
+            commit()
+        }
+    }
+
+    fun navigateToArticleDetail(
+        articleDTO: ArticleDTO,
+        vararg sharedElements: Pair<View, String>,
+    ) {
+        replaceFragment(ArticleDetailFragment.newInstance(articleDTO), *sharedElements)
+    }
+
+    fun navigateToSimpleArticles(sourceUrl: String) {
+        replaceFragment(SimpleArticlesFragment.newInstance(sourceUrl))
+    }
+
+    fun navigateToSourceDetail(sourceUrl: String) {
+        replaceFragment(SourceDetailFragment.newInstance(sourceUrl))
     }
 }

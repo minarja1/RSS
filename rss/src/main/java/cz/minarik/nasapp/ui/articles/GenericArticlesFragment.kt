@@ -6,8 +6,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
@@ -20,16 +19,12 @@ import androidx.browser.customtabs.CustomTabsSession
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.FragmentNavigator
-import androidx.navigation.fragment.FragmentNavigatorExtras
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.dpToPx
-import cz.minarik.base.common.extensions.initToolbar
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
@@ -38,6 +33,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.ViewModelState
 import cz.minarik.nasapp.data.domain.ArticleFilterType
+import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
 import cz.minarik.nasapp.ui.custom.ArticleDTO
@@ -53,6 +49,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     abstract override val viewModel: GenericArticlesFragmentViewModel
 
     val viewState = ViewState()
+
+    open val backEnabled = false
 
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
@@ -72,7 +70,13 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         }
     }
 
-    abstract fun navigateToArticleDetail(extras: FragmentNavigator.Extras, articleDTO: ArticleDTO)
+    fun navigateToArticleDetail(
+        articleDTO: ArticleDTO,
+        position: Int,
+        vararg sharedElements: Pair<View, String>,
+    ) {
+        (requireActivity() as MainActivity).navigateToArticleDetail(articleDTO, *sharedElements)
+    }
 
     private val articlesAdapter by lazy {
         ArticlesAdapter(
@@ -90,11 +94,13 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                                 imageView.transitionName = this.guid?.toImageSharedTransitionName()
                                 titleTextView.transitionName =
                                     this.guid?.toTitleSharedTransitionName()
-                                val extras = FragmentNavigatorExtras(
-                                    imageView to this.guid.toImageSharedTransitionName(),
-                                    titleTextView to this.guid.toTitleSharedTransitionName(),
+                                navigateToArticleDetail(
+                                    this,
+                                    position,
+                                    imageView to (this.guid?.toImageSharedTransitionName() ?: ""),
+                                    titleTextView to (this.guid?.toTitleSharedTransitionName()
+                                        ?: ""),
                                 )
-                                navigateToArticleDetail(extras, this)
                             }
                         }
                     }
@@ -163,12 +169,12 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun filterBySource(sourceUrl: String) {
-        val action = ArticlesFragmentDirections.actionArticlesToSimpleArticles(sourceUrl)
-        findNavController().navigate(action)
+        (requireActivity() as MainActivity).navigateToSimpleArticles(sourceUrl)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         //init Custom tabs services
         val success = CustomTabsClient.bindCustomTabsService(
@@ -373,6 +379,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         viewModel.articles.observe {
             viewState.articles = it
             articlesAdapter.submitList(it)
+
             if (viewModel.shouldScrollToTop) {
                 appBarLayout.setExpanded(true)
                 articlesRecyclerView?.scrollToTop()
@@ -383,14 +390,28 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     private fun initToolbar() {
         toolbarTitle?.text = getString(R.string.app_name)
-        toolbar?.let { toolbar ->
-            initToolbar(toolbar)
-            toolbar.inflateMenu(R.menu.menu_articles_fragment)
-            searchView?.setMenuItem(toolbar.menu.findItem(R.id.searchAction))
+        (requireActivity() as AppCompatActivity).run {
+            setSupportActionBar(toolbar)
+            supportActionBar?.setDisplayShowTitleEnabled(false)
+            supportActionBar?.setDisplayHomeAsUpEnabled(backEnabled)
         }
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_articles_fragment, menu)
+        searchView?.setMenuItem(menu.findItem(R.id.searchAction))
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                requireActivity().onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     private fun updateViews() {
         val loadingArticles =
