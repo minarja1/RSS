@@ -9,17 +9,14 @@ import com.squareup.moshi.Types
 import cz.minarik.base.common.extensions.moshi
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
-import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.RSSSourceListEntity
-import cz.minarik.nasapp.data.db.entity.ReadArticleEntity
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import java.util.*
 
 @Database(
     entities = [
-        ReadArticleEntity::class,
         RSSSourceEntity::class,
         RSSSourceListEntity::class,
         ArticleEntity::class,
@@ -35,7 +32,6 @@ abstract class RSSDatabase : RoomDatabase() {
         const val Name = "RSSDatabase"
     }
 
-    abstract fun readArticleDao(): ReadArticleDao
     abstract fun rssSourceDao(): RSSSourceDao
     abstract fun rssSourceListDao(): RSSSourceListDao
     abstract fun starredArticleDao(): ArticleDao

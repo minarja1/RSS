@@ -2,15 +2,18 @@ package cz.minarik.nasapp.ui.articles
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import com.chimbori.crux.articles.Article
+import com.chimbori.crux.articles.ArticleExtractor
 import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
-import cz.minarik.nasapp.data.db.dao.ReadArticleDao
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
+import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
+import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
@@ -18,12 +21,13 @@ import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.RSSPrefManager
 import kotlinx.coroutines.*
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.jsoup.Jsoup
 import timber.log.Timber
 import java.io.IOException
 
-abstract class GenericArticlesFragmentViewModel(
+class ArticlesViewModel(
     private val context: Context,
-    private val readArticleDao: ReadArticleDao,
     val articlesRepository: ArticlesRepository,
     private val articleDao: ArticleDao,
     val prefManager: RSSPrefManager,
@@ -38,6 +42,14 @@ abstract class GenericArticlesFragmentViewModel(
     //shown articles (may be filtered)
     val articles: MutableLiveData<List<ArticleDTO>> = MutableLiveData()
 
+    //all articles (without active filters)
+    private val allArticlesSimple: MutableList<ArticleDTO> = mutableListOf()
+
+    //shown articles (may be filtered)
+    val articlesSimple: MutableLiveData<List<ArticleDTO>> = MutableLiveData()
+
+    var isInSimpleMode = false
+
     var shouldScrollToTop: Boolean = false
 
     var searchQuery: String? = null
@@ -45,11 +57,11 @@ abstract class GenericArticlesFragmentViewModel(
     var isFromSwipeRefresh: Boolean = false
 
     init {
-        loadArticles(false, true)
+        loadArticles(scrollToTop = false, updateDb = true)
     }
 
-    fun updateDb() {
-        if(context.isInternetAvailable){
+    private fun updateDb() {
+        if (context.isInternetAvailable) {
             launch {
                 articlesRepository.updateArticles(getSource()) {
                     loadArticles()
@@ -74,7 +86,7 @@ abstract class GenericArticlesFragmentViewModel(
 
                 Timber.i("loading starred articles")
 
-                val selectedSource = getSource()
+                val selectedSource = if (isInSimpleMode) getSourceSimple() else getSource()
 
                 val fromDB: MutableList<ArticleEntity> = mutableListOf()
 
@@ -88,24 +100,36 @@ abstract class GenericArticlesFragmentViewModel(
                     ArticleDTO.fromDb(entity).apply {
                         guid?.let { guid ->
                             showSource = selectedSource?.isList ?: false
-                            openExternally = selectedSource?.openExternally ?:false
+                            this.sourceUrl?.let {
+                                openExternally =
+                                    sourceDao.getByUrl(it)?.forceOpenExternally ?: false
+                            }
                         }
                     }
                 }
 
-                allArticles.clear()
-                allArticles.addAll(mapped)
+                if (isInSimpleMode) {
+                    allArticlesSimple.clear()
+                    allArticlesSimple.addAll(mapped)
+                } else {
+                    allArticles.clear()
+                    allArticles.addAll(mapped)
+                }
 
-                this@GenericArticlesFragmentViewModel.shouldScrollToTop = scrollToTop
+                this@ArticlesViewModel.shouldScrollToTop = scrollToTop
                 val result = applyFilters()
 
-                articles.postValue(result)
+                if (isInSimpleMode) {
+                    articlesSimple.postValue(result)
+                } else {
+                    articles.postValue(result)
+                }
                 state.postValue(NetworkState.SUCCESS)
                 val duration = System.currentTimeMillis() - startTime
 
                 if (updateDb) updateDb()
                 Timber.i("ViewModel: loading articles finished in $duration ms")
-                this@GenericArticlesFragmentViewModel.isFromSwipeRefresh = false
+                this@ArticlesViewModel.isFromSwipeRefresh = false
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))
@@ -114,7 +138,7 @@ abstract class GenericArticlesFragmentViewModel(
     }
 
     private suspend fun applyFilters(): MutableList<ArticleDTO> {
-        val result = applyArticleFilters(allArticles)
+        val result = applyArticleFilters(if (isInSimpleMode) allArticlesSimple else allArticles)
 
         result.sortByDescending {
             it.date
@@ -174,26 +198,13 @@ abstract class GenericArticlesFragmentViewModel(
         return articles.toMutableList()
     }
 
-    fun markArticleAsRead(article: ArticleDTO) {
-        launch(defaultState = null) {
-            allArticles.find { it.guid == article.guid }?.read = true
-            article.guid?.let { guid ->
-                article.date?.let { date ->
-                    articleDao.getByGuidAndDate(guid, date)?.run {
-                        read = true
-                        articleDao.update(this)
-                    }
-                }
-            }
-        }
-    }
-
-
     fun markArticleAsStarred(article: ArticleDTO) {
         launch(defaultState = null) {
-            val articleToStar = allArticles.find { it.guid == article.guid }
+            val source = if (isInSimpleMode) allArticlesSimple else allArticles
+            val articleToStar = source.find { (it.guid == article.guid && it.date == article.date) }
             val starred = !(articleToStar?.starred ?: true)
             articleToStar?.starred = starred
+            article.starred = starred
             article.guid?.let { guid ->
                 article.date?.let { date ->
                     articleDao.getByGuidAndDate(guid, date)?.run {
@@ -202,15 +213,42 @@ abstract class GenericArticlesFragmentViewModel(
                     }
                 }
             }
+            articleStarredLiveData.postValue(true)
+            invalidateArticleStates(article)
         }
     }
 
+    private suspend fun invalidateArticleStates(article: ArticleDTO) {
+        articlesSimple.value?.firstOrNull {
+            it.guid == article.guid && it.date == article.date
+        }?.let {
+            updateArticleState(it)
+        }
 
-    fun markArticleAsReadOrUnread(article: ArticleDTO) {
+        articles.value?.firstOrNull {
+            it.guid == article.guid && it.date == article.date
+        }?.let {
+            updateArticleState(it)
+        }
+    }
+
+    private suspend fun updateArticleState(article: ArticleDTO) {
+        article.guid?.let { guid ->
+            article.date?.let { date ->
+                val dbArticle = articleDao.getByGuidAndDate(guid, date)
+                article.starred = dbArticle?.starred ?: false
+                article.read = dbArticle?.read ?: false
+            }
+        }
+    }
+
+    fun markArticleAsReadOrUnread(article: ArticleDTO, forceRead: Boolean = false) {
         launch(defaultState = null) {
-            val articleToMark = allArticles.find { it.guid == article.guid }
-            val read = !(articleToMark?.read ?: true)
+            val source = if (isInSimpleMode) allArticlesSimple else allArticles
+            val articleToMark = source.find { it.guid == article.guid && it.date == article.date }
+            val read = forceRead || !(articleToMark?.read ?: true)
             articleToMark?.read = read
+            article.read = read
             article.guid?.let { guid ->
                 article.date?.let { date ->
                     articleDao.getByGuidAndDate(guid, date)?.run {
@@ -219,18 +257,23 @@ abstract class GenericArticlesFragmentViewModel(
                     }
                 }
             }
+            invalidateArticleStates(article)
         }
     }
 
     fun filterArticles(filterType: ArticleFilterType) {
         prefManager.setArticleFilter(filterType)
 
-        if (allArticles.isNotEmpty()) {//do nothing if currently loading (filters will be applied when loading is finished)
-            launch(defaultState = null) {
-                val result = applyFilters()
+//        if (allArticles.isNotEmpty()) {
+        launch(defaultState = null) {
+            val result = applyFilters()
+            if (isInSimpleMode) {
+                articlesSimple.postValue(result)
+            } else {
                 articles.postValue(result)
             }
         }
+//        }
     }
 
 
@@ -239,29 +282,60 @@ abstract class GenericArticlesFragmentViewModel(
         filterArticles(prefManager.getArticleFilter())
     }
 
-    private suspend fun loadArticlesFromDB() {
-        Timber.i("loading starred articles")
-        val selectedSource = getSource()
-        val fromDB: MutableList<ArticleEntity> = mutableListOf()
-
-        selectedSource?.let {
-            for (url in it.URLs) {
-                fromDB.addAll(articleDao.getBySourceUrl(url))
-            }
-        }
-
-        val mapped = fromDB.map { entity ->
-            ArticleDTO.fromDb(entity).apply {
-                guid?.let { guid ->
-                    showSource = selectedSource?.isList ?: false
-                    openExternally = selectedSource?.openExternally ?: false
-                }
-            }
-        }
-        articles.postValue(applySearchQueryFilters(mapped))
+    suspend fun getSource(): RSSSource? {
+        return sourceDao.getSelected()?.let {
+            RSSSource.fromEntity(it)
+        } ?: sourceListDao.getSelected()?.let {
+            RSSSource.fromEntity(it)
+        } ?: RSSSourceRepository.createFakeListItem(
+            context,
+            sourceDao.getAllUnblocked().map { it.url },
+            true
+        )
     }
 
-    abstract suspend fun getSource(): RSSSource?
+    //for SIMPLE loading (just a single source)_____________________________________________________
+    private var selectedSource: RSSSourceEntity? = null
+    val selectedSourceName = MutableLiveData<String?>()
+    val selectedSourceImage = MutableLiveData<String>()
+    private lateinit var sourceUrl: String
 
+    fun loadSelectedSource(sourceUrl: String) {
+        this.sourceUrl = sourceUrl
+        loadArticles(scrollToTop = false, updateDb = true)
+        launch(defaultState = null) {
+            selectedSource = sourceDao.getByUrl(sourceUrl)
+            selectedSourceName.postValue(selectedSource?.title)
+            selectedSourceImage.postValue(selectedSource?.imageUrl)
+        }
+    }
+
+
+    private suspend fun getSourceSimple(): RSSSource? {
+        return sourceDao.getByUrl(sourceUrl)?.let {
+            RSSSource.fromEntity(it)
+        }
+    }
+
+    //ARTICLE DETAIL________________________________________________________________________________
+    val articleLiveData: MutableLiveData<Article?> = MutableLiveData()
+    val articleStarredLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    lateinit var articleDetailDTO: ArticleDTO
+
+    fun loadArticleDetail(article: ArticleDTO) {
+        this.articleDetailDTO = article
+        launch {
+            articleDetailDTO.link?.let { articleUrl ->
+                val parse = articleUrl.toHttpUrl()
+                val doc = Jsoup.connect(articleUrl).get()
+                val article = ArticleExtractor(parse, doc)
+                    .extractMetadata()
+                    .extractContent()
+                    .article
+
+                articleLiveData.postValue(article)
+            }
+        }
+    }
 }
 

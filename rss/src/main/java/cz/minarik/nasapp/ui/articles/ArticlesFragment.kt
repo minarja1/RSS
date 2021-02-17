@@ -8,12 +8,14 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.MutableLiveData
 import coil.load
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.isScrolledToTop
@@ -22,14 +24,16 @@ import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
 class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val sourcesViewModel: SourcesViewModel by inject()
 
-    override val viewModel by viewModel<ArticlesFragmentViewModel>()
+    override val viewModel by sharedViewModel<ArticlesViewModel>()
+
+    override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articles
 
     private var doubleBackToExitPressedOnce = false
 

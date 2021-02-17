@@ -7,10 +7,12 @@ import androidx.fragment.app.Fragment
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
+import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,9 +20,12 @@ class MainActivity : AppCompatActivity() {
         const val fragmentTag = "fragmentTag"
     }
 
+    val viewModel by viewModel<ArticlesViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        viewModel //initialization
         if (savedInstanceState == null) {
             replaceFragment(ArticlesFragment())
         }

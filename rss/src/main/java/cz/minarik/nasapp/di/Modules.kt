@@ -6,9 +6,7 @@ import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.network.RssApiService
-import cz.minarik.nasapp.ui.articles.ArticlesFragmentViewModel
-import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragmentViewModel
-import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragmentViewModel
+import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailViewModel
 import cz.minarik.nasapp.ui.sources.manage.source_detail.SourceListDetailViewModel
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
@@ -24,35 +22,12 @@ import retrofit2.Retrofit
 val appModule = module {
 
     viewModel {
-        ArticlesFragmentViewModel(
+        ArticlesViewModel(
             androidContext(),
             get(),
             get(),
             get(),
             get(),
-            get(),
-            get(),
-            get(),
-        )
-    }
-    viewModel { (sourceUrl: String) ->
-        SimpleArticlesFragmentViewModel(
-            sourceUrl,
-            androidContext(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-        )
-    }
-
-    viewModel { (articleUrl: String?) ->
-        ArticleDetailFragmentViewModel(
-            articleUrl,
-            androidContext(),
             get(),
             get(),
         )
@@ -111,7 +86,6 @@ val dbModule = module {
     }
 
     // Dao
-    single { get<RSSDatabase>().readArticleDao() }
     single { get<RSSDatabase>().rssSourceDao() }
     single { get<RSSDatabase>().rssSourceListDao() }
     single { get<RSSDatabase>().starredArticleDao() }

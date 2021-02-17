@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.webkit.*
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
@@ -29,21 +28,19 @@ import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
-import cz.minarik.nasapp.ui.custom.GalleryViewClickListener
 import cz.minarik.nasapp.ui.custom.GalleryViewImageDTO
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
 import kotlin.math.abs
 
 
-class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
-    GalleryViewClickListener {
+class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
 
     companion object {
         fun newInstance(
@@ -56,8 +53,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
             }
     }
 
-    private var viewer: StfalconImageViewer<GalleryViewImageDTO>? = null
-
     private val articleDTO by lazy {
         arguments?.getSerializable(Constants.argArticleDTO) as ArticleDTO
     }
@@ -66,18 +61,18 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
 
     private var urlsBeingLoaded = mutableListOf<String>()
 
-    override val viewModel by viewModel<ArticleDetailFragmentViewModel> {
-        parametersOf(articleDTO.link, requireContext())
-    }
+    override val viewModel by sharedViewModel<ArticlesViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (savedInstanceState == null) {
+            viewModel.loadArticleDetail(articleDTO)
+        }
         initViews()
         initObserve()
     }
 
     private fun initViews() {
-        webView.restoreState(viewModel.webViewState)
         prepareWebView()
         loadArticleWebView()
         initToolbar()
@@ -127,12 +122,12 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
                 if (!requireContext().isInternetAvailable) {
                     stateView.error(show = true, getString(R.string.no_internet_connection)) {
                         if (requireContext().isInternetAvailable) {
-                            viewModel.loadArticleDetail()
+                            viewModel.loadArticleDetail(articleDTO)
                         }
                     }
                 } else {
                     stateView.error(show = true, it.message) {
-                        viewModel.loadArticleDetail()
+                        viewModel.loadArticleDetail(articleDTO)
                     }
                 }
             } else {
@@ -210,9 +205,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
                 uri = it.replace("http://", "https://"),
                 placeholder = toolbarExpandedImage.drawable
             )
-            toolbarExpandedImage.setOnClickListener {
-                showImage(0, toolbarExpandedImage)
-            }
+//            toolbarExpandedImage.setOnClickListener {
+//                showImage(0, toolbarExpandedImage)
+//            }
         }
 
 //        article?.document?.styleHtml(requireContext())
@@ -372,39 +367,39 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
     override fun showLoading(show: Boolean) {
     }
 
-    override fun onImageClicked(position: Int, clickedView: ImageView) {
-        showImage(position + 1, clickedView)
-    }
+//    override fun onImageClicked(position: Int, clickedView: ImageView) {
+//        showImage(position + 1, clickedView)
+//    }
 
-    private fun showImage(position: Int, clickedView: ImageView) {
-        val images = viewModel.articleLiveData.value?.images?.map {
-            GalleryViewImageDTO.fromApi(it)
-        }?.toMutableList() ?: mutableListOf()
-        viewModel.articleLiveData.value?.imgUrlSafe?.let {
-            images.add(0, GalleryViewImageDTO(it))
-        }
-
-        val builder = StfalconImageViewer.Builder(
-            context,
-            images
-        ) { view, image ->
-            view.loadImageWithDefaultSettings(image.image)
-        }
-            .withStartPosition(position)
-            .withTransitionFrom(
-                clickedView
-            )
-            .withImageChangeListener {
-                if (it == 0) {
-                    viewer?.updateTransitionImage(
-                        toolbarExpandedImage
-                    )
-                }
-            }
-            .withHiddenStatusBar(false)
-
-        viewer = builder.show()
-    }
+//    private fun showImage(position: Int, clickedView: ImageView) {
+//        val images = viewModel.articleLiveData.value?.images?.map {
+//            GalleryViewImageDTO.fromApi(it)
+//        }?.toMutableList() ?: mutableListOf()
+//        viewModel.articleLiveData.value?.imgUrlSafe?.let {
+//            images.add(0, GalleryViewImageDTO(it))
+//        }
+//
+//        val builder = StfalconImageViewer.Builder(
+//            context,
+//            images
+//        ) { view, image ->
+//            view.loadImageWithDefaultSettings(image.image)
+//        }
+//            .withStartPosition(position)
+//            .withTransitionFrom(
+//                clickedView
+//            )
+//            .withImageChangeListener {
+//                if (it == 0) {
+//                    viewer?.updateTransitionImage(
+//                        toolbarExpandedImage
+//                    )
+//                }
+//            }
+//            .withHiddenStatusBar(false)
+//
+//        viewer = builder.show()
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -414,8 +409,4 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail),
         sharedElementReturnTransition = null
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        webView.saveState(viewModel.webViewState)
-    }
 }

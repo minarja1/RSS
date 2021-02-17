@@ -19,9 +19,11 @@ import androidx.browser.customtabs.CustomTabsSession
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.dividerMedium
 import cz.minarik.base.common.extensions.dpToPx
@@ -40,13 +42,14 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_articles.*
+import kotlinx.android.synthetic.main.fragment_recycler.*
 import timber.log.Timber
 
 
 abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     BaseFragment(layoutId) {
 
-    abstract override val viewModel: GenericArticlesFragmentViewModel
+    abstract override val viewModel: ArticlesViewModel
 
     val viewState = ViewState()
 
@@ -84,7 +87,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 (articlesRecyclerView?.adapter as? ArticlesAdapter)?.run {
                     getItemAtPosition(position)?.run {
                         read = true
-                        viewModel.markArticleAsRead(this)
+                        viewModel.markArticleAsReadOrUnread(this, true)
                         link?.toUri()?.let {
                             if (openExternally) {
                                 link?.toUri()?.let {
@@ -367,6 +370,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         }
     }
 
+    abstract fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>>
+
     open fun initObserve() {
         viewModel.state.observe {
             viewState.loadingArticlesState = it
@@ -376,7 +381,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             viewState.loadingArticlesFromServer = it
         }
 
-        viewModel.articles.observe {
+        getArticlesLiveData().observe {
             viewState.articles = it
             articlesAdapter.submitList(it)
 
@@ -472,5 +477,15 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 field = value
                 updateViews()
             }
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            articlesAdapter.notifyItemRangeChanged(
+                (articlesRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
+                (articlesRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+            )
+        }
     }
 }
