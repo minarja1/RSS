@@ -45,11 +45,10 @@ dependencies {
     api 'com.github.minarja1:Base:v1.0.5'
     implementation 'com.prof.rssparser:rssparser:3.1.1'
 
-    implementation platform('com.google.firebase:firebase-bom:26.4.0')
+    api platform('com.google.firebase:firebase-bom:26.4.0')
     api 'com.google.firebase:firebase-analytics-ktx'
     api 'com.google.firebase:firebase-database-ktx'
     api 'com.google.firebase:firebase-crashlytics-ktx'
-    api 'com.google.firebase:firebase-analytics-ktx'
 
 
     //ROOM

@@ -14,7 +14,7 @@ android {
             storePassword '6b6614be1ecb697b594a4e71f0d0e9be'
             keyPassword '6b6614be1ecb697b594a4e71f0d0e9be'
             keyAlias = 'cert'
-            storeFile file('../keystore/release.key')
+            storeFile file('../spacenews/release.key')
         }
     }
 
@@ -36,9 +36,20 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.release
+            debuggable true
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            debuggable true
+            minifyEnabled false
+            shrinkResources false
+            ext.enableCrashlytics = false
+        }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

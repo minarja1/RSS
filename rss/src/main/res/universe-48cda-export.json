@@ -7,7 +7,7 @@
     },
     {
       "url": "https://www.portaltotheuniverse.org/rss/news/featured/",
-      "homePage": "https://www.portaltotheuniverse.org/",
+        "homePage": "https://www.portaltotheuniverse.org/",
       "contact": "https://www.portaltotheuniverse.org/contact/"
     },
     {
@@ -97,7 +97,7 @@
     },
     {
       "url": "https://www.leonarddavid.com/feed/",
-      "homePage": "https://spaceq.ca/",
+      "homePage": "https://www.leonarddavid.com/",
       "contact": "https://www.leonarddavid.com/leonard-david-bio/",
       "forceOpenExternal": true
     },

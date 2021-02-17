@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep class com.crashlytics.** { *; }
+-dontwarn com.crashlytics.**
+
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+
+-keep class com.crashlytics.** { *; }
+-dontwarn com.crashlytics.**
+
+-keep class cz.minarik.nasapp.data.** { *; }
+-keep class cz.minarik.nasapp.base.network.** { *; }
+-keep class cz.minarik.nasapp.ui.custom.ArticleDTO.** { *; }
