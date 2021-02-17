@@ -119,7 +119,7 @@ class SourcesViewModel(
 
 
     fun markAsBlocked(source: RSSSource, blocked: Boolean) {
-        launch(defaultState = null) {
+        launch {
             source.URLs.firstOrNull()?.let {
                 val entity = sourceDao.getByUrl(it)
                 entity?.let {

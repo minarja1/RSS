@@ -12,10 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
 import androidx.core.view.isVisible
 import coil.load
-import cz.minarik.base.common.extensions.dpToPx
-import cz.minarik.base.common.extensions.getFavIcon
-import cz.minarik.base.common.extensions.toDateFromRSS
-import cz.minarik.base.common.extensions.toHtml
+import cz.minarik.base.common.extensions.*
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.utils.*

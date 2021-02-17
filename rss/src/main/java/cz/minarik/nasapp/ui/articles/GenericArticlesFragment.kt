@@ -25,9 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.chip.Chip
-import cz.minarik.base.common.extensions.dividerMedium
-import cz.minarik.base.common.extensions.dpToPx
-import cz.minarik.base.common.extensions.showToast
+import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
@@ -49,7 +47,7 @@ import timber.log.Timber
 abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     BaseFragment(layoutId) {
 
-    abstract override val viewModel: ArticlesViewModel
+    abstract val viewModel: ArticlesViewModel
 
     val viewState = ViewState()
 
@@ -194,14 +192,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             customTabsSession = newSession(object : CustomTabsCallback() {
             })
         }
-    }
-
-    override fun showError(error: String?) {
-        //todo
-    }
-
-    override fun showLoading(show: Boolean) {
-        //todo
     }
 
     @CallSuper

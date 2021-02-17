@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">RSS</string>
-    <string name="common_base_error">Oops! Something went wrong.</string>
     <string name="articles_title">Articles</string>
     <string name="action_filter">Filter</string>
     <string name="action_search">Search</string>

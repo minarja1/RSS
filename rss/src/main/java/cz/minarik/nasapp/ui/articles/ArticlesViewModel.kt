@@ -48,6 +48,8 @@ class ArticlesViewModel(
     //shown articles (may be filtered)
     val articlesSimple: MutableLiveData<List<ArticleDTO>> = MutableLiveData()
 
+    val state: MutableLiveData<NetworkState> = MutableLiveData<NetworkState>()
+
     var isInSimpleMode = false
 
     var shouldScrollToTop: Boolean = false
@@ -199,7 +201,7 @@ class ArticlesViewModel(
     }
 
     fun markArticleAsStarred(article: ArticleDTO) {
-        launch(defaultState = null) {
+        launch {
             val source = if (isInSimpleMode) allArticlesSimple else allArticles
             val articleToStar = source.find { (it.guid == article.guid && it.date == article.date) }
             val starred = !(articleToStar?.starred ?: true)
@@ -243,7 +245,7 @@ class ArticlesViewModel(
     }
 
     fun markArticleAsReadOrUnread(article: ArticleDTO, forceRead: Boolean = false) {
-        launch(defaultState = null) {
+        launch {
             val source = if (isInSimpleMode) allArticlesSimple else allArticles
             val articleToMark = source.find { it.guid == article.guid && it.date == article.date }
             val read = forceRead || !(articleToMark?.read ?: true)
@@ -265,7 +267,7 @@ class ArticlesViewModel(
         prefManager.setArticleFilter(filterType)
 
 //        if (allArticles.isNotEmpty()) {
-        launch(defaultState = null) {
+        launch {
             val result = applyFilters()
             if (isInSimpleMode) {
                 articlesSimple.postValue(result)
@@ -303,7 +305,7 @@ class ArticlesViewModel(
     fun loadSelectedSource(sourceUrl: String) {
         this.sourceUrl = sourceUrl
         loadArticles(scrollToTop = false, updateDb = true)
-        launch(defaultState = null) {
+        launch {
             selectedSource = sourceDao.getByUrl(sourceUrl)
             selectedSourceName.postValue(selectedSource?.title)
             selectedSourceImage.postValue(selectedSource?.imageUrl)

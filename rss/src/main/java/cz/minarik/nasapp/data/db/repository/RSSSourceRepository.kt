@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.DatabaseError
 import com.prof.rssparser.Parser
+import cz.minarik.base.common.extensions.compareLists
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseRepository

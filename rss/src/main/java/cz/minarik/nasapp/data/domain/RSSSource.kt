@@ -1,8 +1,8 @@
 package cz.minarik.nasapp.data.domain
 
+import cz.minarik.base.common.extensions.compareLists
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.RSSSourceListDataEntity
-import cz.minarik.nasapp.utils.compareLists
 import java.io.Serializable
 
 data class RSSSource(

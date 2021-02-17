@@ -21,8 +21,7 @@ import coil.load
 import com.chimbori.crux.articles.Article
 import com.google.android.material.appbar.AppBarLayout
 import com.stfalcon.imageviewer.StfalconImageViewer
-import cz.minarik.base.common.extensions.getFavIcon
-import cz.minarik.base.common.extensions.isInternetAvailable
+import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.BuildConfig
@@ -61,7 +60,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
 
     private var urlsBeingLoaded = mutableListOf<String>()
 
-    override val viewModel by sharedViewModel<ArticlesViewModel>()
+    val viewModel by sharedViewModel<ArticlesViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -245,7 +244,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             false
         }
 
-        showLoading(true)
         webView.settings.run {
             javaScriptCanOpenWindowsAutomatically = true
             javaScriptEnabled = true
@@ -359,12 +357,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             }
         }
         //other errors ignored because sometimes webView will just throw an error but the page is actually loaded
-    }
-
-    override fun showError(error: String?) {
-    }
-
-    override fun showLoading(show: Boolean) {
     }
 
 //    override fun onImageClicked(position: Int, clickedView: ImageView) {

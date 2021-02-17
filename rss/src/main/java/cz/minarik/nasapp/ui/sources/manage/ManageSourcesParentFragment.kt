@@ -20,15 +20,7 @@ import org.koin.android.ext.android.inject
 
 class ManageSourcesParentFragment : BaseFragment(R.layout.fragment_manage_sources_parent) {
 
-    //todo odstranit z base
-    override val viewModel: SourcesViewModel by inject()
-
-
-    override fun showError(error: String?) {
-    }
-
-    override fun showLoading(show: Boolean) {
-    }
+    val viewModel: SourcesViewModel by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

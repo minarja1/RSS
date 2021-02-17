@@ -10,13 +10,14 @@ import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
+import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesFragmentDirections
 import kotlinx.android.synthetic.main.fragment_source_selection.*
 import org.koin.android.ext.android.inject
 
 class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection) {
 
-    override val viewModel: SourcesViewModel by inject()
+    val viewModel: SourcesViewModel by inject()
 
     private lateinit var concatAdapter: ConcatAdapter
     private lateinit var sourcesAdapter: ArticleSourceAdapter
@@ -24,12 +25,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
 
     private var listsVisible = true
     private var sourcesVisible = true
-
-    override fun showError(error: String?) {
-    }
-
-    override fun showLoading(show: Boolean) {
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -76,8 +71,7 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
             onItemClicked = { if (!it.selected) viewModel.onSourceSelected(it) },
             onItemBlocked = { viewModel.markAsBlocked(it, !it.isBlocked) },
             onItemInfo = {
-                val action = ArticlesFragmentDirections.actionArticlesToSourceDetail(it.URLs[0])
-                findNavController().navigate(action)
+                (requireActivity() as MainActivity).navigateToSourceDetail(it.URLs[0])
             },
         )
 

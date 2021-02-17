@@ -14,8 +14,6 @@ import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.articles.GenericArticlesFragment
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
-import cz.minarik.nasapp.utils.isScrolledToTop
-import cz.minarik.nasapp.utils.scrollToTop
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel

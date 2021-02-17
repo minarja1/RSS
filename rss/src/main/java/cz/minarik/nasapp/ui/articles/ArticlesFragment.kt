@@ -10,6 +10,8 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import coil.load
+import cz.minarik.base.common.extensions.isScrolledToTop
+import cz.minarik.base.common.extensions.scrollToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.base.data.NetworkState
@@ -18,8 +20,6 @@ import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
-import cz.minarik.nasapp.utils.isScrolledToTop
-import cz.minarik.nasapp.utils.scrollToTop
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
@@ -79,14 +79,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         initViews(view)
         initObserve()
         initSwipeToRefresh()
-    }
-
-    override fun showError(error: String?) {
-        //todo
-    }
-
-    override fun showLoading(show: Boolean) {
-        //todo
     }
 
     override fun initViews(view: View?) {

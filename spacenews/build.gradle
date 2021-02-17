@@ -3,17 +3,33 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
+    signingConfigs {
+        release {
+            storePassword '6b6614be1ecb697b594a4e71f0d0e9be'
+            keyPassword '6b6614be1ecb697b594a4e71f0d0e9be'
+            keyAlias = 'cert'
+            storeFile file('../keystore/release.key')
+        }
+    }
+
     defaultConfig {
         applicationId "cz.minarik.spacenews"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+
+        def versionMajor = 0
+        def versionMinor = 0
+        def versionPatch = 0
+        def versionBuild = 1
+
+        versionCode = versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -7,12 +7,12 @@ import android.view.animation.LinearInterpolator
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import coil.load
+import cz.minarik.base.common.extensions.iconizeMenu
+import cz.minarik.base.ui.base.BaseAdapter
+import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.data.domain.RSSSource
-import cz.minarik.nasapp.ui.base.BaseAdapter
-import cz.minarik.nasapp.ui.base.BaseListAdapter
-import cz.minarik.nasapp.utils.iconizeMenu
 import kotlinx.android.synthetic.main.item_product_section_title.view.*
 import kotlinx.android.synthetic.main.row_article_source_button.view.*
 import kotlinx.android.synthetic.main.row_source_item.view.*

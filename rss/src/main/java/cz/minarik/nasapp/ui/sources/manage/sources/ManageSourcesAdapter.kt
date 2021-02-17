@@ -2,9 +2,9 @@ package cz.minarik.nasapp.ui.sources.manage.sources
 
 import android.view.View
 import androidx.recyclerview.widget.DiffUtil
+import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.RSSSource
-import cz.minarik.nasapp.ui.base.BaseListAdapter
 import kotlinx.android.synthetic.main.row_manage_source_item.view.*
 
 

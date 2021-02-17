@@ -11,13 +11,13 @@ import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import coil.load
+import cz.minarik.base.common.extensions.copyToClipBoard
 import cz.minarik.base.common.extensions.getFavIcon
+import cz.minarik.base.common.extensions.openCustomTabs
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.utils.Constants
-import cz.minarik.nasapp.utils.copyToClipBoard
-import cz.minarik.nasapp.utils.openCustomTabs
 import kotlinx.android.synthetic.main.fragment_source_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -43,7 +43,7 @@ class SourceDetailFragment : BaseFragment(R.layout.fragment_source_detail) {
     val sourceUrl by lazy {
         requireArguments().getString(Constants.argSourceUrl) ?: ""
     }
-    override val viewModel by viewModel<SourceDetailViewModel> {
+    val viewModel by viewModel<SourceDetailViewModel> {
         parametersOf(sourceUrl)
     }
 
@@ -108,12 +108,4 @@ class SourceDetailFragment : BaseFragment(R.layout.fragment_source_detail) {
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    override fun showError(error: String?) {
-    }
-
-    override fun showLoading(show: Boolean) {
-    }
-
-
 }

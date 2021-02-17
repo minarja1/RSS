@@ -18,7 +18,7 @@ class SourceListDetailFragment : BaseFragment(R.layout.fragment_recycler) {
         args.source
     }
 
-    override val viewModel by viewModel<SourcesViewModel> {
+    val viewModel by viewModel<SourcesViewModel> {
         parametersOf(source)
     }
 
@@ -36,12 +36,4 @@ class SourceListDetailFragment : BaseFragment(R.layout.fragment_recycler) {
     private fun initViews(view: View) {
 
     }
-
-    override fun showError(error: String?) {
-    }
-
-    override fun showLoading(show: Boolean) {
-    }
-
-
 }
