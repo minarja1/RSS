@@ -86,6 +86,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="4dp"
+                        android:maxLines="10"
+                        android:ellipsize="end"
                         android:textAlignment="viewStart"
                         android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                         android:textColor="@color/textColorPrimary"
