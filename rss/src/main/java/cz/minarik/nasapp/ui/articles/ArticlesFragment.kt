@@ -37,6 +37,8 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private var doubleBackToExitPressedOnce = false
 
+    private val useDrawer = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,6 +48,8 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             } else {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START)
+                } else if ((requireActivity() as MainActivity).sourcesVisible()) {
+                    (requireActivity() as MainActivity).showHideSourceSelection(false)
                 } else if (searchView?.isSearchOpen == true) {
                     searchView?.closeSearch()
                 } else if (articlesRecyclerView?.isScrolledToTop() == true) {
@@ -83,10 +87,11 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override fun initViews(view: View?) {
         super.initViews(view)
-        setupDrawerNavigation()
+        if (useDrawer) setupDrawerNavigation()
         articlesRecyclerView?.let {
             stateView.attacheContentView(it)
         }
+        toolbarPadding.isVisible = true
     }
 
 
@@ -113,9 +118,8 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         super.initObserve()
         sourcesViewModel.selectedSourceChanged.toFreshLiveData().observe {
             viewModel.loadArticles(scrollToTop = true)
-            Handler(Looper.getMainLooper()).postDelayed({
-                drawerLayout?.closeDrawer(GravityCompat.START)
-            }, 350)
+            drawerLayout?.closeDrawer(GravityCompat.START)
+            (requireActivity() as MainActivity).showHideSourceSelection(false)
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()

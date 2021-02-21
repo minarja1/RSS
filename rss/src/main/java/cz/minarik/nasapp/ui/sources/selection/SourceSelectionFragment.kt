@@ -12,10 +12,13 @@ import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesFragmentDirections
+import cz.minarik.nasapp.utils.ExitWithAnimation
+import cz.minarik.nasapp.utils.startCircularReveal
 import kotlinx.android.synthetic.main.fragment_source_selection.*
 import org.koin.android.ext.android.inject
 
-class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection) {
+class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection),
+    ExitWithAnimation {
 
     val viewModel: SourcesViewModel by inject()
 
@@ -26,8 +29,24 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
     private var listsVisible = true
     private var sourcesVisible = true
 
+    override var referencedViewPosX: Int = 0
+    override var referencedViewPosY: Int = 0
+    override fun isToBeExitedWithAnimation() = true
+
+    companion object {
+        @JvmStatic
+        fun newInstance(referencedViewPosition: IntArray? = null): SourceSelectionFragment =
+            SourceSelectionFragment().apply {
+                if (referencedViewPosition != null && referencedViewPosition.size == 2) {
+                    referencedViewPosX = referencedViewPosition[0]
+                    referencedViewPosY = referencedViewPosition[1]
+                }
+            }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.startCircularReveal(false)
         if (savedInstanceState == null) {
             initViews()
             initObserve()
@@ -109,6 +128,10 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         concatAdapter.addAdapter(sourcesAdapter)
 
         articleSourcesRecyclerView.adapter = concatAdapter
+
+        backgroundView.setOnClickListener {
+            (requireActivity() as MainActivity).showHideSourceSelection(false)
+        }
     }
 
 }

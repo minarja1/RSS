@@ -1,10 +1,14 @@
 package cz.minarik.nasapp.utils
 
+import android.animation.Animator
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -188,3 +192,12 @@ val Article.imgUrlSafe: String?
         "http://",
         "https://"
     )
+
+//todo move to base
+fun getCircularAnimator(targetView: View, sourceX: Int, sourceY: Int, speed: Long): Animator {
+    val finalRadius = Math.hypot(targetView.width.toDouble(), targetView.height.toDouble()).toFloat()
+    return ViewAnimationUtils.createCircularReveal(targetView, sourceX, sourceY, 0f, finalRadius).apply {
+        interpolator = AccelerateDecelerateInterpolator()
+        duration = speed
+    }
+}

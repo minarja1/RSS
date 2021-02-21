@@ -78,6 +78,7 @@
                         android:textAppearance="@style/TextAppearance.Universe.Title"
                         android:textColor="@color/textColorPrimary"
                         android:textStyle="bold"
+                        android:textSize="16dp"
                         tools:text="Thekokft!" />
 
                     <TextView

@@ -12,15 +12,22 @@ import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
+import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
+import cz.minarik.nasapp.utils.ExitWithAnimation
+import cz.minarik.nasapp.utils.exitCircularReveal
+import cz.minarik.nasapp.utils.findLocationOfCenterOnTheScreen
+import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         const val fragmentTag = "fragmentTag"
+        const val sourcesFragmentTag = "sourcesFragment"
     }
 
     val viewModel by viewModel<ArticlesViewModel>()
+    private var sourcesFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +36,16 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             replaceFragment(ArticlesFragment())
         }
+        initViews()
+    }
+
+    private fun initViews() {
+        fab.setOnClickListener {
+            showHideSourceSelection(true)
+        }
+        supportFragmentManager.addOnBackStackChangedListener {
+            updateFabVisibility()
+        }
     }
 
     fun getCurrentFragment(): Fragment? {
@@ -36,7 +53,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun goBack() {
-        supportFragmentManager.popBackStack()
+        supportFragmentManager.popBackStackImmediate()
+    }
+
+    private fun updateFabVisibility() {
+        if (supportFragmentManager.backStackEntryCount == 1) fab.show()
     }
 
     private fun replaceFragment(
@@ -75,6 +96,48 @@ class MainActivity : AppCompatActivity() {
             setPrimaryNavigationFragment(fragment)
             addToBackStack(null)
             commit()
+        }
+
+        showHideSourceSelection(false)
+        if (fragment is ArticlesFragment) {
+            fab.show()
+        } else {
+            fab.hide()
+        }
+    }
+
+    fun sourcesVisible(): Boolean {
+        return supportFragmentManager.findFragmentByTag(sourcesFragmentTag)?.isVisible ?: false
+    }
+
+    fun showHideSourceSelection(show: Boolean) {
+        supportFragmentManager.executePendingTransactions()
+        val transaction = supportFragmentManager.beginTransaction()
+        if (show) {
+            if (sourcesFragment == null) {
+                sourcesFragment =
+                    SourceSelectionFragment.newInstance(fab.findLocationOfCenterOnTheScreen())
+            }
+            sourcesFragment?.let {
+                transaction.replace(
+                    R.id.source_selection_container,
+                    it,
+                    sourcesFragmentTag
+                ).commit()
+            }
+        } else {
+            sourcesFragment?.let {
+                (it as ExitWithAnimation).run {
+                    it.view?.exitCircularReveal(it.referencedViewPosX, it.referencedViewPosY) {
+                        transaction.remove(it).commitNow()
+                    }
+                }
+            }
+        }
+        if (show) {
+            fab.hide()
+        } else {
+            fab.show()
         }
     }
 
