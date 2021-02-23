@@ -7,6 +7,7 @@ import com.chimbori.crux.articles.ArticleExtractor
 import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
@@ -21,6 +22,7 @@ import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.RSSPrefManager
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
 import timber.log.Timber
@@ -47,8 +49,6 @@ class ArticlesViewModel(
 
     //shown articles (may be filtered)
     val articlesSimple: MutableLiveData<List<ArticleDTO>> = MutableLiveData()
-
-    val showKok: MutableLiveData<Boolean> = MutableLiveData()
 
     val state: MutableLiveData<NetworkState> = MutableLiveData<NetworkState>()
 
@@ -80,15 +80,13 @@ class ArticlesViewModel(
         isFromSwipeRefresh: Boolean = false,
     ) {
         this.isFromSwipeRefresh = isFromSwipeRefresh
-        Timber.i("loading article@")
+        Timber.i("loading articles")
         state.postValue(NetworkState.LOADING)
         ioScope.launch {
             try {
                 val startTime = System.currentTimeMillis()
 
                 ensureActive()
-
-                Timber.i("loading starred articles")
 
                 val selectedSource = if (isInSimpleMode) getSourceSimple() else getSource()
 
@@ -161,9 +159,9 @@ class ArticlesViewModel(
      *
      * creating copies of objects to ensure diffCallback never compares two same instances
      */
-    private fun applyArticleFilters(articles: MutableList<ArticleDTO>): MutableList<ArticleDTO> {
+    private suspend fun applyArticleFilters(articles: MutableList<ArticleDTO>): MutableList<ArticleDTO> {
         var result = mutableListOf<ArticleDTO>()
-        when (prefManager.getArticleFilter()) {
+        when (DataStoreManager.getArticleFilter().first()) {
             ArticleFilterType.Unread -> {
                 articles.filter {
                     !it.read
@@ -265,11 +263,11 @@ class ArticlesViewModel(
         }
     }
 
-    fun filterArticles(filterType: ArticleFilterType) {
-        prefManager.setArticleFilter(filterType)
-
-//        if (allArticles.isNotEmpty()) {
+    fun filterArticles(filterType: ArticleFilterType? = null) {
         launch {
+            filterType?.let {
+                DataStoreManager.setArticleFilter(it)
+            }
             val result = applyFilters()
             if (isInSimpleMode) {
                 articlesSimple.postValue(result)
@@ -277,13 +275,12 @@ class ArticlesViewModel(
                 articles.postValue(result)
             }
         }
-//        }
     }
 
 
     fun filterBySearchQuery(query: String?) {
         this.searchQuery = query
-        filterArticles(prefManager.getArticleFilter())
+        filterArticles()
     }
 
     suspend fun getSource(): RSSSource? {

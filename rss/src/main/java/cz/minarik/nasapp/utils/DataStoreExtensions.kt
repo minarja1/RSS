@@ -107,3 +107,22 @@ fun DataStore<Preferences>.getStringSetData(
             preferences[stringSetPreferencesKey(key)] ?: defaultValue
         }
 }
+
+suspend fun DataStore<Preferences>.setStringData(
+    key: String,
+    data: String
+) {
+    edit { settings ->
+        settings[stringPreferencesKey(key)] = data
+    }
+}
+
+fun DataStore<Preferences>.getStringData(
+    key: String,
+    defaultValue: String = "",
+): Flow<String> {
+    return data
+        .map { preferences ->
+            preferences[stringPreferencesKey(key)] ?: defaultValue
+        }
+}

@@ -134,10 +134,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             viewState.loadingSourcesState = it
         }
-
-        viewModel.showKok.toFreshLiveData().observe {
-            if(it) showToast(requireContext(), "kok")
-        }
     }
 
     private fun initSwipeToRefresh() {

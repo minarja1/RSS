@@ -20,10 +20,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.NetworkState
@@ -32,6 +32,7 @@ import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.ViewModelState
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
@@ -40,7 +41,8 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_articles.*
-import kotlinx.android.synthetic.main.fragment_recycler.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -339,8 +341,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun setupFilters(view: View?) {
-        viewModel.prefManager.getArticleFilter().let {
-            view?.findViewById<Chip>(it.chipId)?.isChecked = true
+        lifecycleScope.launch {
+            DataStoreManager.getArticleFilter().collect {
+                view?.findViewById<Chip>(it.chipId)?.isChecked = true
+            }
         }
 
         filterAll?.setOnCheckedChangeListener { _, checked ->
