@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         transaction.apply {
             setPrimaryNavigationFragment(fragment)
             addToBackStack(null)
-            commit()
+            commitAllowingStateLoss()
         }
 
         showHideSourceSelection(false)
@@ -123,13 +123,13 @@ class MainActivity : AppCompatActivity() {
                     R.id.source_selection_container,
                     it,
                     sourcesFragmentTag
-                ).commit()
+                ).commitAllowingStateLoss()
             }
         } else {
             sourcesFragment?.let {
                 (it as ExitWithAnimation).run {
                     it.view?.exitCircularReveal(it.referencedViewPosX, it.referencedViewPosY) {
-                        transaction.remove(it).commitNow()
+                        transaction.remove(it).commitNowAllowingStateLoss()
                     }
                 }
             }
