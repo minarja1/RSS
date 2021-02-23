@@ -44,10 +44,12 @@ class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
             )
         )
 
+        sourceImageView.alpha = if (source.isHidden) 0.5f else 1f
+
         sourceNameTextView.setTextColor(
             ContextCompat.getColor(
                 context,
-                if (source.isBlocked) R.color.textColorSecondary else R.color.textColorPrimary
+                if (source.isHidden) R.color.textColorSecondary else R.color.textColorPrimary
             )
         )
 

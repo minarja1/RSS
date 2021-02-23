@@ -2,7 +2,6 @@ package cz.minarik.nasapp.ui.sources.manage.sources
 
 import android.os.Bundle
 import android.view.View
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -12,7 +11,6 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import kotlinx.android.synthetic.main.fragment_recycler.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
@@ -44,8 +42,8 @@ class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
 
             },
             onBlock = { source, position ->
-                val blocked = !source.isBlocked
-                source.isBlocked = blocked
+                val blocked = !source.isHidden
+                source.isHidden = blocked
                 manageSourcesAdapter.notifyItemChanged(position)
                 viewModel.markAsBlocked(source, blocked)
             },

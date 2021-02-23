@@ -196,4 +196,18 @@
         <item name="contentPaddingTop">10dp</item>
     </style>
 
+    <style name="TextAppearance.RSS.Button" parent="TextAppearance.AppCompat.Button">
+        <item name="fontFamily">sans-serif-condensed</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">0sp</item>
+    </style>
+
+
+    <style name="AppTheme.TextButton" parent="@style/Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textAppearance">@style/TextAppearance.RSS.Button</item>
+        <item name="elevation">0dp</item>
+    </style>
+
 </resources>

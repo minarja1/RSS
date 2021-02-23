@@ -96,8 +96,8 @@ class ArticleSourceAdapter(
 
                     popup.gravity = Gravity.END
 
-                    popup.menu.findItem(R.id.blockAction).isVisible = !item.isBlocked
-                    popup.menu.findItem(R.id.unblockAction).isVisible = item.isBlocked
+                    popup.menu.findItem(R.id.blockAction).isVisible = !item.isHidden
+                    popup.menu.findItem(R.id.unblockAction).isVisible = item.isHidden
 
                     popup.show()
                     true

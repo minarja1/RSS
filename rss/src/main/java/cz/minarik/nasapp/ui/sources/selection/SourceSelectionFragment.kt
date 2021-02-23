@@ -2,6 +2,8 @@ package cz.minarik.nasapp.ui.sources.selection
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -9,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.RSSApp
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesFragmentDirections
@@ -16,6 +19,8 @@ import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.startCircularReveal
 import kotlinx.android.synthetic.main.fragment_source_selection.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection),
@@ -62,9 +67,21 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         viewModel.sourcesSelectionData.observe { sources ->
             sourcesAdapter.submitList(sources)
         }
+
+        lifecycleScope.launch {
+            DataStoreManager.getLongPresSourceDismissed().collect {
+                longPressHint.isVisible = !it
+            }
+        }
     }
 
     private fun initViews() {
+        longPressDismissButton.setOnClickListener {
+            lifecycleScope.launch {
+                DataStoreManager.setLongPressSourceDismissed(true)
+            }
+        }
+
         articleSourcesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
@@ -91,7 +108,7 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         sourcesAdapter = ArticleSourceAdapter(
             onItemClicked = { if (!it.selected) viewModel.onSourceSelected(it) },
             onItemBlocked = {
-                viewModel.markAsBlocked(it, !it.isBlocked)
+                viewModel.markAsBlocked(it, !it.isHidden)
                 articlesViewModel.loadArticles()
             },
             onItemInfo = {

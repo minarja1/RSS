@@ -13,7 +13,7 @@ data class RSSSource(
     var listId: Long? = null,
     var isFake: Boolean = false,//"all articles"
     var isList: Boolean = false,
-    var isBlocked: Boolean = false,
+    var isHidden: Boolean = false,
     var openExternally: Boolean = false
 ) : Serializable {
 
@@ -27,7 +27,7 @@ data class RSSSource(
                 imageUrl = entity.imageUrl,
                 selected = entity.isSelected,
                 isList = false,
-                isBlocked = entity.isHidden,
+                isHidden = entity.isHidden,
                 openExternally = entity.forceOpenExternally
             )
         }
@@ -59,7 +59,7 @@ data class RSSSource(
         if (listId != other.listId) return false
         if (isFake != other.isFake) return false
         if (isList != other.isList) return false
-        if (isBlocked != other.isBlocked) return false
+        if (isHidden != other.isHidden) return false
         if (openExternally != other.openExternally) return false
 
         return true
@@ -74,7 +74,7 @@ data class RSSSource(
         result = 31 * result + isFake.hashCode()
         result = 31 * result + isList.hashCode()
         result = 31 * result + openExternally.hashCode()
-        result = 31 * result + isBlocked.hashCode()
+        result = 31 * result + isHidden.hashCode()
         return result
     }
 

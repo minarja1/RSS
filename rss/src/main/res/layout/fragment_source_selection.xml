@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/backgroundView"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="bottom"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/articleSourcesRecyclerView"
         android:layout_width="280dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_gravity="end|bottom"
         android:background="@color/colorSurface"
         android:clipToPadding="false"
+        tools:itemCount="6"
         android:paddingTop="4dp"
         android:scrollbarSize="3dp"
         android:scrollbarThumbVertical="@color/colorPrimary"
@@ -21,4 +24,49 @@
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         tools:listitem="@layout/source_selection_list_item" />
 
-</FrameLayout>
+    <LinearLayout
+        android:id="@+id/longPressHint"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:background="@color/colorBackground"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorSurface"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="40dp"
+                android:src="@drawable/long_press"
+                app:tint="@color/colorOnBackground" />
+
+            <TextView
+                android:textAppearance="@style/TextAppearance.Universe.Body2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="@string/long_press_hint" />
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/longPressDismissButton"
+            style="@style/AppTheme.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@string/dismiss" />
+    </LinearLayout>
+
+
+</LinearLayout>

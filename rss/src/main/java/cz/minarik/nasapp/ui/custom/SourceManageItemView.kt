@@ -57,21 +57,21 @@ class SourceManageItemView(context: Context, attrs: AttributeSet? = null) :
         }
 
         blockTextView.text =
-            context.getString(if (source.isBlocked) R.string.show else R.string.hide)
-        addToListButton.isVisible = !source.isBlocked
+            context.getString(if (source.isHidden) R.string.show else R.string.hide)
+        addToListButton.isVisible = !source.isHidden
         blockTextView.setCompoundDrawablesWithIntrinsicBounds(
             ContextCompat.getDrawable(
                 context,
-                if (source.isBlocked) R.drawable.ic_baseline_add_circle_outline_24 else R.drawable.ic_baseline_not_interested_24
+                if (source.isHidden) R.drawable.ic_baseline_add_circle_outline_24 else R.drawable.ic_baseline_not_interested_24
             ), null, null, null
         )
 
-        sourceImageView.alpha = if(source.isBlocked) .5f else 1f
+        sourceImageView.alpha = if(source.isHidden) .5f else 1f
 
         sourceNameTextView.setTextColor(
             ContextCompat.getColor(
                 context,
-                if (source.isBlocked) R.color.textColorSecondary else R.color.textColorPrimary
+                if (source.isHidden) R.color.textColorSecondary else R.color.textColorPrimary
             )
         )
 

@@ -43,4 +43,6 @@
     <string name="feed_url">Feed url</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="description">Description</string>
+    <string name="long_press_hint">Long press on a source for more options</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

@@ -63,4 +63,5 @@ abstract class RSSApp : Application() {
         )
     }
 
+    abstract val dataStoreName: String
 }

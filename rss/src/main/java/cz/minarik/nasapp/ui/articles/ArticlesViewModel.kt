@@ -48,6 +48,8 @@ class ArticlesViewModel(
     //shown articles (may be filtered)
     val articlesSimple: MutableLiveData<List<ArticleDTO>> = MutableLiveData()
 
+    val showKok: MutableLiveData<Boolean> = MutableLiveData()
+
     val state: MutableLiveData<NetworkState> = MutableLiveData<NetworkState>()
 
     var isInSimpleMode = false

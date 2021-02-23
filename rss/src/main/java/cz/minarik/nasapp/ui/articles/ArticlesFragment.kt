@@ -14,7 +14,6 @@ import cz.minarik.base.common.extensions.isScrolledToTop
 import cz.minarik.base.common.extensions.scrollToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
-import cz.minarik.base.data.NetworkState
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.custom.ArticleDTO
@@ -134,6 +133,10 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             viewState.loadingSourcesState = it
+        }
+
+        viewModel.showKok.toFreshLiveData().observe {
+            if(it) showToast(requireContext(), "kok")
         }
     }
 
