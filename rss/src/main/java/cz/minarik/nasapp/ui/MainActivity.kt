@@ -13,6 +13,7 @@ import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
+import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.exitCircularReveal
 import cz.minarik.nasapp.utils.findLocationOfCenterOnTheScreen
@@ -27,12 +28,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     val viewModel by viewModel<ArticlesViewModel>()
+    val sourcesViewModel by viewModel<SourcesViewModel>()
     private var sourcesFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         viewModel //initialization
+        sourcesViewModel //initialization
         if (savedInstanceState == null) {
             replaceFragment(ArticlesFragment())
         }

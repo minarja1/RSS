@@ -33,7 +33,7 @@ val appModule = module {
         )
     }
 
-    single {
+    viewModel {
         SourcesViewModel(
             androidContext(),
             get(),

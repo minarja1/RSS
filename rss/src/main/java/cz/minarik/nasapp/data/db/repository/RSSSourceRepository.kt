@@ -13,7 +13,10 @@ import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.domain.RSSSource
-import cz.minarik.nasapp.utils.*
+import cz.minarik.nasapp.utils.Constants
+import cz.minarik.nasapp.utils.RSSPrefManager
+import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
+import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -52,11 +55,14 @@ class RSSSourceRepository(
     val state = MutableLiveData<NetworkState>()
     val sourcesChanged = MutableLiveData<Boolean>()
 
-    fun updateRSSSourcesFromRealtimeDB() {
-        RealtimeDatabaseHelper.getNewsFeeds(this)
+    fun updateRSSSourcesFromRealtimeDB(onSuccess: (() -> Unit)?) {
+        RealtimeDatabaseHelper.getNewsFeeds(this, onSuccess)
     }
 
-    private fun updateDB(allFromServer: List<RealtimeDatabaseHelper.RssFeedDTO?>) {
+    private fun updateDB(
+        allFromServer: List<RealtimeDatabaseHelper.RssFeedDTO?>,
+        onSuccess: (() -> Unit)?
+    ) {
         state.postValue(NetworkState.LOADING)
         val parser = Parser.Builder()
             .context(context)
@@ -119,11 +125,15 @@ class RSSSourceRepository(
                 sourcesChanged.postValue(true)
             }
             state.postValue(NetworkState.SUCCESS)
+            onSuccess?.invoke()
         }
     }
 
-    override fun onDataChange(data: List<RealtimeDatabaseHelper.RssFeedDTO>?) {
-        updateDB(data ?: emptyList())
+    override fun onDataChange(
+        data: List<RealtimeDatabaseHelper.RssFeedDTO>?,
+        onSuccess: (() -> Unit)?
+    ) {
+        updateDB(data ?: emptyList(), onSuccess)
     }
 
     override fun onCancelled(error: DatabaseError) {

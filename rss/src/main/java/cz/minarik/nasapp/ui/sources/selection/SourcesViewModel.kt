@@ -27,11 +27,13 @@ class SourcesViewModel(
     val selectedSourceImage = MutableLiveData<String>()
 
     init {
-        sourceRepository.updateRSSSourcesFromRealtimeDB()
+        sourceRepository.updateRSSSourcesFromRealtimeDB {
+            updateAll()
+        }
         updateAll()
     }
 
-    fun updateAll() {
+    private fun updateAll() {
         updateSourcesSelection()
         updateSourcesManagement()
     }

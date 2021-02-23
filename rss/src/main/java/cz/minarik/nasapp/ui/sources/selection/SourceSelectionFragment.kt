@@ -12,15 +12,17 @@ import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesFragmentDirections
+import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.startCircularReveal
 import kotlinx.android.synthetic.main.fragment_source_selection.*
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection),
     ExitWithAnimation {
 
-    val viewModel: SourcesViewModel by inject()
+    val viewModel by sharedViewModel<SourcesViewModel>()
+    val articlesViewModel by sharedViewModel<ArticlesViewModel>()
 
     private lateinit var concatAdapter: ConcatAdapter
     private lateinit var sourcesAdapter: ArticleSourceAdapter
@@ -88,7 +90,10 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
 
         sourcesAdapter = ArticleSourceAdapter(
             onItemClicked = { if (!it.selected) viewModel.onSourceSelected(it) },
-            onItemBlocked = { viewModel.markAsBlocked(it, !it.isBlocked) },
+            onItemBlocked = {
+                viewModel.markAsBlocked(it, !it.isBlocked)
+                articlesViewModel.loadArticles()
+            },
             onItemInfo = {
                 (requireActivity() as MainActivity).navigateToSourceDetail(it.URLs[0])
             },

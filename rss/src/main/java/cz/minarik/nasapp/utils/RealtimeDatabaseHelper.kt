@@ -12,7 +12,7 @@ object RealtimeDatabaseHelper {
 
     private const val newsKey = "rssFeeds"
 
-    fun getNewsFeeds(listener: RealtimeDatabaseQueryListener<List<RssFeedDTO>>) {
+    fun getNewsFeeds(listener: RealtimeDatabaseQueryListener<List<RssFeedDTO>>, onSuccess: (() -> Unit)?) {
         val databaseRef = Firebase.database("https://spacenews-9a76c-default-rtdb.europe-west1.firebasedatabase.app/").getReference(newsKey)
 
         databaseRef.addValueEventListener(object : ValueEventListener {
@@ -20,7 +20,7 @@ object RealtimeDatabaseHelper {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 val feedDTO = dataSnapshot.getValue<List<RssFeedDTO>>()
-                listener.onDataChange(feedDTO)
+                listener.onDataChange(feedDTO, onSuccess)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -40,7 +40,7 @@ object RealtimeDatabaseHelper {
 }
 
 interface RealtimeDatabaseQueryListener<T> {
-    fun onDataChange(data: T?)
+    fun onDataChange(data: T?, onSuccess: (() -> Unit)?)
 
     fun onCancelled(error: DatabaseError)
 }

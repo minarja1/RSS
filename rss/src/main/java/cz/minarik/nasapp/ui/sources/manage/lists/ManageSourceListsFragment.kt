@@ -11,10 +11,11 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import kotlinx.android.synthetic.main.fragment_recycler.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class ManageSourceListsFragment : BaseFragment(R.layout.fragment_recycler) {
 
-    val viewModel: SourcesViewModel by inject()
+    val viewModel by sharedViewModel<SourcesViewModel>()
 
     private lateinit var manageSourcesAdapter: ManageListsAdapter
 
