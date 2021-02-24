@@ -46,5 +46,5 @@
     <string name="long_press_hint">Long press on a source for more options</string>
     <string name="dismiss">Dismiss</string>
     <string name="no_starred_articles">No starred articles</string>
-    <string name="no_starred_articles_explainer">Swipe or long press an article star it</string>
+    <string name="no_starred_articles_explainer">Swipe or long press an article to star it</string>
 </resources>
