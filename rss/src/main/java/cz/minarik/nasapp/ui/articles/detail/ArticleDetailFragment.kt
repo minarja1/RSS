@@ -20,7 +20,6 @@ import androidx.webkit.WebViewFeature
 import coil.load
 import com.chimbori.crux.articles.Article
 import com.google.android.material.appbar.AppBarLayout
-import com.stfalcon.imageviewer.StfalconImageViewer
 import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
@@ -29,7 +28,6 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
-import cz.minarik.nasapp.ui.custom.GalleryViewImageDTO
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -72,9 +70,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     }
 
     private fun initViews() {
+        initToolbar()
         prepareWebView()
         loadArticleWebView()
-        initToolbar()
         sourceNameTextView.text = articleDTO.sourceName
         dateTextView.text = articleDTO.date?.toTimeElapsed()
         stateView.attacheContentView(contentContainer)
@@ -113,7 +111,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
         viewModel.articleStarredLiveData.observe {
             updateArticleStarred()
         }
-        viewModel.articleLiveData.observe { article ->
+        viewModel.articleLiveData.toFreshLiveData().observe { article ->
             updateArticleViews(article)
         }
         viewModel.state.observe {
@@ -177,11 +175,11 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             }
         })
 
-        toolbarExpandedImage.load(articleDTO.image)
+        toolbarExpandedImage.loadImageWithDefaultSettings(articleDTO.image)
         fakeTitleTextView.text = articleDTO.title
 
-        toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
-        fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
+//        toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
+//        fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
 
 //        val navController = NavHostFragment.findNavController(this)
 //        val appBarConfiguration = AppBarConfiguration(navController.graph)
