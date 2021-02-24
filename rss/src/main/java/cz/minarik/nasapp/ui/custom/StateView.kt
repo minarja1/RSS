@@ -168,6 +168,18 @@ open class StateView @JvmOverloads constructor(
         show(show)
     }
 
+
+    fun emptyStarred(show: Boolean) {
+        if (show) {
+            setFields(
+                title = context.getString(R.string.no_starred_articles),
+                subtitle = context.getString(R.string.no_starred_articles_explainer),
+                drawable = ContextCompat.getDrawable(context, R.drawable.ic_baseline_star_24),
+            )
+        }
+        show(show)
+    }
+
     fun noInternet(show: Boolean, onButtonClicked: (() -> Unit)? = null) {
         if (show) {
             setFields(

@@ -430,7 +430,11 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         swipeRefreshLayout.isEnabled = !showShimmer
 
         if (articlesEmpty && !isError && !loading) {
-            stateView.empty(true)
+            if (filterStarred.isChecked) {
+                stateView.emptyStarred(true)
+            } else {
+                stateView.empty(true)
+            }
         } else if (isError) {
             if (articlesEmpty) {
                 //full-screen error
