@@ -9,6 +9,7 @@ import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseRepository
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
@@ -17,10 +18,7 @@ import cz.minarik.nasapp.utils.Constants
 import cz.minarik.nasapp.utils.RSSPrefManager
 import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
 import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import timber.log.Timber
 import java.net.URL
 import java.nio.charset.Charset
@@ -70,7 +68,7 @@ class RSSSourceRepository(
             .cacheExpirationMillis(cacheExpirationMillis)
             .build()
 
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
             val allDB = sourceDao.getNonUserAdded()
 
             val dbUrls = allDB.map { it.url }
@@ -126,6 +124,7 @@ class RSSSourceRepository(
             }
             state.postValue(NetworkState.SUCCESS)
             onSuccess?.invoke()
+            DataStoreManager.setInitialSyncFinished(true)
         }
     }
 

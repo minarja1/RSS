@@ -11,11 +11,15 @@ import cz.minarik.base.common.extensions.iconizeMenu
 import cz.minarik.base.ui.base.BaseAdapter
 import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.data.domain.RSSSource
 import kotlinx.android.synthetic.main.item_product_section_title.view.*
 import kotlinx.android.synthetic.main.row_article_source_button.view.*
 import kotlinx.android.synthetic.main.row_source_item.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class TitleAdapter(
     items: List<String> = emptyList(),
@@ -77,6 +81,9 @@ class ArticleSourceAdapter(
             }
             if (showPopupMenu) {
                 sourceSelectionView.setOnLongClickListener {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        DataStoreManager.setShouldShowLongPressHint(false)
+                    }
                     val popup = PopupMenu(context, this)
                     popup.menuInflater.inflate(R.menu.menu_rss_source, popup.menu)
 

@@ -32,7 +32,7 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
             } else {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START)
-                } else if ((requireActivity() as MainActivity).sourcesVisible()) {
+                } else if ((requireActivity() as MainActivity).sourcesFragmentShown) {
                     (requireActivity() as MainActivity).showHideSourceSelection(false)
                 } else if (searchView?.isSearchOpen == true) {
                     searchView?.closeSearch()

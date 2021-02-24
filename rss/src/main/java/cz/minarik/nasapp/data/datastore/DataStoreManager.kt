@@ -17,15 +17,24 @@ object DataStoreManager {
     private val dataStore: DataStore<Preferences> =
         RSSApp.applicationContext.createDataStore(name = RSSApp.sharedInstance.dataStoreName)
 
-    private const val LONG_PRESS_SOURCE_DISMISSED = "LONG_PRESS_SOURCE_DISMISSED"
+    private const val SHOULD_SHOW_LP_HINT = "SHOULD_SHOW_LP_HINT"
     private const val ARTICLE_FILTER = "ARTICLE_FILTER"
+    private const val INITIAL_SYNC_FINISHED = "INITIAL_SYNC_FINISHED"
 
-    fun getLongPresSourceDismissed(): Flow<Boolean> {
-        return dataStore.getBooleanData(LONG_PRESS_SOURCE_DISMISSED)
+    fun getShouldShowLongPressHint(): Flow<Boolean> {
+        return dataStore.getBooleanData(SHOULD_SHOW_LP_HINT, true)
     }
 
-    suspend fun setLongPressSourceDismissed(data: Boolean) {
-        dataStore.setBooleanData(LONG_PRESS_SOURCE_DISMISSED, data)
+    suspend fun setShouldShowLongPressHint(data: Boolean) {
+        dataStore.setBooleanData(SHOULD_SHOW_LP_HINT, data)
+    }
+
+    fun getInitialSyncFinished(): Flow<Boolean> {
+        return dataStore.getBooleanData(INITIAL_SYNC_FINISHED)
+    }
+
+    suspend fun setInitialSyncFinished(data: Boolean) {
+        dataStore.setBooleanData(INITIAL_SYNC_FINISHED, data)
     }
 
     fun getArticleFilter(): Flow<ArticleFilterType> {

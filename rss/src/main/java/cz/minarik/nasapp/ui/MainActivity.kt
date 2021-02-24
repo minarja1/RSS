@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment
@@ -18,6 +20,8 @@ import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.exitCircularReveal
 import cz.minarik.nasapp.utils.findLocationOfCenterOnTheScreen
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +34,8 @@ class MainActivity : AppCompatActivity() {
     val viewModel by viewModel<ArticlesViewModel>()
     val sourcesViewModel by viewModel<SourcesViewModel>()
     private var sourcesFragment: Fragment? = null
+    private var initialSyncFinished: Boolean = false
+    var sourcesFragmentShown: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +44,21 @@ class MainActivity : AppCompatActivity() {
         sourcesViewModel //initialization
         if (savedInstanceState == null) {
             replaceFragment(ArticlesFragment())
+        } else {
+            sourcesFragment = supportFragmentManager.findFragmentByTag(sourcesFragmentTag)
+            showHideSourceSelection(sourcesFragmentShown)
         }
         initViews()
+        initObserve()
+    }
+
+    private fun initObserve() {
+        lifecycleScope.launch {
+            DataStoreManager.getInitialSyncFinished().collect {
+                initialSyncFinished = it
+                updateFabVisibility()
+            }
+        }
     }
 
     private fun initViews() {
@@ -60,7 +79,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateFabVisibility() {
-        if (supportFragmentManager.backStackEntryCount == 1) fab.show()
+        if (supportFragmentManager.backStackEntryCount == 1 && !sourcesFragmentShown && initialSyncFinished) fab.show() else fab.hide()
     }
 
     private fun replaceFragment(
@@ -102,18 +121,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         showHideSourceSelection(false)
-        if (fragment is ArticlesFragment) {
-            fab.show()
-        } else {
-            fab.hide()
-        }
-    }
-
-    fun sourcesVisible(): Boolean {
-        return supportFragmentManager.findFragmentByTag(sourcesFragmentTag)?.isVisible ?: false
     }
 
     fun showHideSourceSelection(show: Boolean) {
+        sourcesFragmentShown = show
         supportFragmentManager.executePendingTransactions()
         val transaction = supportFragmentManager.beginTransaction()
         if (show) {
@@ -129,19 +140,20 @@ class MainActivity : AppCompatActivity() {
                 ).commitAllowingStateLoss()
             }
         } else {
-            sourcesFragment?.let {
-                (it as ExitWithAnimation).run {
-                    it.view?.exitCircularReveal(it.referencedViewPosX, it.referencedViewPosY) {
-                        transaction.remove(it).commitNowAllowingStateLoss()
-                    }
+            sourcesFragment?.let { fragment ->
+                (fragment as ExitWithAnimation).run {
+                    fragment.view?.let {
+                        it.exitCircularReveal(
+                            fragment.referencedViewPosX,
+                            fragment.referencedViewPosY
+                        ) {
+                            transaction.remove(fragment).commitNow()
+                        }
+                    } ?: transaction.remove(fragment).commitNow()
                 }
             }
         }
-        if (show) {
-            fab.hide()
-        } else {
-            fab.show()
-        }
+        updateFabVisibility()
     }
 
     fun navigateToArticleDetail(

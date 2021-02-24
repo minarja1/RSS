@@ -70,7 +70,7 @@ class ArticlesRepository(
 
 
     fun updateArticles(selectedSource: RSSSource?, onFinished: (() -> Unit)? = null) {
-        GlobalScope.launch {
+        CoroutineScope(Dispatchers.Default).launch {
             state.postValue(Loading)
             val startTime = System.currentTimeMillis()
 

@@ -69,8 +69,8 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         }
 
         lifecycleScope.launch {
-            DataStoreManager.getLongPresSourceDismissed().collect {
-                longPressHint.isVisible = !it
+            DataStoreManager.getShouldShowLongPressHint().collect {
+                longPressHint.isVisible = it
             }
         }
     }
@@ -78,7 +78,7 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
     private fun initViews() {
         longPressDismissButton.setOnClickListener {
             lifecycleScope.launch {
-                DataStoreManager.setLongPressSourceDismissed(true)
+                DataStoreManager.setShouldShowLongPressHint(false)
             }
         }
 
