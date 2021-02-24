@@ -97,7 +97,7 @@ fun getSwipeActionItemTouchHelperCallback(
             actionState: Int,
             isCurrentlyActive: Boolean
         ) {
-            val icon = getIcon.invoke(viewHolder.adapterPosition, viewHolder)
+            val icon = getIcon.invoke(viewHolder.bindingAdapterPosition, viewHolder)
             val itemView = viewHolder.itemView
             val iconMarginVertical =
                 (viewHolder.itemView.height - icon.intrinsicHeight) / 2

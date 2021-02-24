@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.NetworkState
@@ -208,7 +209,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             layoutManager =
                 LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
             //todo swiping not working when uncommented
-//            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
             adapter = articlesAdapter
         }
         initToolbar()
@@ -323,6 +324,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun markAsReadOrUnread(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) {
+        enableRecyclerAnimationsTemporarily()
         val article = articlesAdapter.getItemAtPosition(adapterPosition)
         article?.let {
             it.read = !it.read
@@ -331,7 +333,21 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         }
     }
 
+    private fun enablerRecyclerAnimations(enable: Boolean) {
+        (articlesRecyclerView?.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations =
+            enable
+    }
+
+    //this is necessary for swipe actions
+    private fun enableRecyclerAnimationsTemporarily() {
+        enablerRecyclerAnimations(true)
+        Handler(Looper.getMainLooper()).postDelayed({
+            enablerRecyclerAnimations(false)
+        }, 200)
+    }
+
     private fun starItem(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder) {
+        enableRecyclerAnimationsTemporarily()
         val article = articlesAdapter.getItemAtPosition(adapterPosition)
         article?.let {
             it.starred = !it.starred
