@@ -9,11 +9,11 @@ import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.utils.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-
 object DataStoreManager {
 
-    private val dataStore: DataStore<Preferences> =
+    private val dataStore: DataStore<Preferences> by lazy{
         RSSApp.applicationContext.createDataStore(name = RSSApp.sharedInstance.dataStoreName)
+    }
 
     private const val SHOULD_SHOW_LP_HINT = "SHOULD_SHOW_LP_HINT"
     private const val ARTICLE_FILTER = "ARTICLE_FILTER"
@@ -58,3 +58,4 @@ object DataStoreManager {
         dataStore.incrementIntData(NEW_ARTICLES_FOUND, data)
     }
 }
+

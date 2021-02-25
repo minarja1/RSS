@@ -5,6 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Menu
 import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
@@ -23,9 +25,6 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
-import io.github.achmadhafid.toolbar_badge_menu_item.addItem
-import io.github.achmadhafid.toolbar_badge_menu_item.createToolbarBadge
-import io.github.achmadhafid.toolbar_badge_menu_item.withColor
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import kotlinx.coroutines.flow.Flow
@@ -43,11 +42,14 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articles
 
-    val newArticlesFlow = DataStoreManager.getNewArticlesFound()
-
     private var doubleBackToExitPressedOnce = false
 
     private val useDrawer = false
+
+    val newArticlesFlow = DataStoreManager.getNewArticlesFound()
+
+    private var notificationBadge: ViewGroup? = null
+    private var notificationBadgeTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,26 +149,29 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewState.loadingSourcesState = it
         }
         newArticlesFlow.collectWhenStarted {
-            requireActivity().invalidateOptionsMenu()
+            updateBadgeNumber(it)
         }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        val newArticlesItem = menu.findItem(R.id.newArticlesAction)
+        val notificationsActionView = newArticlesItem?.actionView
+
+        notificationsActionView?.setOnClickListener {
+            onOptionsItemSelected(newArticlesItem)
+        }
+
+        if (notificationBadge == null) {
+            notificationBadge = notificationsActionView?.findViewById(R.id.notificationBadge)
+        }
+
+        if (notificationBadgeTextView == null) {
+            notificationBadgeTextView =
+                notificationsActionView?.findViewById(R.id.notificationCountTextView)
+        }
         lifecycleScope.launch {
-            newArticlesFlow.first { newArticles ->
-                createToolbarBadge(menu) {
-                    addItem(
-                        R.id.newArticlesAction,
-                        R.drawable.ic_baseline_arrow_circle_up_24,
-                        newArticles
-                    )
-                    withColor {
-//                     * can also use a plain color resource (e.g. R.color.my_color)
-                        textRes = R.color.textColorPrimary
-                        backgroundRes = R.attr.colorBackgroundFloating
-                    }
-                }
-            }
+            updateBadgeNumber(DataStoreManager.getNewArticlesFound().first())
         }
     }
 
@@ -189,6 +194,17 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                 isFromSwipeRefresh = true
             )
         }
+    }
+
+    private fun updateBadgeNumber(badgeNumber: Int?) {
+        notificationBadge?.isVisible = badgeNumber != null && badgeNumber > 0
+        val countString =
+            when {
+                badgeNumber == null -> ""
+                badgeNumber < 100 -> badgeNumber.toString()
+                else -> "99+"
+            }
+        notificationBadgeTextView?.text = countString
     }
 
 }
