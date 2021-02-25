@@ -357,7 +357,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun setupFilters(view: View?) {
-        lifecycleScope.launch {
+        //todo use Base extension
+        lifecycleScope.launchWhenStarted {
             DataStoreManager.getArticleFilter().collect {
                 view?.findViewById<Chip>(it.chipId)?.isChecked = true
             }
@@ -424,7 +425,18 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 requireActivity().onBackPressed()
                 true
             }
+            R.id.newArticlesAction -> {
+                articlesRecyclerView?.scrollToTop()
+                resetNewArticles()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun resetNewArticles() {
+        lifecycleScope.launch {
+            DataStoreManager.setNewArticlesFound(0)
         }
     }
 

@@ -3,25 +3,35 @@ package cz.minarik.nasapp.ui.articles
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Menu
 import android.view.View
 import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import coil.load
 import cz.minarik.base.common.extensions.isScrolledToTop
 import cz.minarik.base.common.extensions.scrollToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
+import io.github.achmadhafid.toolbar_badge_menu_item.addItem
+import io.github.achmadhafid.toolbar_badge_menu_item.createToolbarBadge
+import io.github.achmadhafid.toolbar_badge_menu_item.withColor
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
@@ -32,6 +42,8 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
     override val viewModel by sharedViewModel<ArticlesViewModel>()
 
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articles
+
+    val newArticlesFlow = DataStoreManager.getNewArticlesFound()
 
     private var doubleBackToExitPressedOnce = false
 
@@ -128,17 +140,54 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
 
         sourcesViewModel.sourceRepository.sourcesChanged.toFreshLiveData().observe {
-            if (it) viewModel.loadArticles(updateDb = true)
+            if (it) viewModel.loadArticles(updateFromServer = true)
         }
 
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             viewState.loadingSourcesState = it
         }
+        newArticlesFlow.collectWhenStarted {
+            requireActivity().invalidateOptionsMenu()
+        }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        lifecycleScope.launch {
+            newArticlesFlow.first { newArticles ->
+                createToolbarBadge(menu) {
+                    addItem(
+                        R.id.newArticlesAction,
+                        R.drawable.ic_baseline_arrow_circle_up_24,
+                        newArticles
+                    )
+                    withColor {
+//                     * can also use a plain color resource (e.g. R.color.my_color)
+                        textRes = R.color.textColorPrimary
+                        backgroundRes = R.attr.colorBackgroundFloating
+                    }
+                }
+            }
+        }
+    }
+
+    //todo move to base!
+    protected fun <T> Flow<T>.collectWhenStarted(function: (value: T) -> Unit) {
+        this.let { flow ->
+            lifecycleScope.launchWhenStarted {
+                flow.collect {
+                    function.invoke(it)
+                }
+            }
+        }
     }
 
     private fun initSwipeToRefresh() {
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadArticles(scrollToTop = false, updateDb = true, isFromSwipeRefresh = true)
+            viewModel.loadArticles(
+                scrollToTop = false,
+                updateFromServer = true,
+                isFromSwipeRefresh = true
+            )
         }
     }
 

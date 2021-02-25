@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initObserve() {
-        lifecycleScope.launch {
+        lifecycleScope.launchWhenStarted {
             DataStoreManager.getInitialSyncFinished().collect {
                 initialSyncFinished = it
                 updateFabVisibility()

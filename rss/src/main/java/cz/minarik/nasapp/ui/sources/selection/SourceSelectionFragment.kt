@@ -68,7 +68,8 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
             sourcesAdapter.submitList(sources)
         }
 
-        lifecycleScope.launch {
+        //todo use Base extension
+        lifecycleScope.launchWhenStarted {
             DataStoreManager.getShouldShowLongPressHint().collect {
                 longPressHint.isVisible = it
             }

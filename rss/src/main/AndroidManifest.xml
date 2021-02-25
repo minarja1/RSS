@@ -11,6 +11,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:replace="android:name"/>
+        tools:replace="android:name,android:supportsRtl"/>
 
 </manifest>

@@ -22,6 +22,7 @@ import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.RSSPrefManager
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
@@ -37,6 +38,8 @@ class ArticlesViewModel(
     private val sourceListDao: RSSSourceListDao,
     private val rssApiService: RssApiService,
 ) : BaseViewModel() {
+
+    private var currentLoadingJob: Job? = null
 
     //all articles (without active filters)
     private val allArticles: MutableList<ArticleDTO> = mutableListOf()
@@ -61,13 +64,13 @@ class ArticlesViewModel(
     var isFromSwipeRefresh: Boolean = false
 
     init {
-        loadArticles(scrollToTop = false, updateDb = true)
+        loadArticles(scrollToTop = false, updateFromServer = true)
     }
 
-    private fun updateDb() {
+    private fun updateFromServer() {
         if (context.isInternetAvailable) {
             launch {
-                articlesRepository.updateArticles(getSource()) {
+                articlesRepository.updateArticles(getSource(), true) {
                     loadArticles()
                 }
             }
@@ -76,13 +79,18 @@ class ArticlesViewModel(
 
     fun loadArticles(
         scrollToTop: Boolean = false,
-        updateDb: Boolean = false,
+        updateFromServer: Boolean = false,//init; sourcesChanged; swipeToRefresh; selectedSource;
         isFromSwipeRefresh: Boolean = false,
     ) {
-        this.isFromSwipeRefresh = isFromSwipeRefresh
-        Timber.i("loading articles")
         state.postValue(NetworkState.LOADING)
-        ioScope.launch {
+
+        Timber.i("loading articles")
+
+        currentLoadingJob?.cancel()
+
+        this.isFromSwipeRefresh = isFromSwipeRefresh
+
+        currentLoadingJob = ioScope.launch {
             try {
                 val startTime = System.currentTimeMillis()
 
@@ -110,6 +118,8 @@ class ArticlesViewModel(
                     }
                 }
 
+                ensureActive()
+
                 if (isInSimpleMode) {
                     allArticlesSimple.clear()
                     allArticlesSimple.addAll(mapped)
@@ -129,7 +139,7 @@ class ArticlesViewModel(
                 state.postValue(NetworkState.SUCCESS)
                 val duration = System.currentTimeMillis() - startTime
 
-                if (updateDb) updateDb()
+                if (updateFromServer) updateFromServer()
                 Timber.i("ViewModel: loading articles finished in $duration ms")
                 this@ArticlesViewModel.isFromSwipeRefresh = false
             } catch (e: IOException) {
@@ -283,7 +293,7 @@ class ArticlesViewModel(
         filterArticles()
     }
 
-    suspend fun getSource(): RSSSource? {
+    private suspend fun getSource(): RSSSource? {
         return sourceDao.getSelected()?.let {
             RSSSource.fromEntity(it)
         } ?: sourceListDao.getSelected()?.let {
@@ -303,7 +313,7 @@ class ArticlesViewModel(
 
     fun loadSelectedSource(sourceUrl: String) {
         this.sourceUrl = sourceUrl
-        loadArticles(scrollToTop = false, updateDb = true)
+        loadArticles(scrollToTop = false, updateFromServer = true)
         launch {
             selectedSource = sourceDao.getByUrl(sourceUrl)
             selectedSourceName.postValue(selectedSource?.title)

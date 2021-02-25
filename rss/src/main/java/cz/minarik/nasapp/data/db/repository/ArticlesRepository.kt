@@ -8,6 +8,7 @@ import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.Success
 import cz.minarik.nasapp.base.ViewModelState
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
@@ -69,7 +70,18 @@ class ArticlesRepository(
     }
 
 
-    fun updateArticles(selectedSource: RSSSource?, onFinished: (() -> Unit)? = null) {
+    /**
+     * Loads articles from server and updates DB
+     *
+     * [selectedSource] the source for which articles will be updated
+     * [notifyNewArticles] whether to notify that new posts have been found
+     * [onFinished] callback to when update is finished
+     */
+    suspend fun updateArticles(
+        selectedSource: RSSSource?,
+        notifyNewArticles: Boolean = false,
+        onFinished: (() -> Unit)? = null
+    ) {
         CoroutineScope(Dispatchers.Default).launch {
             state.postValue(Loading)
             val startTime = System.currentTimeMillis()
@@ -82,23 +94,31 @@ class ArticlesRepository(
                 }
             }?.awaitAll()
 
+            //todo vratit
+//            var newArticlesFound = 0
+            var newArticlesFound = 1
             for (article in allArticleList) {
                 article.guid?.let { guid ->
                     article.pubDate?.let { pubDate ->
                         if (!dao.existsByGuidAndDate(guid, pubDate.toDateFromRSS() ?: Date())) {
                             val newEntity = ArticleEntity.fromModel(article)
                             dao.insert(newEntity)
+                            newArticlesFound++
                         }
                     }
                 }
             }
-
             val duration = System.currentTimeMillis() - startTime
             onFinished?.invoke()
             state.postValue(Success)
 
             Timber.i("Repository: fetching articles finished in $duration ms")
+            if (notifyNewArticles) notifyNewArticles(newArticlesFound)
         }
+    }
+
+    private suspend fun notifyNewArticles(newArticlesFound: Int) {
+        DataStoreManager.incrementNewArticlesFound(newArticlesFound)
     }
 
 }

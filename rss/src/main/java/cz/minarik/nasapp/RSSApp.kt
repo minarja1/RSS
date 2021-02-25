@@ -7,6 +7,7 @@ import coil.ImageLoader
 import coil.util.CoilUtils
 import com.google.android.gms.security.ProviderInstaller
 import cz.minarik.nasapp.di.allModules
+import cz.minarik.nasapp.utils.AppStarter
 import cz.minarik.nasapp.utils.TimberReleaseTree
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
@@ -39,6 +40,7 @@ abstract class RSSApp : Application() {
         }
         initCoilImageLoader()
         initTimber()
+        AppStarter.run()
     }
 
     private fun initTimber() {

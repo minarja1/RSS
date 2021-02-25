@@ -32,6 +32,25 @@ fun DataStore<Preferences>.getIntData(
         }
 }
 
+suspend fun DataStore<Preferences>.setIntData(
+    key: String,
+    data: Int,
+) {
+    edit { settings ->
+        settings[intPreferencesKey(key)] = data
+    }
+}
+
+suspend fun DataStore<Preferences>.incrementIntData(
+    key: String,
+    data: Int,
+) {
+    edit { settings ->
+        val currentCounterValue = settings[intPreferencesKey(key)] ?: 0
+        settings[intPreferencesKey(key)] = currentCounterValue + data
+    }
+}
+
 suspend fun DataStore<Preferences>.setDoubleData(
     key: String,
     data: Double
@@ -40,6 +59,17 @@ suspend fun DataStore<Preferences>.setDoubleData(
         settings[doublePreferencesKey(key)] = data
     }
 }
+
+suspend fun DataStore<Preferences>.incrementDoubleData(
+    key: String,
+    data: Double,
+) {
+    edit { settings ->
+        val currentCounterValue = settings[doublePreferencesKey(key)] ?: 0.0
+        settings[doublePreferencesKey(key)] = currentCounterValue + data
+    }
+}
+
 
 fun DataStore<Preferences>.getDoubleData(
     key: String,
@@ -60,6 +90,16 @@ suspend fun DataStore<Preferences>.setFloatData(
     }
 }
 
+suspend fun DataStore<Preferences>.incrementFloatData(
+    key: String,
+    data: Float,
+) {
+    edit { settings ->
+        val currentCounterValue = settings[floatPreferencesKey(key)] ?: 0.0f
+        settings[floatPreferencesKey(key)] = currentCounterValue + data
+    }
+}
+
 fun DataStore<Preferences>.getFloatData(
     key: String,
     defaultValue: Float = 0f
@@ -76,6 +116,16 @@ suspend fun DataStore<Preferences>.setLongData(
 ) {
     edit { settings ->
         settings[longPreferencesKey(key)] = data
+    }
+}
+
+suspend fun DataStore<Preferences>.incrementLongData(
+    key: String,
+    data: Long,
+) {
+    edit { settings ->
+        val currentCounterValue = settings[longPreferencesKey(key)] ?: 0
+        settings[longPreferencesKey(key)] = currentCounterValue + data
     }
 }
 
