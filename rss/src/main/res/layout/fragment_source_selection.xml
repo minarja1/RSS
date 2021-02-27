@@ -1,77 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="bottom"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
+<!--    to cover up bottom rounded corners-->
     <View
-        android:id="@+id/backgroundView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/articleSourcesRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_gravity="end|bottom"
-        android:background="@color/colorSurface"
-        android:clipToPadding="false"
-        tools:itemCount="6"
-        android:paddingTop="4dp"
-        android:scrollbarSize="3dp"
-        android:scrollbarThumbVertical="@color/colorPrimary"
-        android:scrollbars="vertical"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        tools:listitem="@layout/source_selection_list_item" />
+        android:layout_height="20dp"
+        android:layout_gravity="bottom"
+        android:background="@color/colorBackground" />
 
     <LinearLayout
-        android:id="@+id/longPressHint"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:background="@color/colorBackground"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
         android:orientation="vertical">
 
         <View
+            android:id="@+id/backgroundView"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/colorSurface"/>
+            android:layout_height="0dp"
+            android:layout_weight=".4" />
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
+            style="@style/MaterialCardBorderLess"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="8dp">
+            android:layout_height="0dp"
+            android:layout_weight=".6"
+            app:cardCornerRadius="10dp">
 
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="40dp"
-                android:src="@drawable/long_press"
-                app:tint="@color/colorOnBackground" />
-
-            <TextView
-                android:textAppearance="@style/TextAppearance.Universe.Body2"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="@string/long_press_hint" />
+                android:orientation="vertical">
 
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="12dp">
 
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_baseline_rss_feed_24" />
 
-        <Button
-            android:id="@+id/longPressDismissButton"
-            style="@style/AppTheme.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="@string/dismiss" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/select_source"
+                        android:textAppearance="@style/TextAppearance.Universe.Body2" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/articleSourcesRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_weight=".6"
+                    android:background="@color/colorSurface"
+                    android:clipToPadding="false"
+                    android:scrollbarSize="3dp"
+                    android:scrollbarThumbVertical="@color/colorPrimary"
+                    android:scrollbars="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    tools:itemCount="60"
+                    tools:listitem="@layout/source_selection_list_item" />
+
+                <LinearLayout
+                    android:id="@+id/longPressHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:background="@color/colorBackground"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/long_press"
+                            app:tint="@color/colorOnBackground" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="@string/long_press_hint"
+                            android:textAppearance="@style/TextAppearance.Universe.Body2" />
+
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/longPressDismissButton"
+                        style="@style/AppTheme.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:text="@string/dismiss" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-
-
-</LinearLayout>
+</FrameLayout>

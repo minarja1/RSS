@@ -22,26 +22,19 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="0dp"
                 android:id="@+id/contentLayoutContainer"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1.5"
                 android:orientation="vertical">
 
-                <FrameLayout
-                    android:id="@+id/articleFullImageContainer"
+
+                <ImageView
+                    android:id="@+id/articleFullImageView"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/article_list_item_expanded_image_height">
-
-                    <ImageView
-                        android:id="@+id/articleFullImageView"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginBottom="4dp"
-                        android:scaleType="centerCrop"
-                        tools:src="@tools:sample/backgrounds/scenic" />
-
-                </FrameLayout>
+                    android:layout_height="@dimen/article_list_item_expanded_image_height"
+                    android:scaleType="centerCrop"
+                    tools:src="@tools:sample/backgrounds/scenic" />
 
                 <LinearLayout
                     android:id="@+id/contentLayout"
@@ -61,8 +54,8 @@
                         android:textAlignment="viewStart"
                         android:textAppearance="@style/TextAppearance.Universe.Title"
                         android:textColor="@color/textColorPrimary"
-                        android:textStyle="bold"
                         android:textSize="16dp"
+                        android:textStyle="bold"
                         tools:text="Thekokft!" />
 
                     <TextView
@@ -71,8 +64,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="4dp"
-                        android:maxLines="10"
                         android:ellipsize="end"
+                        android:maxLines="10"
                         android:textAlignment="viewStart"
                         android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                         android:textColor="@color/textColorPrimary"
@@ -114,9 +107,9 @@
                                 android:maxLines="1"
                                 android:minLines="1"
                                 android:textAlignment="viewStart"
-                                android:textSize="12sp"
                                 android:textAppearance="@style/TextAppearance.Universe.Subtitle"
                                 android:textColor="@color/textColorSecondary"
+                                android:textSize="12sp"
                                 tools:text="26. 01. 1994" />
                         </LinearLayout>
 

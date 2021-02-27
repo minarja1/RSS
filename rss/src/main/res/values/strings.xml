@@ -48,4 +48,5 @@
     <string name="no_starred_articles">No starred articles</string>
     <string name="no_starred_articles_explainer">Swipe or long press an article to star it</string>
     <string name="new_articles">New articles</string>
+    <string name="select_source">Select source</string>
 </resources>

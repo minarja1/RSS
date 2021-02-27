@@ -20,6 +20,7 @@ import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.exitCircularReveal
 import cz.minarik.nasapp.utils.findLocationOfCenterOnTheScreen
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.button_bordered.view.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -139,6 +140,7 @@ class MainActivity : AppCompatActivity() {
                     sourcesFragmentTag
                 ).commitAllowingStateLoss()
             }
+            updateFabVisibility()
         } else {
             sourcesFragment?.let { fragment ->
                 (fragment as ExitWithAnimation).run {
@@ -147,13 +149,13 @@ class MainActivity : AppCompatActivity() {
                             fragment.referencedViewPosX,
                             fragment.referencedViewPosY
                         ) {
-                            transaction.remove(fragment).commitNow()
+                            updateFabVisibility()
+                            transaction.remove(fragment).commitNowAllowingStateLoss()
                         }
-                    } ?: transaction.remove(fragment).commitNow()
+                    } ?: transaction.remove(fragment).commitNowAllowingStateLoss()
                 }
             }
         }
-        updateFabVisibility()
     }
 
     fun navigateToArticleDetail(

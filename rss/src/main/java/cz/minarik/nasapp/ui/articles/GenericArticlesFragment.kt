@@ -157,7 +157,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                                 offset - 30
                             )//add 30 px todo test on more devices
                         }
-                    }, Constants.ARTICLE_EXPAND_ANIMATION_DURATION)
+                    }, Constants.listItemExpandDuration)
                 }
             },
             filterBySource = {

@@ -7,15 +7,14 @@ import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.animation.DecelerateInterpolator
+import cz.minarik.nasapp.utils.Constants.Companion.circularRevealDuration
 import kotlin.math.hypot
-
-const val animDuration = 350L
 
 /**
  * Starts circular reveal animation
  * [fromLeft] if `true` then start animation from the bottom left of the [View] else start from the bottom right
  */
-fun View.startCircularReveal(fromLeft: Boolean) {
+fun View.startCircularReveal(fromLeft: Boolean, onFinished: (() -> Unit)? = null) {
     addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
         override fun onLayoutChange(
             v: View, left: Int, top: Int, right: Int, bottom: Int, oldLeft: Int, oldTop: Int,
@@ -27,8 +26,14 @@ fun View.startCircularReveal(fromLeft: Boolean) {
             val cy = v.bottom
             val radius = hypot(right.toDouble(), bottom.toDouble()).toInt()
             ViewAnimationUtils.createCircularReveal(v, cx, cy, 0f, radius.toFloat()).apply {
-                interpolator = DecelerateInterpolator(2f)
-                duration = animDuration
+                interpolator = DecelerateInterpolator(1f)
+                duration = circularRevealDuration
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        onFinished?.invoke()
+                        super.onAnimationEnd(animation)
+                    }
+                })
                 start()
             }
         }
@@ -41,20 +46,25 @@ fun View.startCircularReveal(fromLeft: Boolean) {
  *
  * @param exitX: Animation end point X coordinate.
  * @param exitY: Animation end point Y coordinate.
- * @param block: Block of code to be executed on animation completion.
+ * @param onFinished: Block of code to be executed on animation completion.
  */
-fun View.exitCircularReveal(exitX: Int, exitY: Int, block: () -> Unit) {
-    val startRadius = Math.hypot(this.width.toDouble(), this.height.toDouble())
-    ViewAnimationUtils.createCircularReveal(this, exitX, exitY, startRadius.toFloat(), 0f).apply {
-        duration = animDuration
-        interpolator = DecelerateInterpolator(1f)
-        addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-                block()
-                super.onAnimationEnd(animation)
+fun View.exitCircularReveal(exitX: Int, exitY: Int, onFinished: () -> Unit) {
+    try {
+        val startRadius = Math.hypot(this.width.toDouble(), this.height.toDouble())
+        ViewAnimationUtils.createCircularReveal(this, exitX, exitY, startRadius.toFloat(), 0f)
+            .apply {
+                duration = circularRevealDuration
+                interpolator = DecelerateInterpolator(1f)
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        onFinished()
+                        super.onAnimationEnd(animation)
+                    }
+                })
+
+                start()
             }
-        })
-        start()
+    } catch (ignored: IllegalStateException) {
     }
 }
 

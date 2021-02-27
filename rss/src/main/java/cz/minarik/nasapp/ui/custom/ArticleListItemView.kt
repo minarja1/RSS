@@ -126,7 +126,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         changeExpandedViewsVisibility(true)
         cardView.doOnLayout {
             expandedHeight = cardView.height
-            expandedImageWidth = articleFullImageContainer.width
+            expandedImageWidth = articleFullImageView.width
             changeExpandedViewsVisibility()
             animateExpandItem()
         }
@@ -184,11 +184,11 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             subtitleTextView.isVisible = finalExpanded
 
             contentLayoutContainer.orientation = if (finalExpanded) VERTICAL else HORIZONTAL
-            articleFullImageContainer.layoutParams.width =
+            articleFullImageView.layoutParams.width =
                 if (finalExpanded) ViewGroup.LayoutParams.MATCH_PARENT else resources.getDimension(R.dimen.collapsed_image_width)
                     .toInt()
 
-            articleFullImageContainer.layoutParams.height =
+            articleFullImageView.layoutParams.height =
                 if (finalExpanded) resources.getDimension(R.dimen.article_list_item_expanded_image_height)
                     .toInt() else ViewGroup.LayoutParams.MATCH_PARENT
 
