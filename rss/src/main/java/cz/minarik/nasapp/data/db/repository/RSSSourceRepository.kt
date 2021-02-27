@@ -123,8 +123,8 @@ class RSSSourceRepository(
                 sourcesChanged.postValue(true)
             }
             state.postValue(NetworkState.SUCCESS)
-            onSuccess?.invoke()
             DataStoreManager.setInitialSyncFinished(true)
+            onSuccess?.invoke()
         }
     }
 

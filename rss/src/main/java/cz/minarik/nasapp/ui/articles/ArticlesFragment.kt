@@ -13,6 +13,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import cz.minarik.base.common.extensions.isScrolledToTop
 import cz.minarik.base.common.extensions.scrollToTop
@@ -29,7 +30,6 @@ import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -46,7 +46,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val useDrawer = false
 
-    val newArticlesFlow = DataStoreManager.getNewArticlesFound()
+    val newArticlesFlow = DataStoreManager.getNewArticlesIDs()
 
     private var notificationBadge: ViewGroup? = null
     private var notificationBadgeTextView: TextView? = null
@@ -83,8 +83,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                         }
                     }
                 } else {
-                    articlesRecyclerView?.scrollToTop()
-                    appBarLayout.setExpanded(true)
+                    scrollToTop()
                 }
             }
         }
@@ -105,7 +104,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
         toolbarPadding.isVisible = true
     }
-
 
     private fun setupDrawerNavigation() {
         drawerLayout?.let {
@@ -132,6 +130,10 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewModel.loadArticles(scrollToTop = true)
             drawerLayout?.closeDrawer(GravityCompat.START)
             (requireActivity() as MainActivity).showHideSourceSelection(false)
+
+            lifecycleScope.launch {
+                DataStoreManager.setNewArticlesIDs(setOf())
+            }
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
@@ -149,7 +151,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewState.loadingSourcesState = it
         }
         newArticlesFlow.collectWhenStarted {
-            updateBadgeNumber(it)
+            updateBadgeNumber(it.size)
         }
     }
 
@@ -169,9 +171,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         if (notificationBadgeTextView == null) {
             notificationBadgeTextView =
                 notificationsActionView?.findViewById(R.id.notificationCountTextView)
-        }
-        lifecycleScope.launch {
-            updateBadgeNumber(DataStoreManager.getNewArticlesFound().first())
         }
     }
 

@@ -14,8 +14,10 @@ import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.domain.Article
 import cz.minarik.nasapp.data.domain.RSSSource
+import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import java.nio.charset.Charset
 import java.util.*
@@ -53,6 +55,7 @@ class ArticlesRepository(
             val source = sourceDao.getByUrl(url)
             source?.let {
                 val articles = parser.getChannel(source.url).articles
+                //todo take n? to optimize
                 articles.forEach {
                     it.sourceUrl = source.url
                     it.sourceName = source.title
@@ -84,6 +87,9 @@ class ArticlesRepository(
     ) {
         CoroutineScope(Dispatchers.Default).launch {
             state.postValue(Loading)
+
+            val currentNewest = dao.getNewest().firstOrNull()?.date
+
             val startTime = System.currentTimeMillis()
 
             val allArticleList = mutableListOf<Article>()
@@ -94,16 +100,17 @@ class ArticlesRepository(
                 }
             }?.awaitAll()
 
-            //todo vratit
-//            var newArticlesFound = 0
-            var newArticlesFound = 1
+            val newArticlesFound = mutableListOf<String>()
             for (article in allArticleList) {
                 article.guid?.let { guid ->
                     article.pubDate?.let { pubDate ->
                         if (!dao.existsByGuidAndDate(guid, pubDate.toDateFromRSS() ?: Date())) {
                             val newEntity = ArticleEntity.fromModel(article)
                             dao.insert(newEntity)
-                            newArticlesFound++
+
+                            currentNewest?.let {
+                                if (newEntity.date.after(currentNewest))  newArticlesFound.add(newEntity.guid)
+                            }
                         }
                     }
                 }
@@ -113,12 +120,41 @@ class ArticlesRepository(
             state.postValue(Success)
 
             Timber.i("Repository: fetching articles finished in $duration ms")
+
             if (notifyNewArticles) notifyNewArticles(newArticlesFound)
         }
     }
 
-    private suspend fun notifyNewArticles(newArticlesFound: Int) {
-        DataStoreManager.incrementNewArticlesFound(newArticlesFound)
+    private suspend fun notifyNewArticles(newArticles: List<String>) {
+        val initialArticleLoadFinished = DataStoreManager.getInitialArticleLoadFinished().first()
+        if (initialArticleLoadFinished) {
+            DataStoreManager.setNewArticlesIDs(newArticles.toSet())
+        } else {
+            DataStoreManager.setInitialArticleLoadFinished(true)
+        }
+    }
+
+    suspend fun loadFromDB(selectedSource: RSSSource?): List<ArticleDTO> {
+        val fromDB: MutableList<ArticleEntity> = mutableListOf()
+
+        selectedSource?.let {
+            for (url in it.URLs) {
+                fromDB.addAll(dao.getBySourceUrl(url))
+            }
+        }
+
+        val mapped = fromDB.map { entity ->
+            ArticleDTO.fromDb(entity).apply {
+                guid?.let { guid ->
+                    showSource = selectedSource?.isList ?: false
+                    this.sourceUrl?.let {
+                        openExternally =
+                            sourceDao.getByUrl(it)?.forceOpenExternally ?: false
+                    }
+                }
+            }
+        }
+        return mapped
     }
 
 }

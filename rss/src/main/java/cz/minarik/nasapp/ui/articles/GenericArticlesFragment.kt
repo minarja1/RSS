@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
@@ -44,6 +43,7 @@ import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -160,15 +160,25 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                     }, Constants.ARTICLE_EXPAND_ANIMATION_DURATION)
                 }
             },
-            preloadUrl = {
-                //todo podle nastaveni
-//                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
-//                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
-            },
             filterBySource = {
                 if (it != null) {
                     filterBySource(it)
                 }
+            },
+            articleShown = {
+                lifecycleScope.launch {
+                    val newIDs = DataStoreManager.getNewArticlesIDs().first()
+                    val mutable = newIDs.toMutableSet()
+                    if (newIDs.contains(it.guid)) {
+                        mutable.remove(it.guid)
+                        DataStoreManager.setNewArticlesIDs(mutable)
+                        Timber.i("Article ${it.title} removed from newArticles")
+                    }
+                }
+
+                //todo podle nastaveni prednacist ur
+//                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
+//                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
             }
         )
     }
@@ -397,12 +407,15 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             viewState.articles = it
             articlesAdapter.submitList(it)
 
-            if (viewModel.shouldScrollToTop) {
-                appBarLayout.setExpanded(true)
-                articlesRecyclerView?.scrollToTop()
-                viewModel.shouldScrollToTop = false
-            }
+            if (viewModel.shouldScrollToTop) scrollToTop()
         }
+    }
+
+    fun scrollToTop() {
+        appBarLayout.setExpanded(true)
+        articlesRecyclerView?.scrollToTop()
+        viewModel.shouldScrollToTop = false
+        resetNewArticles()
     }
 
     private fun initToolbar() {
@@ -427,8 +440,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 true
             }
             R.id.newArticlesAction -> {
-                articlesRecyclerView?.scrollToTop()
-                resetNewArticles()
+                scrollToTop()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -437,7 +449,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     private fun resetNewArticles() {
         lifecycleScope.launch {
-            DataStoreManager.setNewArticlesFound(0)
+            DataStoreManager.setNewArticlesIDs(setOf())
         }
     }
 

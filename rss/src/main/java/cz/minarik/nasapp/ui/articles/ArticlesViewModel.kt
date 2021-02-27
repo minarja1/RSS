@@ -11,7 +11,6 @@ import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
-import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
@@ -22,9 +21,7 @@ import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.RSSPrefManager
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
 import timber.log.Timber
@@ -95,42 +92,27 @@ class ArticlesViewModel(
             try {
                 val startTime = System.currentTimeMillis()
 
+                this@ArticlesViewModel.shouldScrollToTop = scrollToTop
+
                 ensureActive()
 
                 val selectedSource = if (isInSimpleMode) getSourceSimple() else getSource()
 
-                val fromDB: MutableList<ArticleEntity> = mutableListOf()
-
-                selectedSource?.let {
-                    for (url in it.URLs) {
-                        fromDB.addAll(articleDao.getBySourceUrl(url))
-                    }
-                }
-
-                val mapped = fromDB.map { entity ->
-                    ArticleDTO.fromDb(entity).apply {
-                        guid?.let { guid ->
-                            showSource = selectedSource?.isList ?: false
-                            this.sourceUrl?.let {
-                                openExternally =
-                                    sourceDao.getByUrl(it)?.forceOpenExternally ?: false
-                            }
-                        }
-                    }
-                }
+                val fromDB = articlesRepository.loadFromDB(selectedSource)
 
                 ensureActive()
 
                 if (isInSimpleMode) {
                     allArticlesSimple.clear()
-                    allArticlesSimple.addAll(mapped)
+                    allArticlesSimple.addAll(fromDB)
                 } else {
                     allArticles.clear()
-                    allArticles.addAll(mapped)
+                    allArticles.addAll(fromDB)
                 }
 
-                this@ArticlesViewModel.shouldScrollToTop = scrollToTop
                 val result = applyFilters()
+
+                ensureActive()
 
                 if (isInSimpleMode) {
                     articlesSimple.postValue(result)
@@ -140,8 +122,10 @@ class ArticlesViewModel(
                 state.postValue(NetworkState.SUCCESS)
                 val duration = System.currentTimeMillis() - startTime
 
-                if (updateFromServer) updateFromServer()
                 Timber.i("ViewModel: loading articles finished in $duration ms")
+
+                if (updateFromServer) updateFromServer()
+
                 this@ArticlesViewModel.isFromSwipeRefresh = false
             } catch (e: IOException) {
                 Timber.e(e)
