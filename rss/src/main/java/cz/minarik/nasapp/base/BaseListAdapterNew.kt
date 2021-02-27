@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import cz.minarik.base.ui.base.BaseRecyclerItem
 import cz.minarik.base.ui.base.BaseViewHolder
 import java.lang.ClassCastException
 
@@ -44,7 +43,7 @@ abstract class BaseListAdapterNew<T>(
         val item = holder.itemView.tag
         if (item != null) {
             try {
-                itemOnScreen(item as T)
+                itemOnScreen(item as T, holder.itemView)
             } catch (e: ClassCastException) {
             }
         }
@@ -55,17 +54,17 @@ abstract class BaseListAdapterNew<T>(
         val item = holder.itemView.tag
         if (item != null) {
             try {
-                itemOffScreen(item as T)
+                itemOffScreen(item as T, holder.itemView)
             } catch (e: ClassCastException) {
             }
         }
     }
 
-    open fun itemOnScreen(item: T) {
+    open fun itemOnScreen(item: T, itemView: View) {
 
     }
 
-    open fun itemOffScreen(item: T) {
+    open fun itemOffScreen(item: T, itemView: View) {
 
     }
 

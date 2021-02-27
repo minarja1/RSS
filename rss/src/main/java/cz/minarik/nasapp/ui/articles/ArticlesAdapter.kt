@@ -47,7 +47,7 @@ class ArticlesAdapter(
         articleItemView.set(item)
         articleItemView.setOnClickListener {
             onItemClicked(
-                if (item.expanded) articleItemView.articleFullImageView else articleItemView.articleImageView,
+                articleItemView.articleFullImageView,
                 articleItemView.titleTextView,
                 viewHolder.adapterPosition
             )
@@ -64,8 +64,9 @@ class ArticlesAdapter(
         }
     }
 
-    override fun itemOnScreen(item: ArticleDTO) {
-        super.itemOnScreen(item)
+
+    override fun itemOnScreen(item: ArticleDTO, itemView: View) {
+        super.itemOnScreen(item, itemView)
         articleShown.invoke(item)
     }
 }

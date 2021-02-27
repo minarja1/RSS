@@ -2,15 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/backgroundView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
     android:orientation="vertical">
 
+    <View
+        android:id="@+id/backgroundView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/articleSourcesRecyclerView"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_gravity="end|bottom"
@@ -26,7 +31,7 @@
 
     <LinearLayout
         android:id="@+id/longPressHint"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:background="@color/colorBackground"

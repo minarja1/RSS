@@ -2,6 +2,8 @@ package cz.minarik.nasapp.utils
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.TimeInterpolator
+import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.animation.DecelerateInterpolator
@@ -82,4 +84,20 @@ interface ExitWithAnimation {
      * Must return true if required to exit with circular reveal animation
      */
     fun isToBeExitedWithAnimation(): Boolean
+}
+
+
+inline fun getValueAnimator(
+    forward: Boolean = true,
+    duration: Long,
+    interpolator: TimeInterpolator,
+    crossinline updateListener: (progress: Float) -> Unit
+): ValueAnimator {
+    val a =
+        if (forward) ValueAnimator.ofFloat(0f, 1f)
+        else ValueAnimator.ofFloat(1f, 0f)
+    a.addUpdateListener { updateListener(it.animatedValue as Float) }
+    a.duration = duration
+    a.interpolator = interpolator
+    return a
 }

@@ -21,25 +21,9 @@
             android:minHeight="@dimen/article_list_item_collapsed_height"
             android:orientation="horizontal">
 
-            <FrameLayout
-                android:id="@+id/articleImageContainer"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/articleImageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@null"
-                    android:scaleType="centerCrop"
-                    tools:src="@tools:sample/backgrounds/scenic" />
-
-            </FrameLayout>
-
             <LinearLayout
                 android:layout_width="0dp"
+                android:id="@+id/contentLayoutContainer"
                 android:layout_height="match_parent"
                 android:layout_weight="1.5"
                 android:orientation="vertical">
@@ -47,7 +31,7 @@
                 <FrameLayout
                     android:id="@+id/articleFullImageContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp">
+                    android:layout_height="@dimen/article_list_item_expanded_image_height">
 
                     <ImageView
                         android:id="@+id/articleFullImageView"

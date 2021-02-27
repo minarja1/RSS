@@ -12,5 +12,7 @@ class Constants {
         const val argArticleDTO = "argArticleDTO"
         const val argSourceUrl = "argSourceUrl"
         const val ARTICLE_BOTTOM_SHEET_TAG = "ARTICLE_BOTTOM_SHEET_TAG"
+
+        val listItemExpandDuration: Long get() = 300L
     }
 }

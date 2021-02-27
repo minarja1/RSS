@@ -1,21 +1,25 @@
 package cz.minarik.nasapp.ui.custom
 
-import android.animation.LayoutTransition
 import android.content.Context
 import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.ViewGroup
-import android.view.animation.DecelerateInterpolator
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
 import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import coil.load
 import cz.minarik.base.common.extensions.*
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
-import cz.minarik.nasapp.utils.*
+import cz.minarik.nasapp.utils.Constants
+import cz.minarik.nasapp.utils.getValueAnimator
+import cz.minarik.nasapp.utils.loadImageWithDefaultSettings
 import kotlinx.android.synthetic.main.article_list_item.view.*
 import java.io.Serializable
 import java.net.URL
@@ -26,15 +30,29 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     LinearLayout(context, attrs) {
 
     private var article: ArticleDTO? = null
-    var articleImageView: ImageView
+
     var articleFullImageView: ImageView
 
     var onItemExpanded: (() -> Unit)? = null
     var filterBySource: ((url: String?) -> Unit)? = null
 
+
+    private val collapsedHeight =
+        context.resources.getDimension(R.dimen.article_list_item_collapsed_height).toInt()
+    private var expandedHeight = -1 // will be calculated dynamically
+
+    private val collapsedImageWidth =
+        context.resources.getDimension(R.dimen.collapsed_image_width).toInt()
+    private var expandedImageWidth = -1 // will be calculated dynamically
+
+    private val collapsedImageHeight =
+        context.resources.getDimension(R.dimen.article_list_item_collapsed_height).toInt()
+    private val expandedImageHeight =
+        context.resources.getDimension(R.dimen.article_list_item_expanded_image_height).toInt()
+
+
     init {
         inflate(context, R.layout.article_list_item, this)
-        articleImageView = findViewById(R.id.articleImageView)
         articleFullImageView = findViewById(R.id.articleFullImageView)
         subtitleTextView.handleHTML(context)
     }
@@ -46,7 +64,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             this.article?.run {
                 expanded = !expanded
             }
-            expand()
+            preComputeExpandedDimensionsAndExpand()
         }
 
         subtitleTextView.setTextColor(
@@ -72,11 +90,6 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         titleTextView.text = article.title
         dateTextView.text = article.date?.toTimeElapsed()
 
-        articleImageView.loadImageWithDefaultSettings(
-            article.image?.replace("http://", "https://"),
-            crossFade = true
-        )
-
         articleFullImageView.loadImageWithDefaultSettings(
             article.image?.replace(
                 "http://",
@@ -99,7 +112,24 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
 
         sourceContainer.isVisible = article.showSource
 
-        expand(true)
+        expandNoAnimation()
+    }
+
+    private fun expandNoAnimation() {
+        changeExpandedViewsVisibility()
+        cardView.layoutParams.height =
+            if (article?.expanded == true) ViewGroup.LayoutParams.WRAP_CONTENT else collapsedHeight
+
+    }
+
+    private fun preComputeExpandedDimensionsAndExpand() {
+        changeExpandedViewsVisibility(true)
+        cardView.doOnLayout {
+            expandedHeight = cardView.height
+            expandedImageWidth = articleFullImageContainer.width
+            changeExpandedViewsVisibility()
+            animateExpandItem()
+        }
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
@@ -112,46 +142,73 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         cardView.setOnLongClickListener(l)
     }
 
-    private fun expand(expandingProgrammatically: Boolean = false) {
+    private fun animateExpandItem() {
         article?.run {
-            subtitleTextView.isVisible = expanded
-            articleImageContainer.isVisible = !expanded
-            articleFullImageContainer.isVisible = expanded
+            val animator = getValueAnimator(
+                expanded, Constants.listItemExpandDuration, AccelerateDecelerateInterpolator()
+            ) { progress -> setExpandProgress(progress) }
 
-            val layoutTransition = cardView.layoutTransition
-            if (expanded && !expandingProgrammatically) {
-                layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-                layoutTransition.setDuration(Constants.ARTICLE_EXPAND_ANIMATION_DURATION)
-                layoutTransition.setInterpolator(
-                    LayoutTransition.CHANGING,
-                    DecelerateInterpolator(1.5f)
-                )
-                onItemExpanded?.invoke()
-            } else {
-                layoutTransition.disableTransitionType(LayoutTransition.CHANGING)
+            if (expanded) animator.doOnStart {
+                changeExpandedViewsVisibility()
+            }
+            else animator.doOnEnd {
+                changeExpandedViewsVisibility()
             }
 
-            cardView.layoutParams.height =
-                if (expanded) LayoutParams.WRAP_CONTENT else context.resources.getDimension(R.dimen.article_list_item_collapsed_height)
-                    .toInt()
-            cardView.requestLayout()
+            animator.start()
+        }
+    }
 
-            val contentPadding = if (expanded) 16.dpToPx else 8.dpToPx
+    private fun setExpandProgress(progress: Float) {
+        if (expandedHeight > 0 && collapsedHeight > 0) {
+            cardView.layoutParams.height =
+                (collapsedHeight + (expandedHeight - collapsedHeight) * progress).toInt()
+
+            articleFullImageView.layoutParams.width =
+                (collapsedImageWidth + (expandedImageWidth - collapsedImageWidth) * progress).toInt()
+
+            articleFullImageView.layoutParams.height =
+                (collapsedImageHeight + (expandedImageHeight - collapsedImageHeight) * progress).toInt()
+        }
+
+        cardView.requestLayout()
+        articleFullImageView.requestLayout()
+
+        //todo rotate button?
+//        holder.chevron.rotation = 90 * progress
+    }
+
+    private fun changeExpandedViewsVisibility(fakeExpanded: Boolean? = null) {
+        article?.run {
+            val finalExpanded = fakeExpanded ?: expanded
+            subtitleTextView.isVisible = finalExpanded
+
+            contentLayoutContainer.orientation = if (finalExpanded) VERTICAL else HORIZONTAL
+            articleFullImageContainer.layoutParams.width =
+                if (finalExpanded) ViewGroup.LayoutParams.MATCH_PARENT else resources.getDimension(R.dimen.collapsed_image_width)
+                    .toInt()
+
+            articleFullImageContainer.layoutParams.height =
+                if (finalExpanded) resources.getDimension(R.dimen.article_list_item_expanded_image_height)
+                    .toInt() else ViewGroup.LayoutParams.MATCH_PARENT
+
+            cardView.layoutParams.height =
+                if (finalExpanded) LayoutParams.WRAP_CONTENT else context.resources.getDimension(R.dimen.article_list_item_collapsed_height)
+                    .toInt()
+
+            val contentPadding = if (finalExpanded) 16.dpToPx else 8.dpToPx
             contentLayout.setPadding(contentPadding, contentPadding, contentPadding, contentPadding)
 
-            val contentPaddingSmall = if (expanded) 4.dpToPx else 2.dpToPx
+            val contentPaddingSmall = if (finalExpanded) 4.dpToPx else 2.dpToPx
             val layoutParams = LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             layoutParams.setMargins(0, contentPaddingSmall, 0, 0)
             sourceContainer.layoutParams = layoutParams
-            dateContainer.setPadding(0,contentPaddingSmall, 0,0)
+            dateContainer.setPadding(0, contentPaddingSmall, 0, 0)
 
-            expandButton.load(if (expanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
-
-            invalidate()
-            requestLayout()
+            expandButton.load(if (finalExpanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
         }
     }
 }
