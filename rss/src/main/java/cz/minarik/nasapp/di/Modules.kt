@@ -94,7 +94,7 @@ val dbModule = module {
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE RSSSourceEntity ADD COLUMN isAtom INTEGER")
+        database.execSQL("ALTER TABLE RSSSourceEntity ADD COLUMN isAtom INTEGER DEFAULT 0 NOT NULL")
     }
 }
 
