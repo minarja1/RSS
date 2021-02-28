@@ -22,7 +22,9 @@ data class RSSSourceEntity(
     var isUserAdded: Boolean = false,
     var isSelected: Boolean = false,
     var isHidden: Boolean = false,
-    var forceOpenExternally: Boolean = false
+    var forceOpenExternally: Boolean = false,
+    //todo migration!
+    var isAtom: Boolean = false,
 
     ) {
     override fun equals(other: Any?): Boolean {

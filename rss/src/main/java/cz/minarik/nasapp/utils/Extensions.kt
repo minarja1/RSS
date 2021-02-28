@@ -15,10 +15,18 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.chimbori.crux.articles.Article
+import com.rometools.rome.feed.synd.SyndEntry
+import com.rometools.rome.feed.synd.SyndFeed
+import com.rometools.rome.io.SyndFeedInput
+import com.rometools.rome.io.XmlReader
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.custom.ArticleDTO
+import okhttp3.Call
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.jsoup.nodes.Document
 
 fun BaseFragment.shareArticle(article: ArticleDTO) {
@@ -195,9 +203,31 @@ val Article.imgUrlSafe: String?
 
 //todo move to base
 fun getCircularAnimator(targetView: View, sourceX: Int, sourceY: Int, speed: Long): Animator {
-    val finalRadius = Math.hypot(targetView.width.toDouble(), targetView.height.toDouble()).toFloat()
-    return ViewAnimationUtils.createCircularReveal(targetView, sourceX, sourceY, 0f, finalRadius).apply {
-        interpolator = AccelerateDecelerateInterpolator()
-        duration = speed
-    }
+    val finalRadius =
+        Math.hypot(targetView.width.toDouble(), targetView.height.toDouble()).toFloat()
+    return ViewAnimationUtils.createCircularReveal(targetView, sourceX, sourceY, 0f, finalRadius)
+        .apply {
+            interpolator = AccelerateDecelerateInterpolator()
+            duration = speed
+        }
+}
+
+fun SyndEntry.guid(): String {
+    return "$title$publishedDate"
+}
+
+
+fun OkHttpClient.createCall(url: String): Call = newCall(
+    Request.Builder()
+        .url(url)
+        .header(
+            "User-agent",
+            "Mozilla/5.0 (compatible) AppleWebKit Chrome Safari"
+        ) // some feeds need this to work properly
+        .addHeader("accept", "*/*")
+        .build()
+)
+
+fun Response.toSyncFeed(): SyndFeed? {
+    return SyndFeedInput().build(XmlReader(body?.byteStream()))
 }

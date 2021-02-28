@@ -1,7 +1,9 @@
 package cz.minarik.nasapp.data.domain
 
 import com.prof.rssparser.Article
+import com.rometools.rome.feed.synd.SyndEntry
 import cz.minarik.base.common.extensions.toDateFromRSS
+import cz.minarik.nasapp.utils.guid
 import me.toptas.rssconverter.RssItem
 import java.io.Serializable
 import java.util.*
@@ -12,6 +14,7 @@ data class Article(
     var author: String? = null,
     var link: String? = null,
     var pubDate: String? = null,
+    var publicationDate: Date? = null,
     var description: String? = null,
     var content: String? = null,
     var image: String? = null,
@@ -23,10 +26,10 @@ data class Article(
 ) : Serializable {
 
     val isValid: Boolean
-        get() = !guid.isNullOrEmpty() && pubDate != null
+        get() = !guid.isNullOrEmpty() && formattedDate != null
 
     val formattedDate: Date?
-        get() = pubDate?.toDateFromRSS()
+        get() = publicationDate ?: pubDate?.toDateFromRSS()
 
     companion object {
         fun fromLibrary(article: Article): cz.minarik.nasapp.data.domain.Article {
@@ -43,6 +46,23 @@ data class Article(
                 video = article.video,
                 sourceName = article.sourceName,
                 sourceUrl = article.sourceUrl,
+            )
+        }
+
+        fun fromLibrary(
+            article: SyndEntry,
+            sourceUrl: String?,
+            sourceName: String?
+        ): cz.minarik.nasapp.data.domain.Article {
+            return Article(
+                guid = article.guid(),
+                title = article.title,
+                author = article.author,
+                link = article.link,
+                publicationDate = article.publishedDate ?: article.updatedDate,
+                description = article.description?.value,
+                sourceUrl = sourceUrl,
+                sourceName = sourceName,
             )
         }
 

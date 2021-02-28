@@ -2,8 +2,8 @@ package cz.minarik.nasapp.data.db.repository
 
 import androidx.lifecycle.MutableLiveData
 import com.prof.rssparser.Parser
-import cz.minarik.base.common.extensions.toDateFromRSS
 import cz.minarik.base.di.base.BaseRepository
+import cz.minarik.base.di.createOkHttpClient
 import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.Success
@@ -16,11 +16,14 @@ import cz.minarik.nasapp.data.domain.Article
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
+import cz.minarik.nasapp.utils.createCall
+import cz.minarik.nasapp.utils.toSyncFeed
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import java.nio.charset.Charset
 import java.util.*
+
 
 class ArticlesRepository(
     private val dao: ArticleDao,
@@ -28,6 +31,10 @@ class ArticlesRepository(
 ) : BaseRepository() {
 
     val state = MutableLiveData<ViewModelState>()
+
+    private val okHttpClient by lazy {
+        createOkHttpClient()
+    }
 
     private val parser by lazy {
         Parser.Builder()
@@ -53,18 +60,32 @@ class ArticlesRepository(
             Timber.i("flushing cache for url: $url")
             parser.flushCache(url)
             val source = sourceDao.getByUrl(url)
-            source?.let {
-                val articles = parser.getChannel(source.url).articles
-                //todo take n? to optimize
-                articles.forEach {
-                    it.sourceUrl = source.url
-                    it.sourceName = source.title
-                }
-                synchronized(this) {
-                    result.addAll(articles.map {
-                        Article.fromLibrary(it)
-                    }.filter { it.isValid }
-                    )
+            source?.let { source ->
+                if (source.isAtom) {
+                    okHttpClient.createCall(source.url).execute().use { response ->
+                        val articles = response.toSyncFeed()?.entries?.asSequence()
+                        articles?.let {
+                            synchronized(this) {
+                                result.addAll(articles.map {
+                                    Article.fromLibrary(it, source.url, source.title)
+                                }.filter { it.isValid }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    val articles = parser.getChannel(source.url).articles
+                    //todo take n? to optimize
+                    articles.forEach {
+                        it.sourceUrl = source.url
+                        it.sourceName = source.title
+                    }
+                    synchronized(this) {
+                        result.addAll(articles.map {
+                            Article.fromLibrary(it)
+                        }.filter { it.isValid }
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -103,13 +124,15 @@ class ArticlesRepository(
             val newArticlesFound = mutableListOf<String>()
             for (article in allArticleList) {
                 article.guid?.let { guid ->
-                    article.pubDate?.let { pubDate ->
-                        if (!dao.existsByGuidAndDate(guid, pubDate.toDateFromRSS() ?: Date())) {
+                    article.formattedDate?.let { pubDate ->
+                        if (!dao.existsByGuidAndDate(guid, pubDate)) {
                             val newEntity = ArticleEntity.fromModel(article)
                             dao.insert(newEntity)
 
                             currentNewest?.let {
-                                if (newEntity.date.after(currentNewest))  newArticlesFound.add(newEntity.guid)
+                                if (newEntity.date.after(currentNewest)) newArticlesFound.add(
+                                    newEntity.guid
+                                )
                             }
                         }
                     }

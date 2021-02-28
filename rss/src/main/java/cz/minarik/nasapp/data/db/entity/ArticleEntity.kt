@@ -57,7 +57,7 @@ data class ArticleEntity(
                 image = article.image,
                 date = article.formattedDate ?: Date(),
                 link = article.link,
-                description = article.description.toString(),
+                description = article.description,
                 content = article.content,
                 audio = article.audio,
                 video = article.video,

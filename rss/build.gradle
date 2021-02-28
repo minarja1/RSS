@@ -84,4 +84,7 @@ dependencies {
 
 //    todo move to base
     implementation "androidx.datastore:datastore-preferences:1.0.0-alpha06"
+
+    implementation "com.rometools:rome:1.15.0"
+
 }

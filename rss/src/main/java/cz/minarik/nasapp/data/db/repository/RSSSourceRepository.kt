@@ -4,24 +4,25 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.DatabaseError
 import com.prof.rssparser.Parser
+import com.rometools.rome.io.SyndFeedInput
+import com.rometools.rome.io.XmlReader
 import cz.minarik.base.common.extensions.compareLists
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseRepository
+import cz.minarik.base.di.createOkHttpClient
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.domain.RSSSource
-import cz.minarik.nasapp.utils.Constants
-import cz.minarik.nasapp.utils.RSSPrefManager
-import cz.minarik.nasapp.utils.RealtimeDatabaseHelper
-import cz.minarik.nasapp.utils.RealtimeDatabaseQueryListener
+import cz.minarik.nasapp.utils.*
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.net.URL
 import java.nio.charset.Charset
+
 
 class RSSSourceRepository(
     private val context: Context,
@@ -52,6 +53,10 @@ class RSSSourceRepository(
 
     val state = MutableLiveData<NetworkState>()
     val sourcesChanged = MutableLiveData<Boolean>()
+
+    private val okHttpClient by lazy {
+        createOkHttpClient()
+    }
 
     fun updateRSSSourcesFromRealtimeDB(onSuccess: (() -> Unit)?) {
         RealtimeDatabaseHelper.getNewsFeeds(this, onSuccess)
@@ -89,28 +94,59 @@ class RSSSourceRepository(
             //create or update existing
             allFromServer.map { feed ->
                 async {
-                    feed?.url?.let {
+                    feed?.url?.let { feedUrl ->
                         try {
-                            var entity = sourceDao.getByUrl(it)
-                            val url = URL(it)
+                            var entity = sourceDao.getByUrl(feedUrl)
+                            val url = URL(feedUrl)
                             if (entity == null) {
-                                val channel = parser.getChannel(it)
-                                entity = RSSSourceEntity(
-                                    url = it,
-                                    title = channel.title,
-                                    description = channel.description,
-                                    imageUrl = url.getFavIcon(),
-                                    homePage = feed.homePage,
-                                    contactUrl = feed.contact,
-                                    forceOpenExternally = feed.forceOpenExternal
-                                )
+                                if (feed.atom) {
+                                    okHttpClient.createCall(feedUrl).execute().use { response ->
+                                        val channel = response.toSyncFeed()
+                                        entity = RSSSourceEntity(
+                                            url = feedUrl,
+                                            title = channel?.title,
+                                            description = channel?.description,
+                                            imageUrl = url.getFavIcon(),
+                                            homePage = feed.homePage,
+                                            contactUrl = feed.contact,
+                                            forceOpenExternally = feed.forceOpenExternal,
+                                            isAtom = feed.atom,
+                                        )
+                                    }
+                                } else {
+                                    val channel = parser.getChannel(feedUrl)
+                                    entity = RSSSourceEntity(
+                                        url = feedUrl,
+                                        title = channel.title,
+                                        description = channel.description,
+                                        imageUrl = url.getFavIcon(),
+                                        homePage = feed.homePage,
+                                        contactUrl = feed.contact,
+                                        forceOpenExternally = feed.forceOpenExternal,
+                                        isAtom = feed.atom,
+                                    )
+                                }
                             } else if (shouldUpdate) {
-                                val channel = parser.getChannel(it)
-                                entity.title = channel.title
-                                entity.imageUrl = url.getFavIcon()
+                                if (feed.atom) {
+                                    okHttpClient.createCall(feedUrl).execute().use { response ->
+                                        val input = SyndFeedInput()
+                                        val channel =
+                                            input.build(XmlReader(response.body?.byteStream()))
+                                        entity?.let {
+                                            it.title = channel.title
+                                            it.imageUrl = url.getFavIcon()
+                                        }
+                                    }
+                                } else {
+                                    val channel = parser.getChannel(feedUrl)
+                                    entity?.let {
+                                        it.title = channel.title
+                                        it.imageUrl = url.getFavIcon()
+                                    }
+                                }
                             }
 
-                            sourceDao.insert(entity)
+                            entity?.let { sourceDao.insert(it) }
                         } catch (e: Exception) {
                             Timber.e(e)
                         }
