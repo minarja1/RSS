@@ -1,6 +1,8 @@
 package cz.minarik.nasapp.di
 
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import cz.minarik.nasapp.data.db.RSSDatabase
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
@@ -72,7 +74,6 @@ val appModule = module {
 
 
 val dbModule = module {
-
     // db
     single {
         Room
@@ -81,7 +82,7 @@ val dbModule = module {
                 RSSDatabase::class.java,
                 RSSDatabase.Name
             )
-            //.addMigrations(Migration_4_to_5)
+            .addMigrations(MIGRATION_1_2)
             .build()
     }
 
@@ -89,7 +90,12 @@ val dbModule = module {
     single { get<RSSDatabase>().rssSourceDao() }
     single { get<RSSDatabase>().rssSourceListDao() }
     single { get<RSSDatabase>().starredArticleDao() }
+}
 
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE RSSSourceEntity ADD COLUMN isAtom INTEGER")
+    }
 }
 
 val allModules = listOf(appModule, dbModule)

@@ -219,7 +219,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             dividerMedium()
             layoutManager =
                 LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-            //todo swiping not working when uncommented
             (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
             adapter = articlesAdapter
         }

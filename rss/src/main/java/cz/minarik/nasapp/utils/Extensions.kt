@@ -202,20 +202,9 @@ val Article.imgUrlSafe: String?
     )
 
 //todo move to base
-fun getCircularAnimator(targetView: View, sourceX: Int, sourceY: Int, speed: Long): Animator {
-    val finalRadius =
-        Math.hypot(targetView.width.toDouble(), targetView.height.toDouble()).toFloat()
-    return ViewAnimationUtils.createCircularReveal(targetView, sourceX, sourceY, 0f, finalRadius)
-        .apply {
-            interpolator = AccelerateDecelerateInterpolator()
-            duration = speed
-        }
-}
-
 fun SyndEntry.guid(): String {
     return "$title$publishedDate"
 }
-
 
 fun OkHttpClient.createCall(url: String): Call = newCall(
     Request.Builder()
