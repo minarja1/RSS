@@ -46,7 +46,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val useDrawer = false
 
-    val newArticlesFlow = DataStoreManager.getNewArticlesIDs()
+    private val newArticlesFlow = DataStoreManager.getNewArticlesIDs()
 
     private var notificationBadge: ViewGroup? = null
     private var notificationBadgeTextView: TextView? = null

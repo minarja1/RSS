@@ -473,7 +473,15 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             if (filterStarred.isChecked) {
                 stateView.emptyStarred(true)
             } else {
-                stateView.empty(true)
+                if (requireContext().isInternetAvailable) {
+                    stateView.empty(true)
+                } else {
+                    stateView.noInternet(true) {
+                        if(requireContext().isInternetAvailable){
+                            viewModel.loadArticles()
+                        }
+                    }
+                }
             }
         } else if (isError) {
             if (articlesEmpty) {
