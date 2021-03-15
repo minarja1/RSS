@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
@@ -73,118 +74,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
         override fun onServiceDisconnected(name: ComponentName?) {
         }
-    }
-
-    fun navigateToArticleDetail(
-        articleDTO: ArticleDTO,
-        position: Int,
-        vararg sharedElements: Pair<View, String>,
-    ) {
-        (requireActivity() as MainActivity).navigateToArticleDetail(articleDTO, *sharedElements)
-    }
-
-    private val articlesAdapter by lazy {
-        ArticlesAdapter(
-            onItemClicked = { imageView, titleTextView, position ->
-                (articlesRecyclerView?.adapter as? ArticlesAdapter)?.run {
-                    getItemAtPosition(position)?.run {
-                        read = true
-                        viewModel.markArticleAsReadOrUnread(this, true)
-                        link?.toUri()?.let {
-                            if (openExternally) {
-                                link?.toUri()?.let {
-                                    requireContext().openCustomTabs(it)
-                                }
-                            } else {
-                                imageView.transitionName = this.guid?.toImageSharedTransitionName()
-                                titleTextView.transitionName =
-                                    this.guid?.toTitleSharedTransitionName()
-                                navigateToArticleDetail(
-                                    this,
-                                    position,
-                                    imageView to (this.guid?.toImageSharedTransitionName() ?: ""),
-                                    titleTextView to (this.guid?.toTitleSharedTransitionName()
-                                        ?: ""),
-                                )
-                            }
-                        }
-                    }
-                    notifyItemChanged(position)
-                }
-            },
-            onItemLongClicked = { position ->
-                val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
-                val article = adapter?.getItemAtPosition(position)
-
-                article?.run {
-                    val sheet = ArticleBottomSheet.newInstance(this)
-                    sheet.listener = object : ArticleBottomSheetListener {
-                        override fun onStarred() {
-                            article.starred = !article.starred
-                            adapter.notifyItemChanged(position)
-                            viewModel.markArticleAsStarred(article)
-                        }
-
-                        override fun onRead() {
-                            article.read = !article.read
-                            adapter.notifyItemChanged(position)
-                            viewModel.markArticleAsReadOrUnread(article)
-                        }
-
-                        override fun onShare() {
-                            shareArticle(article)
-                        }
-
-                        override fun onSource(sourceUrl: String) {
-                            filterBySource(sourceUrl)
-                        }
-
-                    }
-                    sheet.show(childFragmentManager, Constants.ARTICLE_BOTTOM_SHEET_TAG)
-                }
-            },
-            onItemExpanded = { position ->
-                //make sure bottom of item is on screen
-                (articlesRecyclerView?.layoutManager as? LinearLayoutManager)?.run {
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        if (findLastCompletelyVisibleItemPosition() < position) {
-                            val recyclerOffset =
-                                (articlesRecyclerView?.height ?: 0) //todo - appBarLayout.bottom
-                            val offset =
-                                recyclerOffset - (findViewByPosition(position)?.height ?: 0)
-                            scrollToPositionWithOffset(
-                                position,
-                                offset - 30
-                            )//add 30 px todo test on more devices
-                        }
-                    }, Constants.listItemExpandDuration)
-                }
-            },
-            filterBySource = {
-                if (it != null) {
-                    filterBySource(it)
-                }
-            },
-            articleShown = {
-                lifecycleScope.launch {
-                    val newIDs = DataStoreManager.getNewArticlesIDs().first()
-                    val mutable = newIDs.toMutableSet()
-                    if (newIDs.contains(it.guid)) {
-                        mutable.remove(it.guid)
-                        DataStoreManager.setNewArticlesIDs(mutable)
-                        Timber.i("Article ${it.title} removed from newArticles")
-                    }
-                }
-
-                //todo podle nastaveni prednacist ur
-//                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
-//                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
-            }
-        )
-    }
-
-    private fun filterBySource(sourceUrl: String) {
-        (requireActivity() as MainActivity).navigateToSimpleArticles(sourceUrl)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -306,6 +195,118 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         )
         readTouchHelper.attachToRecyclerView(articlesRecyclerView)
     }
+
+    fun navigateToArticleDetail(
+        articleDTO: ArticleDTO,
+        position: Int,
+        vararg sharedElements: Pair<View, String>,
+    ) {
+        (requireActivity() as MainActivity).navigateToArticleDetail(articleDTO, *sharedElements)
+    }
+
+    private val articlesAdapter by lazy {
+        ArticlesAdapter(
+            onArticleClicked = ::onArticleClicked,
+            onItemLongClicked = ::onArticleLongClicked,
+            onArticleExpanded = ::onArticleExpanded,
+            filterBySource = { it?.let { filterBySource(it) } },
+            articleShown = {
+                lifecycleScope.launch {
+                    val newIDs = DataStoreManager.getNewArticlesIDs().first()
+                    val mutable = newIDs.toMutableSet()
+                    if (newIDs.contains(it.guid)) {
+                        mutable.remove(it.guid)
+                        DataStoreManager.setNewArticlesIDs(mutable)
+                        Timber.i("Article ${it.title} removed from newArticles")
+                    }
+                }
+
+                //todo podle nastaveni prednacist url
+//                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
+//                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
+            }
+        )
+    }
+
+    private fun filterBySource(sourceUrl: String) {
+        (requireActivity() as MainActivity).navigateToSimpleArticles(sourceUrl)
+    }
+
+    private fun onArticleExpanded(position: Int) {
+        //make sure bottom of item is on screen
+        (articlesRecyclerView?.layoutManager as? LinearLayoutManager)?.run {
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (findLastCompletelyVisibleItemPosition() < position) {
+                    val recyclerOffset =
+                        (articlesRecyclerView?.height ?: 0) //todo - appBarLayout.bottom
+                    val offset =
+                        recyclerOffset - (findViewByPosition(position)?.height ?: 0)
+                    scrollToPositionWithOffset(
+                        position,
+                        offset - 30
+                    )//add 30 px todo test on more devices
+                }
+            }, Constants.listItemExpandDuration)
+        }
+    }
+
+    private fun onArticleLongClicked(position: Int) {
+        val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
+        val article = adapter?.getItemAtPosition(position)
+
+        article?.run {
+            val sheet = ArticleBottomSheet.newInstance(this)
+            sheet.listener = object : ArticleBottomSheetListener {
+                override fun onStarred() {
+                    article.starred = !article.starred
+                    adapter.notifyItemChanged(position)
+                    viewModel.markArticleAsStarred(article)
+                }
+
+                override fun onRead() {
+                    article.read = !article.read
+                    adapter.notifyItemChanged(position)
+                    viewModel.markArticleAsReadOrUnread(article)
+                }
+
+                override fun onShare() {
+                    shareArticle(article)
+                }
+
+                override fun onSource(sourceUrl: String) {
+                    filterBySource(sourceUrl)
+                }
+
+            }
+            sheet.show(childFragmentManager, Constants.ARTICLE_BOTTOM_SHEET_TAG)
+        }
+    }
+
+    private fun onArticleClicked(imageView: ImageView, titleTextView: TextView, position: Int) {
+        val articlesAdapter = articlesRecyclerView?.adapter as? ArticlesAdapter
+        articlesAdapter?.getItemAtPosition(position)?.run {
+            read = true
+            viewModel.markArticleAsReadOrUnread(this, true)
+            link?.toUri()?.let {
+                if (openExternally) {
+                    link?.toUri()?.let { requireContext().openCustomTabs(it) }
+                } else {
+                    imageView.transitionName = this.guid?.toImageSharedTransitionName()
+                    titleTextView.transitionName =
+                        this.guid?.toTitleSharedTransitionName()
+                    navigateToArticleDetail(
+                        this,
+                        position,
+                        imageView to (this.guid?.toImageSharedTransitionName() ?: ""),
+                        titleTextView to (this.guid?.toTitleSharedTransitionName()
+                            ?: ""),
+                    )
+                }
+            }
+        }
+        articlesAdapter?.notifyItemChanged(position)
+    }
+
 
     private fun getReadIcon(adapterPosition: Int, viewHolder: RecyclerView.ViewHolder): Drawable {
         val article = articlesAdapter.getItemAtPosition(adapterPosition)
@@ -448,10 +449,13 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     private fun resetNewArticles() {
         lifecycleScope.launch {
-            DataStoreManager.setNewArticlesIDs(setOf())
+            DataStoreManager.resetNewArticleIDs()
         }
     }
 
+    /**
+     * Update all necessary views to properly reflect viewState
+     */
     private fun updateViews() {
         val loadingArticles =
             viewState.loadingArticlesState == NetworkState.LOADING || viewState.loadingArticlesFromServer == Loading
@@ -477,7 +481,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                     stateView.empty(true)
                 } else {
                     stateView.noInternet(true) {
-                        if(requireContext().isInternetAvailable){
+                        if (requireContext().isInternetAvailable) {
                             viewModel.loadArticles()
                         }
                     }
@@ -527,6 +531,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
+        //update visible items in adapter (changed might have been made in a different place)
         if (!hidden) {
             articlesAdapter.notifyItemRangeChanged(
                 (articlesRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),

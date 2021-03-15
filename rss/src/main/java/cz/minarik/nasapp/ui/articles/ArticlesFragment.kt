@@ -13,10 +13,8 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import cz.minarik.base.common.extensions.isScrolledToTop
-import cz.minarik.base.common.extensions.scrollToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.nasapp.R
@@ -48,12 +46,15 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val newArticlesFlow = DataStoreManager.getNewArticlesIDs()
 
-    private var notificationBadge: ViewGroup? = null
-    private var notificationBadgeTextView: TextView? = null
+    private var newArticlesBadge: ViewGroup? = null
+    private var newArticlesTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initBackPressHandling()
+    }
 
+    private fun initBackPressHandling() {
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             if ((requireActivity() as MainActivity).getCurrentFragment() != this@ArticlesFragment) {
                 (requireActivity() as MainActivity).goBack()
@@ -132,7 +133,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             (requireActivity() as MainActivity).showHideSourceSelection(false)
 
             lifecycleScope.launch {
-                DataStoreManager.setNewArticlesIDs(setOf())
+                DataStoreManager.resetNewArticleIDs()
             }
         }
         sourcesViewModel.selectedSourceName.observe {
@@ -144,7 +145,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
 
         sourcesViewModel.sourceRepository.sourcesChanged.toFreshLiveData().observe {
-            if (it) viewModel.loadArticles(updateFromServer = true)
+            if (it) viewModel.updateFromServer()
         }
 
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
@@ -164,12 +165,12 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             onOptionsItemSelected(newArticlesItem)
         }
 
-        if (notificationBadge == null) {
-            notificationBadge = notificationsActionView?.findViewById(R.id.notificationBadge)
+        if (newArticlesBadge == null) {
+            newArticlesBadge = notificationsActionView?.findViewById(R.id.notificationBadge)
         }
 
-        if (notificationBadgeTextView == null) {
-            notificationBadgeTextView =
+        if (newArticlesTextView == null) {
+            newArticlesTextView =
                 notificationsActionView?.findViewById(R.id.notificationCountTextView)
         }
     }
@@ -196,14 +197,14 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
     }
 
     private fun updateBadgeNumber(badgeNumber: Int?) {
-        notificationBadge?.isVisible = badgeNumber != null && badgeNumber > 0
+        newArticlesBadge?.isVisible = badgeNumber != null && badgeNumber > 0
         val countString =
             when {
                 badgeNumber == null -> ""
                 badgeNumber < 100 -> badgeNumber.toString()
                 else -> "99+"
             }
-        notificationBadgeTextView?.text = countString
+        newArticlesTextView?.text = countString
     }
 
 }

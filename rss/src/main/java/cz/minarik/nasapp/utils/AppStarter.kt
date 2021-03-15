@@ -13,7 +13,7 @@ object AppStarter {
         CoroutineScope(Dispatchers.Default).launch {
             //new articles found should always be 0 on app start
 //            DataStoreManager.setNewArticlesFound(0)
-            DataStoreManager.setNewArticlesIDs(setOf())
+            DataStoreManager.resetNewArticleIDs()
         }
     }
 }

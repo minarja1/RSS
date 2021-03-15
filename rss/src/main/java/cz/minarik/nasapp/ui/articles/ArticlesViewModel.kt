@@ -1,5 +1,6 @@
 package cz.minarik.nasapp.ui.articles
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.chimbori.crux.articles.Article
@@ -17,9 +18,7 @@ import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
-import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.custom.ArticleDTO
-import cz.minarik.nasapp.utils.RSSPrefManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -28,13 +27,11 @@ import timber.log.Timber
 import java.io.IOException
 
 class ArticlesViewModel(
-    private val context: Context,
+    @SuppressLint("StaticFieldLeak") private val context: Context,
     val articlesRepository: ArticlesRepository,
     private val articleDao: ArticleDao,
-    val prefManager: RSSPrefManager,
     private val sourceDao: RSSSourceDao,
     private val sourceListDao: RSSSourceListDao,
-    private val rssApiService: RssApiService,
 ) : BaseViewModel() {
 
     private var currentLoadingJob: Job? = null
@@ -65,9 +62,9 @@ class ArticlesViewModel(
         loadArticles(scrollToTop = false, updateFromServer = true)
     }
 
-    private fun updateFromServer() {
-        if (context.isInternetAvailable) {
-            launch {
+    fun updateFromServer() {
+        launch {
+            if (context.isInternetAvailable) {
                 articlesRepository.updateArticles(getSource(), true) {
                     loadArticles()
                 }

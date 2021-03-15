@@ -11,9 +11,9 @@ import cz.minarik.nasapp.ui.custom.ArticleListItemView
 import kotlinx.android.synthetic.main.article_list_item.view.*
 
 class ArticlesAdapter(
-    private var onItemClicked: (imageView: ImageView, titleTextView: TextView, position: Int) -> Unit,
+    private var onArticleClicked: (imageView: ImageView, titleTextView: TextView, position: Int) -> Unit,
     private var onItemLongClicked: (position: Int) -> Unit,
-    private var onItemExpanded: (position: Int) -> Unit,
+    private var onArticleExpanded: (position: Int) -> Unit,
     private var articleShown: (article: ArticleDTO) -> Unit,
     private var filterBySource: (url: String?) -> Unit,
 ) : BaseListAdapterNew<ArticleDTO>(
@@ -46,7 +46,7 @@ class ArticlesAdapter(
         val articleItemView = itemView.findViewById<ArticleListItemView>(R.id.articleListItem)
         articleItemView.set(item)
         articleItemView.setOnClickListener {
-            onItemClicked(
+            onArticleClicked(
                 articleItemView.articleFullImageView,
                 articleItemView.titleTextView,
                 viewHolder.adapterPosition
@@ -57,7 +57,7 @@ class ArticlesAdapter(
             true
         }
         articleItemView.onItemExpanded = {
-            onItemExpanded.invoke(position)
+            onArticleExpanded.invoke(position)
         }
         articleItemView.filterBySource = {
             filterBySource.invoke(it)

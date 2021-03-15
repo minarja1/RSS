@@ -1,8 +1,9 @@
 package cz.minarik.nasapp.data.datastore
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.createDataStore
+import androidx.datastore.preferences.preferencesDataStore
 import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.utils.*
@@ -11,57 +12,72 @@ import kotlinx.coroutines.flow.map
 
 object DataStoreManager {
 
-    private val dataStore: DataStore<Preferences> by lazy {
-        RSSApp.applicationContext.createDataStore(name = RSSApp.sharedInstance.dataStoreName)
+    private val context: Context by lazy {
+        RSSApp.applicationContext
     }
+
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(RSSApp.sharedInstance.dataStoreName)
 
     private const val SHOULD_SHOW_LP_HINT = "SHOULD_SHOW_LP_HINT"
     private const val ARTICLE_FILTER = "ARTICLE_FILTER"
     private const val INITIAL_SYNC_FINISHED = "INITIAL_SYNC_FINISHED"
     private const val INITIAL_ARTICLE_LOAD_FINISHED = "INITIAL_ARTICLE_LOAD_FINISHED"
     private const val NEW_ARTICLES_FOUND_IDS = "NEW_ARTICLES_FOUND_IDS"
+    private const val LAST_SOURCE_UPDATE = "LAST_SOURCE_UPDATE"
 
     fun getShouldShowLongPressHint(): Flow<Boolean> {
-        return dataStore.getBooleanData(SHOULD_SHOW_LP_HINT, true)
+        return context.dataStore.getBooleanData(SHOULD_SHOW_LP_HINT, true)
     }
 
     suspend fun setShouldShowLongPressHint(data: Boolean) {
-        dataStore.setBooleanData(SHOULD_SHOW_LP_HINT, data)
+        context.dataStore.setBooleanData(SHOULD_SHOW_LP_HINT, data)
     }
 
     fun getInitialSyncFinished(): Flow<Boolean> {
-        return dataStore.getBooleanData(INITIAL_SYNC_FINISHED)
+        return context.dataStore.getBooleanData(INITIAL_SYNC_FINISHED)
     }
 
     suspend fun setInitialSyncFinished(data: Boolean) {
-        dataStore.setBooleanData(INITIAL_SYNC_FINISHED, data)
+        context.dataStore.setBooleanData(INITIAL_SYNC_FINISHED, data)
     }
 
     fun getInitialArticleLoadFinished(): Flow<Boolean> {
-        return dataStore.getBooleanData(INITIAL_ARTICLE_LOAD_FINISHED)
+        return context.dataStore.getBooleanData(INITIAL_ARTICLE_LOAD_FINISHED)
     }
 
     suspend fun setInitialArticleLoadFinished(data: Boolean) {
-        dataStore.setBooleanData(INITIAL_ARTICLE_LOAD_FINISHED, data)
+        context.dataStore.setBooleanData(INITIAL_ARTICLE_LOAD_FINISHED, data)
+    }
+
+    fun getLastSourcesUpdate(): Flow<Long> {
+        return context.dataStore.getLongData(LAST_SOURCE_UPDATE)
+    }
+
+    suspend fun setLastSourcesUpdate(data: Long) {
+        context.dataStore.setLongData(LAST_SOURCE_UPDATE, data)
     }
 
     fun getArticleFilter(): Flow<ArticleFilterType> {
-        return dataStore.getStringData(ARTICLE_FILTER).map {
+        return context.dataStore.getStringData(ARTICLE_FILTER).map {
             ArticleFilterType.fromKey(it) ?: ArticleFilterType.All
         }
     }
 
     suspend fun setArticleFilter(filter: ArticleFilterType) {
-        dataStore.setStringData(ARTICLE_FILTER, filter.key)
+        context.dataStore.setStringData(ARTICLE_FILTER, filter.key)
     }
 
-
     suspend fun setNewArticlesIDs(newArticles: Set<String>) {
-        dataStore.setStringSetData(NEW_ARTICLES_FOUND_IDS, newArticles)
+        context.dataStore.setStringSetData(NEW_ARTICLES_FOUND_IDS, newArticles)
+    }
+
+    suspend fun resetNewArticleIDs() {
+        context.dataStore.setStringSetData(NEW_ARTICLES_FOUND_IDS, setOf())
     }
 
     fun getNewArticlesIDs(): Flow<Set<String>> {
-        return dataStore.getStringSetData(NEW_ARTICLES_FOUND_IDS)
+        return context.dataStore.getStringSetData(NEW_ARTICLES_FOUND_IDS)
     }
+
 }
 

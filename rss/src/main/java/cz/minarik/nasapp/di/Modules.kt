@@ -12,7 +12,6 @@ import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailViewModel
 import cz.minarik.nasapp.ui.sources.manage.source_detail.SourceListDetailViewModel
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
-import cz.minarik.nasapp.utils.RSSPrefManager
 import me.toptas.rssconverter.RssConverterFactory
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -26,8 +25,6 @@ val appModule = module {
     viewModel {
         ArticlesViewModel(
             androidContext(),
-            get(),
-            get(),
             get(),
             get(),
             get(),
@@ -53,10 +50,7 @@ val appModule = module {
     }
 
     single {
-        RSSPrefManager(androidContext())
-    }
-    single {
-        RSSSourceRepository(androidContext(), get(), get(), get())
+        RSSSourceRepository(androidContext(), get(), get())
     }
     single {
         ArticlesRepository(get(), get())

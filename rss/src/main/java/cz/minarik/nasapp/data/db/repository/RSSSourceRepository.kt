@@ -19,6 +19,7 @@ import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.utils.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import java.net.URL
 import java.nio.charset.Charset
@@ -28,7 +29,6 @@ class RSSSourceRepository(
     private val context: Context,
     private val sourceDao: RSSSourceDao,
     private val sourceListDao: RSSSourceListDao,
-    private val prefManager: RSSPrefManager,
 ) : BaseRepository(),
     RealtimeDatabaseQueryListener<List<RealtimeDatabaseHelper.RssFeedDTO>> {
 
@@ -88,12 +88,12 @@ class RSSSourceRepository(
                 }
             }
 
-            val shouldUpdate =
-                System.currentTimeMillis() - prefManager.lastSourcesUpdate >= Constants.sourcesUpdateGap
+            val shouldUpdate = System.currentTimeMillis() - DataStoreManager.getLastSourcesUpdate().first() >= Constants.sourcesUpdateGap
 
             //create or update existing
             allFromServer.map { feed ->
                 async {
+
                     feed?.url?.let { feedUrl ->
                         try {
                             var entity = sourceDao.getByUrl(feedUrl)
@@ -153,6 +153,8 @@ class RSSSourceRepository(
                     }
                 }
             }.awaitAll()
+
+            if(shouldUpdate) DataStoreManager.setLastSourcesUpdate(System.currentTimeMillis())
 
             val newDb = sourceDao.getNonUserAdded()
             if (!compareLists(allDB, newDb)) {
