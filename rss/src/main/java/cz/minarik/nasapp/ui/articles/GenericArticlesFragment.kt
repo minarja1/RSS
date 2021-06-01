@@ -209,6 +209,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             onArticleClicked = ::onArticleClicked,
             onItemLongClicked = ::onArticleLongClicked,
             onArticleExpanded = ::onArticleExpanded,
+            onContactInfoClicked = ::onContactInfoClicked,
             filterBySource = { it?.let { filterBySource(it) } },
             articleShown = {
                 lifecycleScope.launch {
@@ -226,6 +227,14 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 //                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
             }
         )
+    }
+
+    private fun onContactInfoClicked(position: Int) {
+        val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
+        val article = adapter?.getItemAtPosition(position)
+        article?.sourceUrl?.let {
+            (requireActivity() as MainActivity).navigateToSourceDetail(it)
+        }
     }
 
     private fun filterBySource(sourceUrl: String) {

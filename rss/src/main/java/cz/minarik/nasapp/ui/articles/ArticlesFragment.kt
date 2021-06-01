@@ -175,24 +175,13 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
     }
 
-    //todo move to base!
-    protected fun <T> Flow<T>.collectWhenStarted(function: (value: T) -> Unit) {
-        this.let { flow ->
-            lifecycleScope.launchWhenStarted {
-                flow.collect {
-                    function.invoke(it)
-                }
-            }
-        }
-    }
-
     private fun initSwipeToRefresh() {
         swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadArticles(
                 scrollToTop = false,
-                updateFromServer = true,
                 isFromSwipeRefresh = true
             )
+            viewModel.updateFromServer()
         }
     }
 

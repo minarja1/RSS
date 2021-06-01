@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    api 'com.github.minarja1:Base:v1.0.5'
+    api 'com.github.minarja1:Base:v1.0.9'
     implementation 'com.prof.rssparser:rssparser:3.1.1'
 
     api platform('com.google.firebase:firebase-bom:26.4.0')
@@ -82,9 +82,6 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.2.0-beta02"
 
     implementation 'androidx.webkit:webkit:1.4.0'
-
-//    todo move to base
-    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha07"
 
     implementation "com.rometools:rome:1.15.0"
 

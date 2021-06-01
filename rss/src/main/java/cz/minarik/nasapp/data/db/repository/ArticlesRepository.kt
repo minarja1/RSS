@@ -104,9 +104,10 @@ class ArticlesRepository(
     suspend fun updateArticles(
         selectedSource: RSSSource?,
         notifyNewArticles: Boolean = false,
-        onFinished: (() -> Unit)? = null
+        coroutineScope: CoroutineScope,
+        onFinished: (() -> Unit)? = null,
     ) {
-        CoroutineScope(Dispatchers.Default).launch {
+        coroutineScope.launch {
             state.postValue(Loading)
 
             val currentNewest = dao.getNewest().firstOrNull()?.date
@@ -166,18 +167,17 @@ class ArticlesRepository(
             }
         }
 
-        val mapped = fromDB.map { entity ->
+        return fromDB.map { entity ->
             ArticleDTO.fromDb(entity).apply {
                 guid?.let { guid ->
                     showSource = selectedSource?.isList ?: false
-                    this.sourceUrl?.let {
+                    sourceUrl?.let {
                         openExternally =
                             sourceDao.getByUrl(it)?.forceOpenExternally ?: false
                     }
                 }
             }
         }
-        return mapped
     }
 
 }

@@ -201,7 +201,6 @@ val Article.imgUrlSafe: String?
         "https://"
     )
 
-//todo move to base
 fun SyndEntry.guid(): String {
     return "$title$publishedDate"
 }

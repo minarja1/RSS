@@ -156,6 +156,21 @@
                             android:textSize="14sp"
                             tools:text="26. 01. 1994" />
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:ellipsize="end"
+                            android:lines="1"
+                            android:maxLines="1"
+                            android:minLines="1"
+                            android:textAppearance="@style/TextAppearance.Universe.Subtitle"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="14sp"
+                            app:drawableEndCompat="@drawable/ic_24_arrow_next"
+                            app:drawableTint="@color/colorAccent"
+                            android:text="@string/publisher_contact_info"/>
+
                     </LinearLayout>
 
                 </LinearLayout>

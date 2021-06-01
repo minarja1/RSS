@@ -8,6 +8,8 @@ import com.chimbori.crux.articles.ArticleExtractor
 import cz.minarik.base.common.extensions.isInternetAvailable
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
+import cz.minarik.nasapp.R
+import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
@@ -27,7 +29,6 @@ import timber.log.Timber
 import java.io.IOException
 
 class ArticlesViewModel(
-    @SuppressLint("StaticFieldLeak") private val context: Context,
     val articlesRepository: ArticlesRepository,
     private val articleDao: ArticleDao,
     private val sourceDao: RSSSourceDao,
@@ -59,13 +60,14 @@ class ArticlesViewModel(
     var isFromSwipeRefresh: Boolean = false
 
     init {
-        loadArticles(scrollToTop = false, updateFromServer = true)
+        loadArticles(scrollToTop = false)
+        updateFromServer()
     }
 
     fun updateFromServer() {
         launch {
-            if (context.isInternetAvailable) {
-                articlesRepository.updateArticles(getSource(), true) {
+            if (RSSApp.applicationContext.isInternetAvailable) {
+                articlesRepository.updateArticles(getSource(), true, defaultScope) {
                     loadArticles()
                 }
             }
@@ -74,7 +76,6 @@ class ArticlesViewModel(
 
     fun loadArticles(
         scrollToTop: Boolean = false,
-        updateFromServer: Boolean = false,//init; sourcesChanged; swipeToRefresh; selectedSource;
         isFromSwipeRefresh: Boolean = false,
     ) {
         state.postValue(NetworkState.LOADING)
@@ -120,8 +121,6 @@ class ArticlesViewModel(
                 val duration = System.currentTimeMillis() - startTime
 
                 Timber.i("ViewModel: loading articles finished in $duration ms")
-
-                if (updateFromServer) updateFromServer()
 
                 this@ArticlesViewModel.isFromSwipeRefresh = false
             } catch (e: IOException) {
@@ -281,7 +280,7 @@ class ArticlesViewModel(
         } ?: sourceListDao.getSelected()?.let {
             RSSSource.fromEntity(it)
         } ?: RSSSourceRepository.createFakeListItem(
-            context,
+            RSSApp.applicationContext.getString(R.string.all_articles),
             sourceDao.getAllUnblocked().map { it.url },
             true
         )
@@ -295,7 +294,8 @@ class ArticlesViewModel(
 
     fun loadSelectedSource(sourceUrl: String) {
         this.sourceUrl = sourceUrl
-        loadArticles(scrollToTop = false, updateFromServer = true)
+        loadArticles(scrollToTop = false)
+        updateFromServer()
         launch {
             selectedSource = sourceDao.getByUrl(sourceUrl)
             selectedSourceName.postValue(selectedSource?.title)
