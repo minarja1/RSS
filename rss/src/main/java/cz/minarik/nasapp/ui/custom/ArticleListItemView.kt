@@ -5,7 +5,6 @@ import android.text.style.ImageSpan
 import android.util.AttributeSet
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.animation.doOnEnd
@@ -35,6 +34,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     var articleFullImageView: ImageView
 
     var onItemExpanded: (() -> Unit)? = null
+    var onContactInfoClicked: (() -> Unit)? = null
     var filterBySource: ((url: String?) -> Unit)? = null
 
 
@@ -56,6 +56,9 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         inflate(context, R.layout.article_list_item, this)
         articleFullImageView = findViewById(R.id.articleFullImageView)
         subtitleTextView.handleHTML(context)
+        contactInfoTextView.setOnClickListener {
+            onContactInfoClicked?.invoke()
+        }
     }
 
     fun set(article: ArticleDTO) {
@@ -210,6 +213,8 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             dateContainer.setPadding(0, contentPaddingSmall, 0, 0)
 
             expandButton.load(if (finalExpanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
+
+            contactInfoTextView.isVisible = finalExpanded
         }
     }
 }

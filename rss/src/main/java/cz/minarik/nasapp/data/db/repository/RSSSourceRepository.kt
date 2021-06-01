@@ -36,12 +36,12 @@ class RSSSourceRepository(
         const val cacheExpirationMillis = 1000L * 60L * 60L * 24 // 1 day
 
         fun createFakeListItem(
-            context: Context,
+            title: String,
             allUrls: List<String>,
             selected: Boolean
         ): RSSSource {
             return RSSSource(
-                context.getString(R.string.all_articles),
+                title,
                 allUrls,
                 imageUrl = null,
                 selected,
@@ -212,7 +212,7 @@ class RSSSourceRepository(
         unselectAllSources()
     }
 
-    suspend fun unselectAll() {
+    suspend fun unSelectAll() {
         unselectAllLists()
         unselectAllSources()
     }

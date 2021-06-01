@@ -3,6 +3,7 @@ package cz.minarik.nasapp.ui.sources.selection
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import cz.minarik.base.di.base.BaseViewModel
+import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
@@ -84,7 +85,7 @@ class SourcesViewModel(
             allLists.add(
                 0,
                 RSSSourceRepository.createFakeListItem(
-                    context,
+                    context.getString(R.string.all_articles),
                     allSources.map { it.URLs[0] },
                     !selectedSourceFound
                 )
@@ -103,7 +104,7 @@ class SourcesViewModel(
         launch {
             when {
                 sourceSelection.isFake -> {
-                    sourceRepository.unselectAll()
+                    sourceRepository.unSelectAll()
                 }
                 sourceSelection.isList -> {
                     sourceSelection.listId?.let {

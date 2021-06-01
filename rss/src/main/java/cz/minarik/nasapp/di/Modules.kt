@@ -24,7 +24,6 @@ val appModule = module {
 
     viewModel {
         ArticlesViewModel(
-            androidContext(),
             get(),
             get(),
             get(),
