@@ -3,8 +3,10 @@ package cz.minarik.nasapp.data.datastore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import cz.minarik.base.common.extensions.*
+import cz.minarik.base.common.prefs.PrefManager
 import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.utils.*

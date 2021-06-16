@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.*
+import cz.minarik.base.common.prefs.PrefManager
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
@@ -229,12 +230,15 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         )
     }
 
+
+
     private fun onContactInfoClicked(position: Int) {
         val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
         val article = adapter?.getItemAtPosition(position)
         article?.sourceUrl?.let {
             (requireActivity() as MainActivity).navigateToSourceDetail(it)
         }
+
     }
 
     private fun filterBySource(sourceUrl: String) {

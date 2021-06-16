@@ -35,7 +35,11 @@ class ArticlesAdapter(
     }
 
     fun getItemAtPosition(position: Int): ArticleDTO? {
-        return getItem(position)
+        return try {
+            getItem(position)
+        } catch (e: Exception) {//sometimes will randomly throw AIOOB
+            null
+        }
     }
 
     override fun bind(

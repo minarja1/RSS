@@ -12,16 +12,23 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            debuggable false
+            minifyEnabled true
+            manifestPlaceholders = [crashlyticsCollectionEnabled:"true"]
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            debuggable true
+            minifyEnabled false
+            ext.enableCrashlytics = false
+            manifestPlaceholders = [crashlyticsCollectionEnabled:"false"]
         }
     }
     compileOptions {
@@ -30,21 +37,29 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        useIR = true
     }
 
+    buildFeatures {
+        // Enables Jetpack Compose for this module
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion "$compose_version"
+    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     api 'com.github.minarja1:Base:v1.0.9'
-    implementation 'com.prof.rssparser:rssparser:3.1.1'
+    implementation 'com.prof18.rssparser:rssparser:3.1.2'
 
     api platform('com.google.firebase:firebase-bom:26.4.0')
     api 'com.google.firebase:firebase-analytics-ktx'
@@ -53,7 +68,7 @@ dependencies {
 
 
     //ROOM
-    def room_version = "2.2.6"
+    def room_version = "2.3.0"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     // optional - Kotlin Extensions and Coroutines support for Room
@@ -66,7 +81,7 @@ dependencies {
     implementation 'com.chimbori.crux:crux:3.0.0'
     implementation 'org.jsoup:jsoup:1.13.1'
 
-    implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.1'
+//    implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.1'
 
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
@@ -79,10 +94,37 @@ dependencies {
     implementation 'com.liaoinstan.springview:library:1.7.0'
 
     implementation "com.airbnb.android:lottie:3.5.0"
-    implementation "androidx.recyclerview:recyclerview:1.2.0-beta02"
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
 
     implementation 'androidx.webkit:webkit:1.4.0'
 
     implementation "com.rometools:rome:1.15.0"
 
+    //COMPOSE <3
+    api "androidx.compose.ui:ui:$compose_version"
+    // Tooling support (Previews, etc.)
+    api "androidx.compose.ui:ui-tooling:$compose_version"
+    // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
+    api "androidx.compose.foundation:foundation:$compose_version"
+    // Material Design
+    api "androidx.compose.material:material:$compose_version"
+    // Material design icons
+    api "androidx.compose.material:material-icons-core:$compose_version"
+    api "androidx.compose.material:material-icons-extended:$compose_version"
+    // Integration with activities
+    api 'androidx.activity:activity-compose:1.3.0-beta01'
+    // Integration with ViewModels
+    api 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha06'
+    // Integration with observables
+    api "androidx.compose.runtime:runtime:$compose_version"
+    api "androidx.compose.runtime:runtime-livedata:$compose_version"
+    api "androidx.compose.runtime:runtime-rxjava2:$compose_version"
+    // UI Tests
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+
+
+    // Coroutines
+    def coroutines_version = '1.5.0'
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 }
