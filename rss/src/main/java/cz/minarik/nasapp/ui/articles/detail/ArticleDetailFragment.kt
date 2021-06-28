@@ -178,14 +178,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
         toolbarExpandedImage.loadImageWithDefaultSettings(articleDTO.image)
         fakeTitleTextView.text = articleDTO.title
 
-//        toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
-//        fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
-
-//        val navController = NavHostFragment.findNavController(this)
-//        val appBarConfiguration = AppBarConfiguration(navController.graph)
-//
-//        toolbarLayout.setupWithNavController(toolbar, navController, appBarConfiguration)
-
         toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT)
 
         try {
@@ -394,9 +386,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        sharedElementEnterTransition =
-            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-        sharedElementReturnTransition = null
     }
 
 }
