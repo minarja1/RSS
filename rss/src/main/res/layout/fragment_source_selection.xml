@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<!--    to cover up bottom rounded corners-->
+    <!--    to cover up bottom rounded corners-->
     <View
         android:layout_width="match_parent"
         android:layout_height="20dp"
@@ -42,6 +42,7 @@
                     android:background="@color/colorBackground"
                     android:clickable="true"
                     android:focusable="true"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="12dp">
@@ -52,11 +53,14 @@
                         android:src="@drawable/ic_baseline_rss_feed_24" />
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginStart="6dp"
+                        android:layout_weight="1"
                         android:text="@string/select_source"
                         android:textAppearance="@style/TextAppearance.Universe.Body2" />
+
 
                 </LinearLayout>
 

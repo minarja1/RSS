@@ -18,14 +18,12 @@ android {
 
     buildTypes {
         release {
-            debuggable false
             minifyEnabled true
             manifestPlaceholders = [crashlyticsCollectionEnabled:"true"]
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
         debug {
-            debuggable true
             minifyEnabled false
             ext.enableCrashlytics = false
             manifestPlaceholders = [crashlyticsCollectionEnabled:"false"]

@@ -13,6 +13,7 @@ import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.ui.settings.SettingsFragment
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
@@ -84,7 +85,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun replaceFragment(
-        fragment: BaseFragment,
+        fragment: Fragment,
         vararg sharedElements: Pair<View, String>,
     ) {
         if (supportFragmentManager.executePendingTransactions()) return
@@ -171,5 +172,9 @@ class MainActivity : AppCompatActivity() {
 
     fun navigateToSourceDetail(sourceUrl: String) {
         replaceFragment(SourceDetailFragment.newInstance(sourceUrl))
+    }
+
+    fun navigateToSettings() {
+        replaceFragment(SettingsFragment.newInstance())
     }
 }

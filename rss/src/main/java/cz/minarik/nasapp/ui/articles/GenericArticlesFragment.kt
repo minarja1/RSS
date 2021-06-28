@@ -28,7 +28,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.*
-import cz.minarik.base.common.prefs.PrefManager
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
@@ -229,7 +228,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             }
         )
     }
-
 
 
     private fun onContactInfoClicked(position: Int) {
@@ -454,6 +452,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             }
             R.id.newArticlesAction -> {
                 scrollToTop()
+                true
+            }
+            R.id.settingsAction -> {
+                (requireActivity() as MainActivity).navigateToSettings()
                 true
             }
             else -> super.onOptionsItemSelected(item)

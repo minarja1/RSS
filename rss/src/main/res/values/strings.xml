@@ -50,4 +50,6 @@
     <string name="new_articles">New articles</string>
     <string name="select_source">Select source</string>
     <string name="publisher_contact_info">Publisher contact information</string>
+    <string name="settings">Settings</string>
+    <string name="back">back</string>
 </resources>

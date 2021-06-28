@@ -8,7 +8,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.TransitionInflater
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.RSSApp
@@ -86,7 +85,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
 
         articleSourcesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-
 
         val manageSourcesAdapter = ArticleSourceButtonAdapter(
             listOf(
