@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorBackground"
+    android:orientation="vertical">
+
+    <include layout="@layout/layout_appbar_toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.RSS.SettingsSection"
+            android:text="@string/appearance"
+            app:drawableStartCompat="@drawable/ic_baseline_palette_24"
+            app:drawableTint="@color/textColorSecondary"
+            android:drawablePadding="8dp"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/expandAllCardsSwitch"
+            android:layout_width="match_parent"
+            android:layout_marginStart="2dp"
+            android:textSize="16sp"
+            android:layout_height="match_parent"
+            android:text="@string/expand_all_cards"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
+            android:text="@string/notifications"
+            app:drawableTint="@color/textColorSecondary"
+            android:textAppearance="@style/TextAppearance.RSS.SettingsSection"
+            app:drawableStartCompat="@drawable/ic_baseline_notifications_24"
+            android:drawablePadding="8dp"/>
+
+
+        <TextView
+            android:id="@+id/notificationsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="2dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/notification_settings"
+            android:textSize="16sp"
+            android:textColor="@color/textColorPrimary"
+            app:drawableEndCompat="@drawable/ic_24_arrow_next"
+            app:drawableTint="@color/colorAccent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/general"
+            android:layout_marginTop="8dp"
+            app:drawableTint="@color/textColorSecondary"
+            android:textAppearance="@style/TextAppearance.RSS.SettingsSection"
+            app:drawableStartCompat="@drawable/ic_baseline_settings_24"
+            android:drawablePadding="8dp"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/openBrowserSwitch"
+            android:layout_width="match_parent"
+            android:layout_marginStart="2dp"
+            android:textSize="16sp"
+            android:layout_height="match_parent"
+            android:text="@string/open_articles_in_browser"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/useExternalBrowserSwitch"
+            android:layout_width="match_parent"
+            android:layout_marginStart="2dp"
+            android:textSize="16sp"
+            android:layout_height="match_parent"
+            android:text="@string/use_external_browser"/>
+
+    </LinearLayout>
+</LinearLayout>

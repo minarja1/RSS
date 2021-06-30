@@ -22,11 +22,38 @@ object DataStoreManager {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(RSSApp.sharedInstance.dataStoreName)
 
     private const val SHOULD_SHOW_LP_HINT = "SHOULD_SHOW_LP_HINT"
+    private const val EXPAND_ALL_CARDS = "EXPAND_ALL_CARDS"
+    private const val OPEN_ARTICLES_BROWSER = "OPEN_ARTICLES_BROWSER"
+    private const val EXTERNAL_BROWSER = "EXTERNAL_BROWSER"
     private const val ARTICLE_FILTER = "ARTICLE_FILTER"
     private const val INITIAL_SYNC_FINISHED = "INITIAL_SYNC_FINISHED"
     private const val INITIAL_ARTICLE_LOAD_FINISHED = "INITIAL_ARTICLE_LOAD_FINISHED"
     private const val NEW_ARTICLES_FOUND_IDS = "NEW_ARTICLES_FOUND_IDS"
     private const val LAST_SOURCE_UPDATE = "LAST_SOURCE_UPDATE"
+
+    fun getUseExternalBrowser(): Flow<Boolean> {
+        return context.dataStore.getBooleanData(EXTERNAL_BROWSER, false)
+    }
+
+    suspend fun setUseExternalBrowser(data: Boolean) {
+        context.dataStore.setBooleanData(EXTERNAL_BROWSER, data)
+    }
+
+    fun getOpenArticlesInBrowser(): Flow<Boolean> {
+        return context.dataStore.getBooleanData(OPEN_ARTICLES_BROWSER, false)
+    }
+
+    suspend fun setOpenArticlesInBrowser(data: Boolean) {
+        context.dataStore.setBooleanData(OPEN_ARTICLES_BROWSER, data)
+    }
+
+    fun getExpandAllCards(): Flow<Boolean> {
+        return context.dataStore.getBooleanData(EXPAND_ALL_CARDS, false)
+    }
+
+    suspend fun setExpandAllCards(data: Boolean) {
+        context.dataStore.setBooleanData(EXPAND_ALL_CARDS, data)
+    }
 
     fun getShouldShowLongPressHint(): Flow<Boolean> {
         return context.dataStore.getBooleanData(SHOULD_SHOW_LP_HINT, true)

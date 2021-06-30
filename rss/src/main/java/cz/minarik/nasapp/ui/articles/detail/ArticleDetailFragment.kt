@@ -2,6 +2,7 @@ package cz.minarik.nasapp.ui.articles.detail
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
@@ -14,7 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.transition.TransitionInflater
+import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import coil.load
@@ -25,11 +26,15 @@ import cz.minarik.base.data.Status
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import timber.log.Timber
 import java.net.MalformedURLException
@@ -102,8 +107,14 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     }
 
     private fun openWebsite() {
-        articleDTO.link?.toUri()?.let {
-            requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+        lifecycleScope.launch {
+            articleDTO.link?.toUri()?.let {
+                if (DataStoreManager.getUseExternalBrowser().first()) {
+                    startActivity(Intent(Intent.ACTION_VIEW, it))
+                } else {
+                    requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+                }
+            }
         }
     }
 

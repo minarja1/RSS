@@ -19,7 +19,6 @@ import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.startCircularReveal
 import kotlinx.android.synthetic.main.fragment_source_selection.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -68,11 +67,8 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
             sourcesAdapter.submitList(sources)
         }
 
-        //todo use Base extension
-        lifecycleScope.launchWhenStarted {
-            DataStoreManager.getShouldShowLongPressHint().collect {
-                longPressHint.isVisible = it
-            }
+        DataStoreManager.getShouldShowLongPressHint().collectWhenStarted {
+            longPressHint.isVisible = it
         }
     }
 

@@ -29,12 +29,37 @@
                 android:orientation="vertical">
 
 
-                <ImageView
-                    android:id="@+id/articleFullImageView"
+                <FrameLayout
+                    android:id="@+id/articleFullImageContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/article_list_item_expanded_image_height"
-                    android:scaleType="centerCrop"
-                    tools:src="@tools:sample/backgrounds/scenic" />
+                    android:layout_height="@dimen/article_list_item_expanded_image_height">
+
+                    <ImageView
+                        android:id="@+id/articleFullImageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/article_list_item_expanded_image_height"
+                        android:scaleType="centerCrop"
+                        tools:src="@tools:sample/backgrounds/scenic" />
+
+                    <TextView
+                        android:id="@+id/titleTextViewExpanded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/gradient_bottom"
+                        android:ellipsize="end"
+                        android:lines="3"
+                        android:maxLines="3"
+                        android:minLines="1"
+                        android:paddingHorizontal="16dp"
+                        android:paddingTop="56dp"
+                        android:textAppearance="@style/TextAppearance.Universe.Title"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        tools:text="Thekokft!" />
+
+                </FrameLayout>
 
                 <LinearLayout
                     android:id="@+id/contentLayout"
@@ -44,7 +69,7 @@
                     android:padding="8dp">
 
                     <TextView
-                        android:id="@+id/titleTextView"
+                        android:id="@+id/titleTextViewCollapsed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
@@ -56,13 +81,13 @@
                         android:textColor="@color/textColorPrimary"
                         android:textSize="16dp"
                         android:textStyle="bold"
+                        android:visibility="gone"
                         tools:text="Thekokft!" />
 
                     <TextView
                         android:id="@+id/subtitleTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
                         android:layout_marginBottom="4dp"
                         android:ellipsize="end"
                         android:maxLines="10"
@@ -150,8 +175,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:clickable="true"
-                            android:focusable="true"
                             android:ellipsize="end"
+                            android:focusable="true"
                             android:lines="1"
                             android:maxLines="1"
                             android:minLines="1"
@@ -162,7 +187,7 @@
                             android:textColor="@color/textColorSecondary"
                             android:textSize="14sp"
                             app:drawableEndCompat="@drawable/ic_24_arrow_next"
-                            app:drawableTint="@color/colorAccent"/>
+                            app:drawableTint="@color/colorAccent" />
 
 
                     </LinearLayout>

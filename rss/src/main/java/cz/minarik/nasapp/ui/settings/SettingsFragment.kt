@@ -1,99 +1,80 @@
 package cz.minarik.nasapp.ui.settings
 
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.data.datastore.DataStoreManager
+import kotlinx.android.synthetic.main.fragment_settings.*
+import kotlinx.coroutines.launch
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : BaseFragment(R.layout.fragment_settings) {
 
     companion object {
         fun newInstance(): SettingsFragment = SettingsFragment()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                MaterialTheme {
-                    Surface(color = MaterialTheme.colors.background) {
-                        SettingsScreen();
-                    }
-                }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initViews(view)
+    }
+
+    private fun initViews(view: View) {
+        (requireActivity() as AppCompatActivity).run {
+            setSupportActionBar(view.findViewById(R.id.toolbar))
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.title = requireContext().getString(R.string.settings)
+        }
+
+        DataStoreManager.getExpandAllCards().collectWhenStarted {
+            expandAllCardsSwitch.isChecked = it
+        }
+        expandAllCardsSwitch.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                DataStoreManager.setExpandAllCards(isChecked)
             }
         }
-    }
 
+        DataStoreManager.getOpenArticlesInBrowser().collectWhenStarted {
+            openBrowserSwitch.isChecked = it
+        }
+        openBrowserSwitch.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                DataStoreManager.setOpenArticlesInBrowser(isChecked)
+            }
+        }
 
-    @Composable
-    fun Toolbar() {
-        TopAppBar(
-            title = {
-                Text(
-                    text = stringResource(id = R.string.settings),
-                    color = colorResource(id = R.color.colorOnSurface)
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = {
-                    (requireActivity() as MainActivity).goBack()
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.ic_action_navigation_arrow_back),
-                        contentDescription = null
-                    )
-                }
-            },
-            backgroundColor = colorResource(id = R.color.colorBackground),
-            contentColor = colorResource(id = R.color.colorOnBackground)
-        )
-    }
+        DataStoreManager.getUseExternalBrowser().collectWhenStarted {
+            useExternalBrowserSwitch.isChecked = it
+        }
+        useExternalBrowserSwitch.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                DataStoreManager.setUseExternalBrowser(isChecked)
+            }
+        }
 
-    @Composable
-    fun SettingsScreen() {
-        Scaffold(
-            topBar = {
-                Toolbar()
-            }, content = {
-                SettingsContent()
-            })
-    }
-
-    @Composable
-    fun SettingsContent() {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
-                .background(colorResource(id = R.color.colorBackground))
-        ) {
-
+        notificationsTextView.setOnClickListener {
+            Snackbar.make(notificationsTextView, R.string.coming_soon, Snackbar.LENGTH_LONG).show()
         }
     }
 
-    @Preview(showBackground = true)
-    @Composable
-    fun DefaultPreview() {
-        MaterialTheme {
-            SettingsScreen();
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                requireActivity().onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

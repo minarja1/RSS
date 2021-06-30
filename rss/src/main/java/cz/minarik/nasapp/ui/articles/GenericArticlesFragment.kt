@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.ui.articles
 
 import android.content.ComponentName
+import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -129,6 +130,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 R.color.colorSurface
             )
         )
+
     }
 
     private fun initSearchView() {
@@ -294,28 +296,36 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun onArticleClicked(imageView: ImageView, titleTextView: TextView, position: Int) {
-        val articlesAdapter = articlesRecyclerView?.adapter as? ArticlesAdapter
-        articlesAdapter?.getItemAtPosition(position)?.run {
-            read = true
-            viewModel.markArticleAsReadOrUnread(this, true)
-            link?.toUri()?.let {
-                if (openExternally) {
-                    link?.toUri()?.let { requireContext().openCustomTabs(it) }
-                } else {
-                    imageView.transitionName = this.guid?.toImageSharedTransitionName()
-                    titleTextView.transitionName =
-                        this.guid?.toTitleSharedTransitionName()
-                    navigateToArticleDetail(
-                        this,
-                        position,
-                        imageView to (this.guid?.toImageSharedTransitionName() ?: ""),
-                        titleTextView to (this.guid?.toTitleSharedTransitionName()
-                            ?: ""),
-                    )
+        lifecycleScope.launch {
+            val articlesAdapter = articlesRecyclerView?.adapter as? ArticlesAdapter
+            articlesAdapter?.getItemAtPosition(position)?.run {
+                read = true
+                viewModel.markArticleAsReadOrUnread(this, true)
+                link?.toUri()?.let {
+                    if (openExternally || DataStoreManager.getOpenArticlesInBrowser().first()) {
+                        link?.toUri()?.let {
+                            if (DataStoreManager.getUseExternalBrowser().first()) {
+                                startActivity(Intent(Intent.ACTION_VIEW, it))
+                            } else {
+                                requireContext().openCustomTabs(it)
+                            }
+                        }
+                    } else {
+                        imageView.transitionName = this.guid?.toImageSharedTransitionName()
+                        titleTextView.transitionName =
+                            this.guid?.toTitleSharedTransitionName()
+                        navigateToArticleDetail(
+                            this,
+                            position,
+                            imageView to (this.guid?.toImageSharedTransitionName() ?: ""),
+                            titleTextView to (this.guid?.toTitleSharedTransitionName()
+                                ?: ""),
+                        )
+                    }
                 }
             }
+            articlesAdapter?.notifyItemChanged(position)
         }
-        articlesAdapter?.notifyItemChanged(position)
     }
 
 

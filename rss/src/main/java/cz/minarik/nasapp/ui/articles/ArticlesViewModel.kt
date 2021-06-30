@@ -1,7 +1,5 @@
 package cz.minarik.nasapp.ui.articles
 
-import android.annotation.SuppressLint
-import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.chimbori.crux.articles.Article
 import com.chimbori.crux.articles.ArticleExtractor
@@ -22,6 +20,7 @@ import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
@@ -62,6 +61,13 @@ class ArticlesViewModel(
     init {
         loadArticles(scrollToTop = false)
         updateFromServer()
+
+
+        launch {
+            DataStoreManager.getExpandAllCards().collect {
+                loadArticles()
+            }
+        }
     }
 
     fun updateFromServer() {
@@ -140,6 +146,12 @@ class ArticlesViewModel(
         result.firstOrNull()?.run {
             expandable = false
             expanded = true
+        }
+
+        if (DataStoreManager.getExpandAllCards().first()) {
+            for (articleDTO in result) {
+                articleDTO.expanded = true
+            }
         }
         return result
     }

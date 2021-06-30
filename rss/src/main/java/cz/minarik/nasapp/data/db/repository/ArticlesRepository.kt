@@ -75,7 +75,7 @@ class ArticlesRepository(
                     }
                 } else {
                     val articles = parser.getChannel(source.url).articles
-                    //todo take n? to optimizebu
+                    //todo take n? to optimize
                     articles.forEach {
                         it.sourceUrl = source.url
                         it.sourceName = source.title

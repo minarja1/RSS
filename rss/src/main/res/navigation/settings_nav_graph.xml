@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="cz.minarik.nasapp.ui.settings.SettingsFragment"
+        android:name="cz.minarik.nasapp.ui.settings.SettingsFragmentCompose"
         android:label="@string/settings_title" />
 
 

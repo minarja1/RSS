@@ -76,7 +76,7 @@ open class StateView @JvmOverloads constructor(
     }
 
     protected fun viewPrepare() {
-        titleTextView.apply {
+        titleTextViewCollapsed.apply {
             isVisible = !title.isNullOrEmpty()
             text = title
         }

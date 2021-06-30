@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.content.ContextCompat
@@ -78,12 +79,25 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             )
         )
 
-        titleTextView.setTextColor(
+        titleTextViewCollapsed.setTextColor(
             ContextCompat.getColor(
                 context,
                 if (article.read) R.color.textColorSecondary else R.color.textColorPrimary
             )
         )
+
+        titleTextViewExpanded.setTextColor(
+            ContextCompat.getColor(
+                context,
+                if (article.read) R.color.textColorSecondary else R.color.textColorPrimary
+            )
+        )
+        titleTextViewExpanded.background =
+            AppCompatResources.getDrawable(
+                context,
+                if (article.read) R.drawable.gradient_bottom else R.drawable.gradient_bottom_color_surface
+            )
+
         cardView.setCardBackgroundColor(
             ContextCompat.getColor(
                 context,
@@ -91,7 +105,8 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             )
         )
 
-        titleTextView.text = article.title
+        titleTextViewCollapsed.text = article.title
+        titleTextViewExpanded.text = article.title
         dateTextView.text = article.date?.toTimeElapsed()
 
         articleFullImageView.loadImageWithDefaultSettings(
@@ -130,7 +145,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
         changeExpandedViewsVisibility(true)
         cardView.doOnLayout {
             expandedHeight = cardView.height
-            expandedImageWidth = articleFullImageView.width
+            expandedImageWidth = articleFullImageContainer.width
             changeExpandedViewsVisibility()
             animateExpandItem()
         }
@@ -152,10 +167,10 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
                 expanded, Constants.listItemExpandDuration, AccelerateDecelerateInterpolator()
             ) { progress -> setExpandProgress(progress) }
 
-            if (expanded) animator.doOnStart {
-                changeExpandedViewsVisibility()
+            animator.doOnStart {
+                changeExpandedViewsVisibility(hideTitles = true)
             }
-            else animator.doOnEnd {
+            animator.doOnEnd {
                 changeExpandedViewsVisibility()
             }
 
@@ -168,31 +183,42 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             cardView.layoutParams.height =
                 (collapsedHeight + (expandedHeight - collapsedHeight) * progress).toInt()
 
-            articleFullImageView.layoutParams.width =
+            articleFullImageContainer.layoutParams.width =
                 (collapsedImageWidth + (expandedImageWidth - collapsedImageWidth) * progress).toInt()
 
-            articleFullImageView.layoutParams.height =
+            articleFullImageContainer.layoutParams.height =
                 (collapsedImageHeight + (expandedImageHeight - collapsedImageHeight) * progress).toInt()
         }
 
         cardView.requestLayout()
-        articleFullImageView.requestLayout()
+        articleFullImageContainer.requestLayout()
 
         //todo rotate button?
 //        holder.chevron.rotation = 90 * progress
     }
 
-    private fun changeExpandedViewsVisibility(fakeExpanded: Boolean? = null) {
+    private fun changeExpandedViewsVisibility(
+        fakeExpanded: Boolean? = null,
+        hideTitles: Boolean = false
+    ) {
         article?.run {
             val finalExpanded = fakeExpanded ?: expanded
             subtitleTextView.isVisible = finalExpanded
 
+            if (hideTitles) {
+                titleTextViewExpanded.isVisible = false
+                titleTextViewCollapsed.isVisible = false
+            } else {
+                titleTextViewExpanded.isVisible = finalExpanded
+                titleTextViewCollapsed.isVisible = !finalExpanded
+            }
+
             contentLayoutContainer.orientation = if (finalExpanded) VERTICAL else HORIZONTAL
-            articleFullImageView.layoutParams.width =
+            articleFullImageContainer.layoutParams.width =
                 if (finalExpanded) ViewGroup.LayoutParams.MATCH_PARENT else resources.getDimension(R.dimen.collapsed_image_width)
                     .toInt()
 
-            articleFullImageView.layoutParams.height =
+            articleFullImageContainer.layoutParams.height =
                 if (finalExpanded) resources.getDimension(R.dimen.article_list_item_expanded_image_height)
                     .toInt() else ViewGroup.LayoutParams.MATCH_PARENT
 

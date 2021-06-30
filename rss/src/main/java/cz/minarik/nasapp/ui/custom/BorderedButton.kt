@@ -44,8 +44,8 @@ class BorderedButton(context: Context, attrs: AttributeSet) : ConstraintLayout(c
     }
 
     fun setTitle(title: String? = null) {
-        titleTextView.isVisible = !title.isNullOrEmpty()
-        titleTextView.text = title
+        titleTextViewCollapsed.isVisible = !title.isNullOrEmpty()
+        titleTextViewCollapsed.text = title
     }
 
     fun setDescription(description: String? = null) {

@@ -5,7 +5,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
@@ -14,6 +13,7 @@ import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.settings.SettingsFragment
+import cz.minarik.nasapp.ui.settings.SettingsFragmentCompose
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
@@ -21,9 +21,7 @@ import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.exitCircularReveal
 import cz.minarik.nasapp.utils.findLocationOfCenterOnTheScreen
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.button_bordered.view.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {

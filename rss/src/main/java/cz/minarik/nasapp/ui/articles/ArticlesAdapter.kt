@@ -53,7 +53,7 @@ class ArticlesAdapter(
         articleItemView.setOnClickListener {
             onArticleClicked(
                 articleItemView.articleFullImageView,
-                articleItemView.titleTextView,
+                articleItemView.titleTextViewCollapsed,
                 viewHolder.adapterPosition
             )
         }
