@@ -1,14 +1,11 @@
 package cz.minarik.nasapp.utils
 
-import android.animation.Animator
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.view.View
-import android.view.ViewAnimationUtils
-import android.view.animation.AccelerateDecelerateInterpolator
+import android.net.Uri
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -20,6 +17,7 @@ import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 import cz.minarik.base.common.extensions.dpToPx
+import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.custom.ArticleDTO
@@ -28,6 +26,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
+import timber.log.Timber
 
 fun BaseFragment.shareArticle(article: ArticleDTO) {
     val sendIntent: Intent = Intent().apply {
@@ -218,4 +217,33 @@ fun OkHttpClient.createCall(url: String): Call = newCall(
 
 fun Response.toSyncFeed(): SyndFeed? {
     return SyndFeedInput().build(XmlReader(body?.byteStream()))
+}
+
+
+fun Context.sendFeedbackEmail() {
+    try {
+        val mail: Array<String> = arrayOf(getString(R.string.developer_email))
+        val mailIntent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:")
+            putExtra(Intent.EXTRA_EMAIL, mail)
+            putExtra(Intent.EXTRA_SUBJECT, "SpaceNews feedback")
+        }
+        startActivity(mailIntent)
+    } catch (e: Exception) {
+        Timber.e(e)
+        showToast(this, getString(R.string.no_email_app_found))
+    }
+}
+
+fun Context.openPlayStore() {
+    try {
+        startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("market://details?id=${this.applicationContext.packageName}")
+            )
+        )
+    } catch (e: Exception) {
+        Timber.e(e)
+    }
 }

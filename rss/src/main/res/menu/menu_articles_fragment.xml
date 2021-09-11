@@ -21,5 +21,11 @@
         android:title="@string/settings"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/aboutAction"
+        android:icon="@drawable/ic_baseline_info_24"
+        android:title="@string/about_app"
+        app:showAsAction="never" />
+
 
 </menu>

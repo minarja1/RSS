@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.ui.articles.simple
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import androidx.activity.addCallback
 import androidx.core.os.bundleOf
@@ -82,6 +83,12 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
         swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadArticles()
         }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.newArticlesAction)?.isVisible = false
+        menu.findItem(R.id.settingsAction)?.isVisible = false
     }
 
     override fun initObserve() {

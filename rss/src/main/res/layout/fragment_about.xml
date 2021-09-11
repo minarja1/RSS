@@ -1,0 +1,74 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <include layout="@layout/layout_appbar_toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@drawable/divider_16dp_vertical"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:showDividers="middle">
+
+        <ImageView
+            android:contentDescription="app logo"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/logo_transparent_cropped" />
+
+        <TextView
+            android:text="@string/app_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Universe.Headline4" />
+
+        <TextView
+            android:id="@+id/versionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Universe.Headline7"
+            android:textColor="@color/textColorSecondary"
+            tools:text="Version 1.0.0" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <cz.minarik.nasapp.ui.custom.BorderedButton
+            android:id="@+id/contactDeveloperBorderedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:buttonText="@string/contact_developer" />
+
+        <cz.minarik.nasapp.ui.custom.BorderedButton
+            android:id="@+id/shareTheLoveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:buttonText="@string/share_the_love"
+            app:buttonImage="@drawable/ic_baseline_favorite_border_24"/>
+
+        <TextView
+            android:id="@+id/disclaimerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/disclaimer"
+            android:textAppearance="@style/TextAppearance.Universe.Subtitle"
+            android:textColor="@color/textColorSecondary"
+            android:textSize="12sp" />
+
+
+    </LinearLayout>
+
+</LinearLayout>
+

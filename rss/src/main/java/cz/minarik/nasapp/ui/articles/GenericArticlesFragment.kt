@@ -468,6 +468,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 (requireActivity() as MainActivity).navigateToSettings()
                 true
             }
+            R.id.aboutAction -> {
+                (requireActivity() as MainActivity).navigateToAbout()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

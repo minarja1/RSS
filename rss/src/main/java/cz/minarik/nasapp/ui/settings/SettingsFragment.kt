@@ -63,7 +63,7 @@ class SettingsFragment : BaseFragment(R.layout.fragment_settings) {
         }
 
         notificationsTextView.setOnClickListener {
-            Snackbar.make(notificationsTextView, R.string.coming_soon, Snackbar.LENGTH_LONG).show()
+            Snackbar.make(notificationsTextView, R.string.notifications_coming_soon, Snackbar.LENGTH_LONG).show()
         }
     }
 

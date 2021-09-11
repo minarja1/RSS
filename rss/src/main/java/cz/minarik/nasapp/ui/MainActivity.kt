@@ -7,13 +7,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.ui.about.AboutFragment
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.settings.SettingsFragment
-import cz.minarik.nasapp.ui.settings.SettingsFragmentCompose
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
@@ -174,5 +174,9 @@ class MainActivity : AppCompatActivity() {
 
     fun navigateToSettings() {
         replaceFragment(SettingsFragment.newInstance())
+    }
+
+    fun navigateToAbout() {
+        replaceFragment(AboutFragment.newInstance())
     }
 }
