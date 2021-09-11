@@ -59,8 +59,9 @@ class ArticlesViewModel(
     var isFromSwipeRefresh: Boolean = false
 
     init {
-        loadArticles(scrollToTop = false)
-        updateFromServer()
+        loadArticles(scrollToTop = false){
+            updateFromServer()
+        }
 
 
         launch {
@@ -83,6 +84,7 @@ class ArticlesViewModel(
     fun loadArticles(
         scrollToTop: Boolean = false,
         isFromSwipeRefresh: Boolean = false,
+        onFinished: (() -> Unit)? = null,
     ) {
         state.postValue(NetworkState.LOADING)
 
@@ -129,6 +131,7 @@ class ArticlesViewModel(
                 Timber.i("ViewModel: loading articles finished in $duration ms")
 
                 this@ArticlesViewModel.isFromSwipeRefresh = false
+                onFinished?.invoke()
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))
