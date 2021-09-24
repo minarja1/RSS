@@ -97,17 +97,5 @@ object DataStoreManager {
         context.dataStore.setStringData(ARTICLE_FILTER, filter.key)
     }
 
-    suspend fun setNewArticlesIDs(newArticles: Set<String>) {
-        context.dataStore.setStringSetData(NEW_ARTICLES_FOUND_IDS, newArticles)
-    }
-
-    suspend fun resetNewArticleIDs() {
-        context.dataStore.setStringSetData(NEW_ARTICLES_FOUND_IDS, setOf())
-    }
-
-    fun getNewArticlesIDs(): Flow<Set<String>> {
-        return context.dataStore.getStringSetData(NEW_ARTICLES_FOUND_IDS)
-    }
-
 }
 

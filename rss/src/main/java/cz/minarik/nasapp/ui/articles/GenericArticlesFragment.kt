@@ -214,16 +214,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             onContactInfoClicked = ::onContactInfoClicked,
             filterBySource = { it?.let { filterBySource(it) } },
             articleShown = {
-                lifecycleScope.launch {
-                    val newIDs = DataStoreManager.getNewArticlesIDs().first()
-                    val mutable = newIDs.toMutableSet()
-                    if (newIDs.contains(it.guid)) {
-                        mutable.remove(it.guid)
-                        DataStoreManager.setNewArticlesIDs(mutable)
-                        Timber.i("Article ${it.title} removed from newArticles")
-                    }
-                }
-
                 //todo podle nastaveni prednacist url
 //                val success = customTabsSession?.mayLaunchUrl(it.toUri(), null, null)
 //                Timber.i("Preloading url $it ${if (success == true) "SUCCESS" else "FAILED"}")
@@ -426,9 +416,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
         getArticlesLiveData().observe {
             viewState.articles = it
-            articlesAdapter.submitList(it)
+            articlesAdapter.submitList(it) {
+                if (viewModel.shouldScrollToTop) scrollToTop()
+            }
 
-            if (viewModel.shouldScrollToTop) scrollToTop()
         }
     }
 
@@ -436,7 +427,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         appBarLayout.setExpanded(true)
         articlesRecyclerView?.scrollToTop()
         viewModel.shouldScrollToTop = false
-        resetNewArticles()
     }
 
     private fun initToolbar() {
@@ -460,10 +450,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 requireActivity().onBackPressed()
                 true
             }
-            R.id.newArticlesAction -> {
-                scrollToTop()
-                true
-            }
             R.id.settingsAction -> {
                 (requireActivity() as MainActivity).navigateToSettings()
                 true
@@ -473,12 +459,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 true
             }
             else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun resetNewArticles() {
-        lifecycleScope.launch {
-            DataStoreManager.resetNewArticleIDs()
         }
     }
 

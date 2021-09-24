@@ -3,22 +3,17 @@ package cz.minarik.nasapp.ui.articles
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.Menu
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
 import coil.load
 import cz.minarik.base.common.extensions.isScrolledToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.common.extensions.tint
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
@@ -26,9 +21,6 @@ import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
@@ -43,11 +35,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
     private var doubleBackToExitPressedOnce = false
 
     private val useDrawer = false
-
-    private val newArticlesFlow = DataStoreManager.getNewArticlesIDs()
-
-    private var newArticlesBadge: ViewGroup? = null
-    private var newArticlesTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,6 +91,10 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             stateView.attacheContentView(it)
         }
         toolbarPadding.isVisible = true
+        newPostsCardView.setOnClickListener {
+            viewModel.loadArticles(scrollToTop = true)
+            viewModel.articlesRepository.resetNewArticles()
+        }
     }
 
     private fun setupDrawerNavigation() {
@@ -131,10 +122,6 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewModel.loadArticles(scrollToTop = true)
             drawerLayout?.closeDrawer(GravityCompat.START)
             (requireActivity() as MainActivity).showHideSourceSelection(false)
-
-            lifecycleScope.launch {
-                DataStoreManager.resetNewArticleIDs()
-            }
         }
         sourcesViewModel.selectedSourceName.observe {
             toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
@@ -151,27 +138,9 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         sourcesViewModel.sourceRepository.state.toFreshLiveData().observe {
             viewState.loadingSourcesState = it
         }
-        newArticlesFlow.collectWhenStarted {
-            updateBadgeNumber(it.size)
-        }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        val newArticlesItem = menu.findItem(R.id.newArticlesAction)
-        val notificationsActionView = newArticlesItem?.actionView
-
-        notificationsActionView?.setOnClickListener {
-            onOptionsItemSelected(newArticlesItem)
-        }
-
-        if (newArticlesBadge == null) {
-            newArticlesBadge = notificationsActionView?.findViewById(R.id.notificationBadge)
-        }
-
-        if (newArticlesTextView == null) {
-            newArticlesTextView =
-                notificationsActionView?.findViewById(R.id.notificationCountTextView)
+        viewModel.articlesRepository.newArticlesCount.observe {
+            newPostsCardView.isVisible = it > 0
+            newPostsTV.text = resources.getQuantityString(R.plurals.new_articles, it, it)
         }
     }
 
@@ -184,16 +153,4 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewModel.updateFromServer()
         }
     }
-
-    private fun updateBadgeNumber(badgeNumber: Int?) {
-        newArticlesBadge?.isVisible = badgeNumber != null && badgeNumber > 0
-        val countString =
-            when {
-                badgeNumber == null -> ""
-                badgeNumber < 100 -> badgeNumber.toString()
-                else -> "99+"
-            }
-        newArticlesTextView?.text = countString
-    }
-
 }

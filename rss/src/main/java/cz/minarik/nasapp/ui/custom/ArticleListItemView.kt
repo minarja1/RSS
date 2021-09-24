@@ -98,6 +98,14 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
                 if (article.read) R.drawable.gradient_bottom else R.drawable.gradient_bottom_color_surface
             )
 
+        endGradient.setImageDrawable(
+            ContextCompat.getDrawable(
+                context,
+                if (article.read) R.drawable.gradient_end else R.drawable.gradient_end_color_surface
+            )
+        )
+
+
         cardView.setCardBackgroundColor(
             ContextCompat.getColor(
                 context,
@@ -227,7 +235,12 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
                     .toInt()
 
             val contentPadding = if (finalExpanded) 16.dpToPx else 8.dpToPx
-            contentLayout.setPadding(contentPadding, contentPadding, contentPadding, contentPadding)
+            contentLayout.setPadding(
+                if (finalExpanded) contentPadding else 0,
+                contentPadding,
+                contentPadding,
+                contentPadding
+            )
 
             val contentPaddingSmall = if (finalExpanded) 4.dpToPx else 2.dpToPx
             val layoutParams = LayoutParams(
@@ -241,6 +254,8 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             expandButton.load(if (finalExpanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
 
             contactInfoTextView.isVisible = finalExpanded
+
+            endGradient.isVisible = !finalExpanded
         }
     }
 }

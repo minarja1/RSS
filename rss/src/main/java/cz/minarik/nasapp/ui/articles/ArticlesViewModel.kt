@@ -59,23 +59,23 @@ class ArticlesViewModel(
     var isFromSwipeRefresh: Boolean = false
 
     init {
-        loadArticles(scrollToTop = false){
-            updateFromServer()
+        loadArticles(scrollToTop = false) {
+            updateFromServer(false)
         }
 
 
         launch {
             DataStoreManager.getExpandAllCards().collect {
-                loadArticles()
+                if (currentLoadingJob?.isActive == false) loadArticles()
             }
         }
     }
 
-    fun updateFromServer() {
+    fun updateFromServer(reloadAfter: Boolean = true) {
         launch {
             if (RSSApp.applicationContext.isInternetAvailable) {
-                articlesRepository.updateArticles(getSource(), true, defaultScope) {
-                    loadArticles()
+                articlesRepository.updateArticles(getSource(), !reloadAfter, defaultScope) {
+                    if (reloadAfter) loadArticles()
                 }
             }
         }
@@ -304,7 +304,7 @@ class ArticlesViewModel(
     //for SIMPLE loading (just a single source)_____________________________________________________
     private var selectedSource: RSSSourceEntity? = null
     val selectedSourceName = MutableLiveData<String?>()
-    val selectedSourceImage = MutableLiveData<String>()
+    val selectedSourceImage = MutableLiveData<String?>()
     private lateinit var sourceUrl: String
 
     fun loadSelectedSource(sourceUrl: String) {

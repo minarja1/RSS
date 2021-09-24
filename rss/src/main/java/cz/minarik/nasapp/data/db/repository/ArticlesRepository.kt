@@ -30,6 +30,14 @@ class ArticlesRepository(
     private val sourceDao: RSSSourceDao,
 ) : BaseRepository() {
 
+    //for debug purposes
+    private val fakeNewArticle = false
+
+    /**
+     * number of new articles fetched from server and previously not present in DB
+     */
+    val newArticlesCount = MutableLiveData(0)
+
     val state = MutableLiveData<ViewModelState>()
 
     private val okHttpClient by lazy {
@@ -123,6 +131,22 @@ class ArticlesRepository(
             }?.awaitAll()
 
             val newArticlesFound = mutableListOf<String>()
+
+            if (fakeNewArticle) {
+                for (i in 0 until counter) {
+                    allArticleList.add(
+                        Article(
+                            title = "fake",
+                            description = "this is more fake than fakeFile.txt",
+                            publicationDate = Date(),
+                            guid = System.currentTimeMillis().toString(),
+                            sourceUrl = sourceDao.getALl().first().url
+                        )
+                    )
+                }
+                counter += 2
+            }
+
             for (article in allArticleList) {
                 article.guid?.let { guid ->
                     article.formattedDate?.let { pubDate ->
@@ -152,12 +176,14 @@ class ArticlesRepository(
     private suspend fun notifyNewArticles(newArticles: List<String>) {
         val initialArticleLoadFinished = DataStoreManager.getInitialArticleLoadFinished().first()
         if (initialArticleLoadFinished) {
-            DataStoreManager.setNewArticlesIDs(newArticles.toSet())
+            newArticlesCount.postValue(newArticles.count())
         } else {
             DataStoreManager.setInitialArticleLoadFinished(true)
         }
     }
 
+
+    var counter = 2
     suspend fun loadFromDB(selectedSource: RSSSource?): List<ArticleDTO> {
         val fromDB: MutableList<ArticleEntity> = mutableListOf()
 
@@ -166,6 +192,8 @@ class ArticlesRepository(
                 fromDB.addAll(dao.getBySourceUrl(url))
             }
         }
+
+        Timber.i("${javaClass.name} returning ${fromDB.size} articles")
 
         return fromDB.map { entity ->
             ArticleDTO.fromDb(entity).apply {
@@ -178,6 +206,10 @@ class ArticlesRepository(
                 }
             }
         }
+    }
+
+    fun resetNewArticles() {
+        newArticlesCount.postValue(0)
     }
 
 }

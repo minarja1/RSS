@@ -10,12 +10,6 @@
 
 
     <item
-        android:id="@+id/newArticlesAction"
-        app:actionLayout="@layout/scroll_to_top_menu_item_with_badge_layout"
-        android:title="@string/new_articles"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/settingsAction"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="@string/settings"

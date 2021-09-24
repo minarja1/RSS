@@ -219,4 +219,11 @@
         <item name="elevation">0dp</item>
     </style>
 
+    <style name="CardViewButton" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="cardCornerRadius">40dp</item>
+        <item name="android:clickable">true</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.MaterialComponents.MediumComponent
+        </item>
+    </style>
 </resources>

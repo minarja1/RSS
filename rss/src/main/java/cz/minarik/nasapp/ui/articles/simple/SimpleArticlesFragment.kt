@@ -87,7 +87,6 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.newArticlesAction)?.isVisible = false
         menu.findItem(R.id.settingsAction)?.isVisible = false
     }
 

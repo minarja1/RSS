@@ -41,6 +41,13 @@
                         android:scaleType="centerCrop"
                         tools:src="@tools:sample/backgrounds/scenic" />
 
+                    <ImageView
+                        android:id="@+id/endGradient"
+                        android:layout_gravity="end"
+                        android:src="@drawable/gradient_end"
+                        android:layout_width="32dp"
+                        android:layout_height="match_parent"/>
+
                     <TextView
                         android:id="@+id/titleTextViewExpanded"
                         android:layout_width="match_parent"
@@ -82,7 +89,8 @@
                         android:textSize="16dp"
                         android:textStyle="bold"
                         android:visibility="gone"
-                        tools:text="Thekokft!" />
+                        tools:text="Thekokft!"
+                        tools:ignore="SpUsage" />
 
                     <TextView
                         android:id="@+id/subtitleTextView"
