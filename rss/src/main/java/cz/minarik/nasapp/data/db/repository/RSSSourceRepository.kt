@@ -98,7 +98,7 @@ class RSSSourceRepository(
                         try {
                             var entity = sourceDao.getByUrl(feedUrl)
                             val url = URL(feedUrl)
-                            if (entity == null) {
+                            if (entity == null || shouldUpdate) {
                                 if (feed.atom) {
                                     okHttpClient.createCall(feedUrl).execute().use { response ->
                                         val channel = response.toSyncFeed()
@@ -125,24 +125,6 @@ class RSSSourceRepository(
                                         forceOpenExternally = feed.forceOpenExternal,
                                         isAtom = feed.atom,
                                     )
-                                }
-                            } else if (shouldUpdate) {
-                                if (feed.atom) {
-                                    okHttpClient.createCall(feedUrl).execute().use { response ->
-                                        val input = SyndFeedInput()
-                                        val channel =
-                                            input.build(XmlReader(response.body?.byteStream()))
-                                        entity?.let {
-                                            it.title = channel.title
-                                            it.imageUrl = url.getFavIcon()
-                                        }
-                                    }
-                                } else {
-                                    val channel = parser.getChannel(feedUrl)
-                                    entity?.let {
-                                        it.title = channel.title
-                                        it.imageUrl = url.getFavIcon()
-                                    }
                                 }
                             }
 

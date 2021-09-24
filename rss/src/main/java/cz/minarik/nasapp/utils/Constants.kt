@@ -1,11 +1,12 @@
 package cz.minarik.nasapp.utils
 
+import cz.minarik.nasapp.BuildConfig
 import java.util.concurrent.TimeUnit
 
 class Constants {
     companion object {
         val articlesCacheExpiration: Long = TimeUnit.HOURS.toMillis(1)
-        val sourcesUpdateGap: Long = TimeUnit.DAYS.toMillis(1)
+        val sourcesUpdateGap: Long = if (BuildConfig.DEBUG) 1 else TimeUnit.DAYS.toMillis(1)
 
         const val argArticleDTO = "argArticleDTO"
         const val argSourceUrl = "argSourceUrl"
