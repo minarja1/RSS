@@ -21,6 +21,7 @@ import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
@@ -28,7 +29,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     private val sourcesViewModel by sharedViewModel<SourcesViewModel>()
 
-    override val viewModel by sharedViewModel<ArticlesViewModel>()
+    override val viewModel by inject<ArticlesViewModel>()
 
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articles
 

@@ -18,7 +18,9 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import coil.Coil
 import coil.load
+import coil.request.ImageRequest
 import com.chimbori.crux.articles.Article
 import com.google.android.material.appbar.AppBarLayout
 import cz.minarik.base.common.extensions.*
@@ -33,9 +35,8 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.net.MalformedURLException
 import java.net.URL
@@ -63,7 +64,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
 
     private var urlsBeingLoaded = mutableListOf<String>()
 
-    val viewModel by sharedViewModel<ArticlesViewModel>()
+    val viewModel by inject<ArticlesViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -186,8 +187,24 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             }
         })
 
-        toolbarExpandedImage.loadImageWithDefaultSettings(articleDTO.image)
         fakeTitleTextView.text = articleDTO.title
+        fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
+
+        toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
+        val builder = ImageRequest.Builder(requireContext())
+        val request = builder
+            .data(articleDTO.image)
+            .target(
+                onError = {
+                    requireActivity().startPostponedEnterTransition()
+                },
+                onSuccess = {
+                    toolbarExpandedImage.setImageDrawable(it)
+                    requireActivity().startPostponedEnterTransition()
+                }
+            )
+            .build()
+        Coil.enqueue(request)
 
         toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT)
 
@@ -205,37 +222,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
                 uri = it.replace("http://", "https://"),
                 placeholder = toolbarExpandedImage.drawable
             )
-//            toolbarExpandedImage.setOnClickListener {
-//                showImage(0, toolbarExpandedImage)
-//            }
         }
-
-//        article?.document?.styleHtml(requireContext())
-//        article?.document?.html()?.let {
-//            webView.loadDataWithBaseURL(
-//                "",
-//                it.styleHtml(requireContext()),
-//                "text/html",
-//                "UTF-8",
-//                null
-//            )
-//
-//            Handler(Looper.getMainLooper()).postDelayed({
-//                webViewContainer?.isVisible = true
-//                webView?.isVisible = true
-//                shimmerViewContainer?.isVisible = false
-//            }, 100) //to prevent white screen from flashing (webView still loading styles)
-//        }
-//
-//        article?.images?.let {
-//            if (it.size > 1) {
-//                initGallery(it)
-//            }
-//        }
-//
-//        article?.videoUrl?.let {
-//            initVideo(it)
-//        }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
@@ -359,40 +346,6 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
         }
         //other errors ignored because sometimes webView will just throw an error but the page is actually loaded
     }
-
-//    override fun onImageClicked(position: Int, clickedView: ImageView) {
-//        showImage(position + 1, clickedView)
-//    }
-
-//    private fun showImage(position: Int, clickedView: ImageView) {
-//        val images = viewModel.articleLiveData.value?.images?.map {
-//            GalleryViewImageDTO.fromApi(it)
-//        }?.toMutableList() ?: mutableListOf()
-//        viewModel.articleLiveData.value?.imgUrlSafe?.let {
-//            images.add(0, GalleryViewImageDTO(it))
-//        }
-//
-//        val builder = StfalconImageViewer.Builder(
-//            context,
-//            images
-//        ) { view, image ->
-//            view.loadImageWithDefaultSettings(image.image)
-//        }
-//            .withStartPosition(position)
-//            .withTransitionFrom(
-//                clickedView
-//            )
-//            .withImageChangeListener {
-//                if (it == 0) {
-//                    viewer?.updateTransitionImage(
-//                        toolbarExpandedImage
-//                    )
-//                }
-//            }
-//            .withHiddenStatusBar(false)
-//
-//        viewer = builder.show()
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

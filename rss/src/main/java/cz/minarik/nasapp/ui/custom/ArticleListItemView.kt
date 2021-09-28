@@ -52,6 +52,8 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
     private val expandedImageHeight =
         context.resources.getDimension(R.dimen.article_list_item_expanded_image_height).toInt()
 
+    val expanded: Boolean
+        get() = article?.expanded ?: false
 
     init {
         inflate(context, R.layout.article_list_item, this)
@@ -222,13 +224,18 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             }
 
             contentLayoutContainer.orientation = if (finalExpanded) VERTICAL else HORIZONTAL
-            articleFullImageContainer.layoutParams.width =
+
+            val width =
                 if (finalExpanded) ViewGroup.LayoutParams.MATCH_PARENT else resources.getDimension(R.dimen.collapsed_image_width)
                     .toInt()
+            articleFullImageContainer.layoutParams.width = width
+            articleFullImageView.layoutParams.width = width
 
-            articleFullImageContainer.layoutParams.height =
+            val height =
                 if (finalExpanded) resources.getDimension(R.dimen.article_list_item_expanded_image_height)
                     .toInt() else ViewGroup.LayoutParams.MATCH_PARENT
+            articleFullImageContainer.layoutParams.height = height
+            articleFullImageView.layoutParams.height = height
 
             cardView.layoutParams.height =
                 if (finalExpanded) LayoutParams.WRAP_CONTENT else context.resources.getDimension(R.dimen.article_list_item_collapsed_height)

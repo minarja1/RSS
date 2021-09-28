@@ -22,7 +22,7 @@ import retrofit2.Retrofit
 
 val appModule = module {
 
-    viewModel {
+    single {
         ArticlesViewModel(
             get(),
             get(),

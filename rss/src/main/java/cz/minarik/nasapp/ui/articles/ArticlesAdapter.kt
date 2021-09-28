@@ -53,12 +53,12 @@ class ArticlesAdapter(
         articleItemView.setOnClickListener {
             onArticleClicked(
                 articleItemView.articleFullImageView,
-                articleItemView.titleTextViewCollapsed,
-                viewHolder.adapterPosition
+                if (articleItemView.expanded) articleItemView.titleTextViewExpanded else articleItemView.titleTextViewCollapsed,
+                viewHolder.bindingAdapterPosition
             )
         }
         articleItemView.setOnLongClickListener {
-            onItemLongClicked(viewHolder.adapterPosition)
+            onItemLongClicked(viewHolder.bindingAdapterPosition)
             true
         }
         articleItemView.onItemExpanded = {

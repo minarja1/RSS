@@ -1,5 +1,6 @@
 package cz.minarik.nasapp.ui.articles
 
+import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -7,6 +8,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Pair
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -40,6 +42,7 @@ import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
+import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivity
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
@@ -201,9 +204,19 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     fun navigateToArticleDetail(
         articleDTO: ArticleDTO,
         position: Int,
-        vararg sharedElements: Pair<View, String>,
+        imageView: ImageView,
+        textView: TextView,
     ) {
-        (requireActivity() as MainActivity).navigateToArticleDetail(articleDTO, *sharedElements)
+        val intent = Intent(requireContext(), ArticleDetailActivity::class.java).apply {
+            putExtra(Constants.argArticleDTO, articleDTO)
+        }
+        val options = ActivityOptions.makeSceneTransitionAnimation(
+            requireActivity(),
+            Pair.create(imageView, articleDTO.guid.toImageSharedTransitionName()),
+            Pair.create(textView, articleDTO.guid.toTitleSharedTransitionName()),
+        )
+
+        startActivity(intent, options.toBundle())
     }
 
     private val articlesAdapter by lazy {
@@ -304,13 +317,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                         imageView.transitionName = this.guid?.toImageSharedTransitionName()
                         titleTextView.transitionName =
                             this.guid?.toTitleSharedTransitionName()
-                        navigateToArticleDetail(
-                            this,
-                            position,
-                            imageView to (this.guid?.toImageSharedTransitionName() ?: ""),
-                            titleTextView to (this.guid?.toTitleSharedTransitionName()
-                                ?: ""),
-                        )
+                        navigateToArticleDetail(this, position, imageView, titleTextView)
                     }
                 }
             }

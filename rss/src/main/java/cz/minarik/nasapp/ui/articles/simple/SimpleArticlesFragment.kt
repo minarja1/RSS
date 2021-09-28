@@ -17,6 +17,7 @@ import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
@@ -61,7 +62,7 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
         requireArguments().getString(Constants.argSourceUrl)
     }
 
-    override val viewModel by sharedViewModel<ArticlesViewModel>()
+    override val viewModel by inject<ArticlesViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

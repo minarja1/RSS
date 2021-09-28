@@ -20,13 +20,14 @@ import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.startCircularReveal
 import kotlinx.android.synthetic.main.fragment_source_selection.*
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection),
     ExitWithAnimation {
 
     val viewModel by sharedViewModel<SourcesViewModel>()
-    val articlesViewModel by sharedViewModel<ArticlesViewModel>()
+    private val articlesViewModel by inject<ArticlesViewModel>()
 
     private lateinit var concatAdapter: ConcatAdapter
     private lateinit var sourcesAdapter: ArticleSourceAdapter
