@@ -193,11 +193,15 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
             cardView.layoutParams.height =
                 (collapsedHeight + (expandedHeight - collapsedHeight) * progress).toInt()
 
-            articleFullImageContainer.layoutParams.width =
+            val width =
                 (collapsedImageWidth + (expandedImageWidth - collapsedImageWidth) * progress).toInt()
+            articleFullImageContainer.layoutParams.width = width
+            articleFullImageView.layoutParams.width = width
 
-            articleFullImageContainer.layoutParams.height =
+            val height =
                 (collapsedImageHeight + (expandedImageHeight - collapsedImageHeight) * progress).toInt()
+            articleFullImageContainer.layoutParams.height = height
+            articleFullImageView.layoutParams.height = height
         }
 
         cardView.requestLayout()
