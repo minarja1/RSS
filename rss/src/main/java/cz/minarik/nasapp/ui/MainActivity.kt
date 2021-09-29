@@ -1,10 +1,6 @@
 package cz.minarik.nasapp.ui
 
-import android.app.ActivityOptions
-import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -12,18 +8,17 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.about.AboutFragment
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
-import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivity
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
-import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.settings.SettingsFragment
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
-import cz.minarik.nasapp.utils.*
+import cz.minarik.nasapp.utils.ExitWithAnimation
+import cz.minarik.nasapp.utils.exitCircularReveal
+import cz.minarik.nasapp.utils.findLocationOfCenterOnTheScreen
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.flow.collect
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import android.util.Pair as UtilPair
 
 class MainActivity : AppCompatActivity() {
 
@@ -146,23 +141,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    fun navigateToArticleDetail(
-        articleDTO: ArticleDTO,
-        imageView: ImageView,
-        textView: TextView,
-    ) {
-        val intent = Intent(this, ArticleDetailActivity::class.java).apply {
-            putExtra(Constants.argArticleDTO, articleDTO)
-        }
-        val options = ActivityOptions.makeSceneTransitionAnimation(
-            this,
-            UtilPair.create(imageView, articleDTO.guid.toImageSharedTransitionName()),
-            UtilPair.create(textView, articleDTO.guid.toTitleSharedTransitionName()),
-        )
-
-        startActivity(intent, options.toBundle())
     }
 
     fun navigateToSimpleArticles(sourceUrl: String) {

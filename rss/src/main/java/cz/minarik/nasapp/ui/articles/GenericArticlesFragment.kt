@@ -1,6 +1,5 @@
 package cz.minarik.nasapp.ui.articles
 
-import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -8,10 +7,10 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Pair
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
@@ -20,8 +19,10 @@ import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -69,6 +70,11 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     var toolbarTitle: TextView? = null
     var searchView: MaterialSearchView? = null
     var toolbarContentContainer: ViewGroup? = null
+
+    private val setNoteLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            updateVisibleItems()
+        }
 
     private val customTabsConnection = object : CustomTabsServiceConnection() {
         override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
@@ -201,7 +207,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         readTouchHelper.attachToRecyclerView(articlesRecyclerView)
     }
 
-    fun navigateToArticleDetail(
+    private fun navigateToArticleDetail(
         articleDTO: ArticleDTO,
         position: Int,
         imageView: ImageView,
@@ -210,13 +216,13 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         val intent = Intent(requireContext(), ArticleDetailActivity::class.java).apply {
             putExtra(Constants.argArticleDTO, articleDTO)
         }
-        val options = ActivityOptions.makeSceneTransitionAnimation(
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
             requireActivity(),
             Pair.create(imageView, articleDTO.guid.toImageSharedTransitionName()),
             Pair.create(textView, articleDTO.guid.toTitleSharedTransitionName()),
         )
 
-        startActivity(intent, options.toBundle())
+        setNoteLauncher.launch(intent, options)
     }
 
     private val articlesAdapter by lazy {
@@ -545,14 +551,11 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             }
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        //update visible items in adapter (changed might have been made in a different place)
-        if (!hidden) {
-            articlesAdapter.notifyItemRangeChanged(
-                (articlesRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                (articlesRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-            )
-        }
+    private fun updateVisibleItems() {
+        //update visible items in adapter (changed might have been made in article detail)
+        articlesAdapter.notifyItemRangeChanged(
+            (articlesRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
+            (articlesRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+        )
     }
 }

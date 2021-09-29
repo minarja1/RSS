@@ -92,7 +92,7 @@ fun getSwipeActionItemTouchHelperCallback(
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDirection: Int) {
-            callback.invoke(viewHolder.adapterPosition, viewHolder)
+            callback.invoke(viewHolder.bindingAdapterPosition, viewHolder)
         }
 
         override fun onChildDraw(
