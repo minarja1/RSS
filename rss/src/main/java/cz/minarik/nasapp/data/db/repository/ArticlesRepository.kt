@@ -169,7 +169,10 @@ class ArticlesRepository(
 
             Timber.i("Repository: fetching articles finished in $duration ms")
 
-            if (notifyNewArticles) notifyNewArticles(newArticlesFound)
+            if (notifyNewArticles)
+                notifyNewArticles(newArticlesFound)
+            else
+                resetNewArticles()
         }
     }
 
