@@ -19,16 +19,16 @@
         android:showDividers="middle">
 
         <ImageView
-            android:contentDescription="app logo"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:adjustViewBounds="true"
+            android:contentDescription="app logo"
             android:src="@drawable/logo_transparent_cropped" />
 
         <TextView
-            android:text="@string/app_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/app_description"
             android:textAppearance="@style/TextAppearance.Universe.Headline4" />
 
         <TextView
@@ -54,8 +54,18 @@
             android:id="@+id/shareTheLoveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:buttonText="@string/share_the_love"
-            app:buttonImage="@drawable/ic_baseline_favorite_border_24"/>
+            app:buttonImage="@drawable/ic_baseline_favorite_border_24"
+            app:buttonText="@string/share_the_love" />
+
+        <TextView
+            android:id="@+id/disclaimerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/disclaimer"
+            android:textAppearance="@style/TextAppearance.Universe.Subtitle"
+            android:textColor="@color/textColorSecondary"
+            android:textSize="12sp" />
 
     </LinearLayout>
 
