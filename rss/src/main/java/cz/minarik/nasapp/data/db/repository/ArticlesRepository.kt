@@ -112,6 +112,7 @@ class ArticlesRepository(
     suspend fun updateArticles(
         selectedSource: RSSSource?,
         notifyNewArticles: Boolean = false,
+        resetNewArticles: Boolean = true,
         coroutineScope: CoroutineScope,
         onFinished: (() -> Unit)? = null,
     ) {
@@ -171,7 +172,7 @@ class ArticlesRepository(
 
             if (notifyNewArticles)
                 notifyNewArticles(newArticlesFound)
-            else
+            else if (resetNewArticles)
                 resetNewArticles()
         }
     }

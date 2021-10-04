@@ -57,17 +57,6 @@
             app:buttonText="@string/share_the_love"
             app:buttonImage="@drawable/ic_baseline_favorite_border_24"/>
 
-        <TextView
-            android:id="@+id/disclaimerTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/disclaimer"
-            android:textAppearance="@style/TextAppearance.Universe.Subtitle"
-            android:textColor="@color/textColorSecondary"
-            android:textSize="12sp" />
-
-
     </LinearLayout>
 
 </LinearLayout>

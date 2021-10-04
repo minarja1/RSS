@@ -74,7 +74,12 @@ class ArticlesViewModel(
     fun updateFromServer(reloadAfter: Boolean = true) {
         launch {
             if (RSSApp.applicationContext.isInternetAvailable) {
-                articlesRepository.updateArticles(getSource(), !reloadAfter, defaultScope) {
+                articlesRepository.updateArticles(
+                    selectedSource = getSource(),
+                    notifyNewArticles = !reloadAfter,
+                    resetNewArticles = !isInSimpleMode,
+                    coroutineScope = defaultScope
+                ) {
                     if (reloadAfter) loadArticles()
                 }
             }

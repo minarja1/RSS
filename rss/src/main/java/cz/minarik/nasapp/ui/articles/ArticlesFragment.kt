@@ -140,7 +140,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewState.loadingSourcesState = it
         }
         viewModel.articlesRepository.newArticlesCount.observe {
-            newPostsCardView.isVisible = it > 0
+            newPostsCardView.isVisible = true// it > 0
             newPostsTV.text = resources.getQuantityString(R.plurals.new_articles, it, it)
         }
     }
