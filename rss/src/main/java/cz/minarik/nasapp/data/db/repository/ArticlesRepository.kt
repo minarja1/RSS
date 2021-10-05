@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.prof.rssparser.Parser
 import cz.minarik.base.di.base.BaseRepository
 import cz.minarik.base.di.createOkHttpClient
+import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.Success
@@ -112,7 +113,6 @@ class ArticlesRepository(
     suspend fun updateArticles(
         selectedSource: RSSSource?,
         notifyNewArticles: Boolean = false,
-        resetNewArticles: Boolean = true,
         coroutineScope: CoroutineScope,
         onFinished: (() -> Unit)? = null,
     ) {
@@ -133,7 +133,7 @@ class ArticlesRepository(
 
             val newArticlesFound = mutableListOf<String>()
 
-            if (fakeNewArticle) {
+            if (fakeNewArticle && BuildConfig.DEBUG) {
                 for (i in 0 until counter) {
                     allArticleList.add(
                         Article(
@@ -170,10 +170,7 @@ class ArticlesRepository(
 
             Timber.i("Repository: fetching articles finished in $duration ms")
 
-            if (notifyNewArticles)
-                notifyNewArticles(newArticlesFound)
-            else if (resetNewArticles)
-                resetNewArticles()
+            if (notifyNewArticles) notifyNewArticles(newArticlesFound)
         }
     }
 

@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.View
 import androidx.activity.addCallback
 import androidx.core.os.bundleOf
-import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import coil.load
@@ -18,7 +17,6 @@ import cz.minarik.nasapp.utils.Constants
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
 class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
@@ -32,14 +30,16 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
             if ((requireActivity() as MainActivity).getCurrentFragment() != this@SimpleArticlesFragment) {
                 (requireActivity() as MainActivity).goBack()
             } else {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                } else if ((requireActivity() as MainActivity).sourcesFragmentShown) {
-                    (requireActivity() as MainActivity).showHideSourceSelection(false)
-                } else if (searchView?.isSearchOpen == true) {
-                    searchView?.closeSearch()
-                } else {
-                    (requireActivity() as MainActivity).goBack()
+                when {
+                    (requireActivity() as MainActivity).sourcesFragmentShown -> {
+                        (requireActivity() as MainActivity).showHideSourceSelection(false)
+                    }
+                    searchView?.isSearchOpen == true -> {
+                        searchView?.closeSearch()
+                    }
+                    else -> {
+                        (requireActivity() as MainActivity).goBack()
+                    }
                 }
             }
         }

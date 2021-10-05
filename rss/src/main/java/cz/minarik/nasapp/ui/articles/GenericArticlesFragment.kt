@@ -71,7 +71,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     var searchView: MaterialSearchView? = null
     var toolbarContentContainer: ViewGroup? = null
 
-    private val setNoteLauncher =
+    private val articleDetailLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             updateVisibleItems()
         }
@@ -222,10 +222,10 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             Pair.create(textView, articleDTO.guid.toTitleSharedTransitionName()),
         )
 
-        setNoteLauncher.launch(intent, options)
+        articleDetailLauncher.launch(intent, options)
     }
 
-    private val articlesAdapter by lazy {
+    protected val articlesAdapter by lazy {
         ArticlesAdapter(
             onArticleClicked = ::onArticleClicked,
             onItemLongClicked = ::onArticleLongClicked,
@@ -551,8 +551,8 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             }
     }
 
-    private fun updateVisibleItems() {
-        //update visible items in adapter (changed might have been made in article detail)
+    protected fun updateVisibleItems() {
+        //update visible items in adapter (changed might have been made in article detail OR SimpleAriclesFragment)
         articlesAdapter.notifyItemRangeChanged(
             (articlesRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
             (articlesRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()

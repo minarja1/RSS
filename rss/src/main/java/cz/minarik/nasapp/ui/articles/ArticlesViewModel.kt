@@ -59,10 +59,8 @@ class ArticlesViewModel(
     var isFromSwipeRefresh: Boolean = false
 
     init {
-        loadArticles(scrollToTop = false) {
-            updateFromServer(false)
-        }
-
+        loadArticles(scrollToTop = false)
+        updateFromServer(false)
 
         launch {
             DataStoreManager.getExpandAllCards().collect {
@@ -77,7 +75,6 @@ class ArticlesViewModel(
                 articlesRepository.updateArticles(
                     selectedSource = getSource(),
                     notifyNewArticles = !reloadAfter,
-                    resetNewArticles = !isInSimpleMode,
                     coroutineScope = defaultScope
                 ) {
                     if (reloadAfter) loadArticles()
@@ -89,7 +86,6 @@ class ArticlesViewModel(
     fun loadArticles(
         scrollToTop: Boolean = false,
         isFromSwipeRefresh: Boolean = false,
-        onFinished: (() -> Unit)? = null,
     ) {
         state.postValue(NetworkState.LOADING)
 
@@ -101,6 +97,8 @@ class ArticlesViewModel(
 
         currentLoadingJob = ioScope.launch {
             try {
+                articlesRepository.resetNewArticles()
+
                 val startTime = System.currentTimeMillis()
 
                 this@ArticlesViewModel.shouldScrollToTop = scrollToTop
@@ -136,7 +134,6 @@ class ArticlesViewModel(
                 Timber.i("ViewModel: loading articles finished in $duration ms")
 
                 this@ArticlesViewModel.isFromSwipeRefresh = false
-                onFinished?.invoke()
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))
@@ -294,7 +291,7 @@ class ArticlesViewModel(
         filterArticles()
     }
 
-    private suspend fun getSource(): RSSSource? {
+    suspend fun getSource(): RSSSource {
         return sourceDao.getSelected()?.let {
             RSSSource.fromEntity(it)
         } ?: sourceListDao.getSelected()?.let {
