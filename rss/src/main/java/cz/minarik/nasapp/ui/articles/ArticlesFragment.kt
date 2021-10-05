@@ -7,17 +7,21 @@ import android.view.View
 import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
 import coil.load
 import cz.minarik.base.common.extensions.isScrolledToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.custom.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -116,8 +120,12 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
             viewState.loadingSourcesState = it
         }
         viewModel.articlesRepository.newArticlesCount.observe {
-            newPostsCardView.isVisible = it > 0
-            newPostsTV.text = resources.getQuantityString(R.plurals.new_articles, it, it)
+            lifecycleScope.launch {
+                newPostsCardView.isVisible =
+                    it > 0 && DataStoreManager.getArticleFilter()
+                        .first() != ArticleFilterType.Starred
+                newPostsTV.text = resources.getQuantityString(R.plurals.new_articles, it, it)
+            }
         }
     }
 
