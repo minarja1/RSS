@@ -276,12 +276,13 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
         ): Boolean {
             if (userInteracted) {
                 articleDTO.link?.let { link ->
-                    if (request?.url?.toString()?.contains(link, true) == false) {
-                        request.url?.let {
+                    val isAnotherArticle = request?.url?.toString()?.contains(link, true) == false
+                    if (isAnotherArticle) {
+                        request?.url?.let {
                             requireContext().openCustomTabs(it)
                         }
                     }
-                    return request?.url?.toString()?.contains(link, true) == false
+                    return isAnotherArticle
                 }
             }
 
