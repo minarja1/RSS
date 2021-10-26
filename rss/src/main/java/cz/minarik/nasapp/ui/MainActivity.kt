@@ -1,7 +1,6 @@
 package cz.minarik.nasapp.ui
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import cz.minarik.nasapp.R
@@ -9,6 +8,7 @@ import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.about.AboutFragment
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
+import cz.minarik.nasapp.ui.base.BaseActivity
 import cz.minarik.nasapp.ui.settings.SettingsFragment
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
@@ -20,10 +20,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.flow.collect
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     companion object {
-        const val fragmentTag = "fragmentTag"
         const val sourcesFragmentTag = "sourcesFragment"
     }
 
@@ -76,39 +75,6 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.backStackEntryCount == 1 && !sourcesFragmentShown && initialSyncFinished) fab.show() else fab.hide()
     }
 
-    private fun replaceFragment(
-        fragment: Fragment,
-    ) {
-        if (supportFragmentManager.executePendingTransactions()) return
-
-        val currentFragment = supportFragmentManager.primaryNavigationFragment
-        if (fragment.javaClass == currentFragment?.javaClass) return
-
-        val transaction = supportFragmentManager.beginTransaction().apply {
-            setCustomAnimations(
-                R.anim.slide_in_right,
-                R.anim.slide_out_left,
-                android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
-            )
-            setReorderingAllowed(true)
-        }
-
-        currentFragment?.let {
-            transaction.hide(it)
-        }
-
-        transaction.add(R.id.nav_host_container, fragment, fragmentTag)
-
-        transaction.apply {
-            setPrimaryNavigationFragment(fragment)
-            addToBackStack(null)
-            commitAllowingStateLoss()
-        }
-
-        showHideSourceSelection(false)
-    }
-
     fun showHideSourceSelection(show: Boolean) {
         sourcesFragmentShown = show
         supportFragmentManager.executePendingTransactions()
@@ -157,5 +123,9 @@ class MainActivity : AppCompatActivity() {
 
     fun navigateToAbout() {
         replaceFragment(AboutFragment.newInstance())
+    }
+
+    override fun onFragmentReplaced() {
+        showHideSourceSelection(false)
     }
 }
