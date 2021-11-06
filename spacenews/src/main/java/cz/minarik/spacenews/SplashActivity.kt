@@ -8,7 +8,12 @@ import cz.minarik.nasapp.ui.MainActivity
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        appStartRoutine()
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    private fun appStartRoutine() {
+//        AppStartWorker.run(this)
     }
 }

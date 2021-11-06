@@ -23,7 +23,6 @@ data class RSSSourceEntity(
     var isSelected: Boolean = false,
     var isHidden: Boolean = false,
     var forceOpenExternally: Boolean = false,
-    //todo migration!
     var isAtom: Boolean = false,
 
     ) {

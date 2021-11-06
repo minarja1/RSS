@@ -17,6 +17,7 @@ import androidx.core.view.isVisible
 import coil.load
 import cz.minarik.base.common.extensions.*
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.utils.Constants
 import cz.minarik.nasapp.utils.getValueAnimator
@@ -264,7 +265,7 @@ class ArticleListItemView(context: Context, attrs: AttributeSet? = null) :
 
             expandButton.load(if (finalExpanded) R.drawable.ic_baseline_keyboard_arrow_up_24 else R.drawable.ic_baseline_keyboard_arrow_down_24)
 
-            contactInfoTextView.isVisible = finalExpanded
+            contactInfoTextView.isVisible = finalExpanded && RSSApp.sharedInstance.hasToComply
 
             endGradient.isVisible = !finalExpanded
         }
@@ -290,7 +291,6 @@ data class ArticleDTO(
     var starred: Boolean = false,
     var domain: String? = null,
     var showSource: Boolean = true,
-    var openExternally: Boolean = false,
 ) : Serializable {
 
     override fun toString(): String {
@@ -318,7 +318,7 @@ data class ArticleDTO(
                 date = article.date,
                 link = article.link,
                 description = article.description,
-                content = article.content?.toHtml().toString(),
+                content = "",//article.content?.toHtml().toString(),
                 audio = article.audio,
                 video = article.video,
                 sourceName = article.sourceName,
@@ -357,7 +357,6 @@ data class ArticleDTO(
         if (domain != other.domain) return false
         if (showSource != other.showSource) return false
         if (read != other.read) return false
-        if (openExternally != other.openExternally) return false
 
         return true
     }
@@ -381,7 +380,6 @@ data class ArticleDTO(
         result = 31 * result + starred.hashCode()
         result = 31 * result + (domain?.hashCode() ?: 0)
         result = 31 * result + (showSource?.hashCode() ?: 0)
-        result = 31 * result + (openExternally?.hashCode() ?: 0)
         result = 31 * result + (read?.hashCode() ?: 0)
         return result
     }

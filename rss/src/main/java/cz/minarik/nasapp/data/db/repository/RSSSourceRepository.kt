@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.DatabaseError
 import com.prof.rssparser.Parser
-import com.rometools.rome.io.SyndFeedInput
-import com.rometools.rome.io.XmlReader
 import cz.minarik.base.common.extensions.compareLists
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.data.NetworkState
@@ -88,7 +86,8 @@ class RSSSourceRepository(
                 }
             }
 
-            val shouldUpdate = System.currentTimeMillis() - DataStoreManager.getLastSourcesUpdate().first() >= Constants.sourcesUpdateGap
+            val shouldUpdate = System.currentTimeMillis() - DataStoreManager.getLastSourcesUpdate()
+                .first() >= Constants.sourcesUpdateGap
 
             //create or update existing
             allFromServer.map { feed ->
@@ -111,6 +110,8 @@ class RSSSourceRepository(
                                             contactUrl = feed.contact,
                                             forceOpenExternally = feed.forceOpenExternal,
                                             isAtom = feed.atom,
+                                            isHidden = entity?.isHidden ?: false,
+                                            isSelected = entity?.isSelected?:false,
                                         )
                                     }
                                 } else {
@@ -124,7 +125,9 @@ class RSSSourceRepository(
                                         contactUrl = feed.contact,
                                         forceOpenExternally = feed.forceOpenExternal,
                                         isAtom = feed.atom,
-                                    )
+                                        isHidden = entity?.isHidden ?: false,
+                                        isSelected = entity?.isSelected?:false,
+                                        )
                                 }
                             }
 
@@ -136,7 +139,7 @@ class RSSSourceRepository(
                 }
             }.awaitAll()
 
-            if(shouldUpdate) DataStoreManager.setLastSourcesUpdate(System.currentTimeMillis())
+            if (shouldUpdate) DataStoreManager.setLastSourcesUpdate(System.currentTimeMillis())
 
             val newDb = sourceDao.getNonUserAdded()
             if (!compareLists(allDB, newDb)) {

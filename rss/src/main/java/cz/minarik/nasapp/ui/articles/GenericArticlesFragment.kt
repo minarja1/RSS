@@ -311,6 +311,9 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 read = true
                 viewModel.markArticleAsReadOrUnread(this, true)
                 link?.toUri()?.let {
+                    val openExternally =
+                        viewModel.sourceDao.getByUrl(this.sourceUrl ?: "")?.forceOpenExternally
+                            ?: false
                     if (openExternally || DataStoreManager.getOpenArticlesInBrowser().first()) {
                         link?.toUri()?.let {
                             if (DataStoreManager.getUseExternalBrowser().first()) {

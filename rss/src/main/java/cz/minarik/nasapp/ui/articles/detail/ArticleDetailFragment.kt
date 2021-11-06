@@ -343,14 +343,16 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
 
     fun handleError(code: Int) {
         if (code == -2) {
-            stateView?.noInternet(true) {
-                if (requireContext().isInternetAvailable) {
-                    stateView.loading(false)
-                    loadArticleWebView()
+            //other errors ignored because sometimes webView will just throw an error but the page is actually loaded
+            if (!requireContext().isInternetAvailable) {
+                stateView?.noInternet(true) {
+                    if (requireContext().isInternetAvailable) {
+                        stateView.loading(false)
+                        loadArticleWebView()
+                    }
                 }
             }
         }
-        //other errors ignored because sometimes webView will just throw an error but the page is actually loaded
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

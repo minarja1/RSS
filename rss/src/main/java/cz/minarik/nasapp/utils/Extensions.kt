@@ -27,6 +27,7 @@ import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
 import timber.log.Timber
+import java.util.*
 
 fun BaseFragment.shareArticle(article: ArticleDTO) {
     val sendIntent: Intent = Intent().apply {
@@ -246,4 +247,23 @@ fun Context.openPlayStore() {
     } catch (e: Exception) {
         Timber.e(e)
     }
+}
+
+fun Date.addDays(days: Int): Date {
+    return add(Calendar.DAY_OF_MONTH, days)
+}
+
+/**
+ * Add getFieldByTag date to current date
+ */
+fun Date.add(field: Int, amount: Int): Date {
+    val cal = Calendar.getInstance()
+    cal.time = this
+    cal.add(field, amount)
+
+    this.time = cal.time.time
+
+    cal.clear()
+
+    return this
 }

@@ -68,4 +68,6 @@ abstract class RSSApp : Application() {
     abstract val dataStoreName: String
 
     abstract val versionName: String
+
+    abstract val hasToComply: Boolean
 }

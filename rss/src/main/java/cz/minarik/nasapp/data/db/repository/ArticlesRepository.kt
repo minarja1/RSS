@@ -184,33 +184,53 @@ class ArticlesRepository(
     }
 
 
-    var counter = 2
-    suspend fun loadFromDB(selectedSource: RSSSource?): List<ArticleDTO> {
+    private suspend fun getAllForSourceConcurrently(source: RSSSource): MutableList<ArticleEntity> {
         val fromDB: MutableList<ArticleEntity> = mutableListOf()
 
+        coroutineScope { // limits the scope of concurrency
+            (source.URLs).map { url ->
+                async(Dispatchers.Default) { // async means "concurrently", context goes here
+                    fromDB.addAll(dao.getBySourceUrl(url))
+                }
+            }.awaitAll() // waits all of them
+        } // if any task crashes -- this scope ends with exception
+
+        return fromDB
+    }
+
+    var counter = 2
+    suspend fun loadFromDB(selectedSource: RSSSource?): List<ArticleDTO> {
+        val startTime = System.currentTimeMillis()
+
         selectedSource?.let {
-            for (url in it.URLs) {
-                fromDB.addAll(dao.getBySourceUrl(url))
-            }
-        }
+            val fromDB = getAllForSourceConcurrently(selectedSource)
 
-        Timber.i("${javaClass.name} returning ${fromDB.size} articles")
+            val duration = System.currentTimeMillis() - startTime
+            Timber.i("${javaClass.name} fetching ${fromDB.size} articles in $duration ms")
 
-        return fromDB.map { entity ->
-            ArticleDTO.fromDb(entity).apply {
-                guid?.let { guid ->
-                    showSource = selectedSource?.isList ?: false
-                    sourceUrl?.let {
-                        openExternally =
-                            sourceDao.getByUrl(it)?.forceOpenExternally ?: false
-                    }
+            val mappingStartTime = System.currentTimeMillis()
+
+            val result = fromDB.map { entity ->
+                ArticleDTO.fromDb(entity).apply {
+                    showSource = selectedSource.isList
                 }
             }
+
+            val mappingDuration = System.currentTimeMillis() - mappingStartTime
+            Timber.i("${javaClass.name} mapping ${fromDB.size} articles in $mappingDuration ms")
+
+            return result
         }
+
+        return emptyList()
     }
 
     fun resetNewArticles() {
         newArticlesCount.postValue(0)
+    }
+
+    suspend fun dbCleanUp(date: Date) {
+        dao.deleteNonStarredOlderThan(date)
     }
 
 }

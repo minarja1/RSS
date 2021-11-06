@@ -23,4 +23,7 @@ interface ArticleDao : BaseDao<ArticleEntity> {
 
     @Query("Select * From ArticleEntity Where sourceUrl = :sourceUrl order by date desc")
     suspend fun getBySourceUrl(sourceUrl: String): List<ArticleEntity>
+
+    @Query("Delete From ArticleEntity Where starred = 0 and date < :date")
+    suspend fun deleteNonStarredOlderThan(date: Date)
 }

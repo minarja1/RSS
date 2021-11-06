@@ -30,7 +30,7 @@ import java.io.IOException
 class ArticlesViewModel(
     val articlesRepository: ArticlesRepository,
     private val articleDao: ArticleDao,
-    private val sourceDao: RSSSourceDao,
+    val sourceDao: RSSSourceDao,
     private val sourceListDao: RSSSourceListDao,
 ) : BaseViewModel() {
 
@@ -107,7 +107,10 @@ class ArticlesViewModel(
 
                 val selectedSource = if (isInSimpleMode) getSourceSimple() else getSource()
 
+                val dbLoadStart = System.currentTimeMillis()
                 val fromDB = articlesRepository.loadFromDB(selectedSource)
+                val dbLoadDuration = System.currentTimeMillis() - dbLoadStart
+                Timber.i("ViewModel: db load took $dbLoadDuration ms")
 
                 ensureActive()
 
@@ -119,7 +122,11 @@ class ArticlesViewModel(
                     allArticles.addAll(fromDB)
                 }
 
+
+                val filtersStart = System.currentTimeMillis()
                 val result = applyFilters()
+                val filtersDuration = System.currentTimeMillis() - filtersStart
+                Timber.i("ViewModel: applying filters took $filtersDuration ms")
 
                 ensureActive()
 

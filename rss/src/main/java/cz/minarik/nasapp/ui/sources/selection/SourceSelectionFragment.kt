@@ -107,6 +107,9 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
             onItemBlocked = {
                 viewModel.markAsBlocked(it, !it.isHidden)
                 articlesViewModel.loadArticles()
+                articleSourcesRecyclerView.post {
+                    articleSourcesRecyclerView.smoothScrollToPosition(getTotalItemCount())
+                }
             },
             onItemInfo = {
                 (requireActivity() as MainActivity).navigateToSourceDetail(it.URLs[0])
@@ -151,6 +154,10 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         backgroundView.setOnClickListener {
             (requireActivity() as MainActivity).showHideSourceSelection(false)
         }
+    }
+
+    private fun getTotalItemCount(): Int {
+        return sourceListAdapter.itemCount + sourcesAdapter.itemCount
     }
 
 }
