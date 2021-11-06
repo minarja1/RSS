@@ -3,8 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable-v23/bg_bottom_line.xml" value="0.1875" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable-v23/divider_16dp_vertical.xml" value="0.3425925925925926" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/bg_bottom_line.xml" value="0.36203703703703705" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/divider_16dp_vertical.xml" value="0.1875" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/gradient_bottom.xml" value="0.36203703703703705" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/gradient_bottom_color_surface.xml" value="0.36203703703703705" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/ic_baseline_content_copy_24.xml" value="0.36203703703703705" />
