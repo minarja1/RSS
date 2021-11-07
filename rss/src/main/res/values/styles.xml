@@ -236,4 +236,10 @@
         <item name="shapeAppearance">@style/ShapeAppearance.MaterialComponents.MediumComponent
         </item>
     </style>
+
+
+    <style name="AlertDialogTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/colorAccent</item>
+    </style>
+
 </resources>

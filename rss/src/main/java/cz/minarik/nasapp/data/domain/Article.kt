@@ -3,7 +3,10 @@ package cz.minarik.nasapp.data.domain
 import com.prof.rssparser.Article
 import com.rometools.rome.feed.synd.SyndEntry
 import cz.minarik.base.common.extensions.toDateFromRSS
+import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.utils.addDays
 import cz.minarik.nasapp.utils.guid
+import kotlinx.coroutines.flow.first
 import me.toptas.rssconverter.RssItem
 import java.io.Serializable
 import java.util.*
@@ -25,11 +28,13 @@ data class Article(
     private var _categories: MutableList<String> = mutableListOf()
 ) : Serializable {
 
-    val isValid: Boolean
-        get() = !guid.isNullOrEmpty() && formattedDate != null
-
     val formattedDate: Date?
         get() = publicationDate ?: pubDate?.toDateFromRSS()
+
+    fun isValid(maxDate: Date): Boolean {
+        val ageValid: Boolean = formattedDate?.after(maxDate) ?: false
+        return ageValid && !guid.isNullOrEmpty() && formattedDate != null
+    }
 
     companion object {
         fun fromLibrary(article: Article): cz.minarik.nasapp.data.domain.Article {

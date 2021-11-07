@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.utils.AppStartWorker
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,6 +15,6 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun appStartRoutine() {
-//        AppStartWorker.run(this)
+        AppStartWorker.run(this)
     }
 }

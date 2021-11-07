@@ -15,6 +15,5 @@ class Constants {
         val listItemExpandDuration: Long get() = 300L
         val circularRevealDuration: Long get() = 300L
 
-        const val numberOfArticlesToShow = 500
     }
 }

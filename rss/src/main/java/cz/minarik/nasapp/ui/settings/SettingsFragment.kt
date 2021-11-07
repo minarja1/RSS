@@ -9,7 +9,10 @@ import com.google.android.material.snackbar.Snackbar
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.data.domain.DbCleanupItem
+import cz.minarik.nasapp.utils.showAlertDialog
 import kotlinx.android.synthetic.main.fragment_settings.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SettingsFragment : BaseFragment(R.layout.fragment_settings) {
@@ -63,7 +66,48 @@ class SettingsFragment : BaseFragment(R.layout.fragment_settings) {
         }
 
         notificationsTextView.setOnClickListener {
-            Snackbar.make(notificationsTextView, R.string.notifications_coming_soon, Snackbar.LENGTH_LONG).show()
+            Snackbar.make(
+                notificationsTextView,
+                R.string.notifications_coming_soon,
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+
+        initDbCleanupItem()
+    }
+
+    private fun initDbCleanupItem() {
+        DataStoreManager.getDbCleanupSettingsItem().collectWhenStarted {
+            dbCleanupTextView.text = it.toString(requireContext())
+        }
+        dbCleanupItem.setOnClickListener {
+            lifecycleScope.launch {
+                showDbCleanupChoiceDialog()
+            }
+        }
+    }
+
+    private suspend fun showDbCleanupChoiceDialog() {
+        val settingsArray = DbCleanupItem.getAsArray(requireContext())
+        val selectedIndex = settingsArray.indexOf(
+            DataStoreManager.getDbCleanupSettingsItem().first().toString(requireContext())
+        )
+        showAlertDialog {
+            setTitle(getString(R.string.settings_delete_articles_older_than))
+            setSingleChoiceItems(
+                settingsArray,
+                selectedIndex,
+            ) { dialog, which ->
+                lifecycleScope.launch {
+                    DataStoreManager.setDbCleanupSettingsItem(
+                        DbCleanupItem.fromString(
+                            settingsArray[which],
+                            requireContext()
+                        )
+                    )
+                }
+                dialog.dismiss()
+            }
         }
     }
 

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/colorBackground"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground">
 
-    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -14,8 +16,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -26,6 +28,7 @@
                 app:drawableStartCompat="@drawable/ic_baseline_palette_24"
                 app:drawableTint="@color/textColorSecondary" />
 
+
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/expandAllCardsSwitch"
                 android:layout_width="match_parent"
@@ -35,6 +38,11 @@
                 android:text="@string/expand_all_cards"
                 android:textSize="16sp" />
 
+            <View
+                android:layout_marginVertical="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -61,6 +69,12 @@
                 android:textSize="16sp"
                 app:drawableEndCompat="@drawable/ic_24_arrow_next"
                 app:drawableTint="@color/colorAccent" />
+
+            <View
+                android:layout_marginVertical="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -89,6 +103,39 @@
                 android:minHeight="56dp"
                 android:text="@string/use_external_browser"
                 android:textSize="16sp" />
+
+            <LinearLayout
+                android:id="@+id/dbCleanupItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:text="@string/settings_delete_articles_older_than"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/dbCleanupTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:paddingHorizontal="2dp"
+                    android:textColor="@color/textColorSecondary"
+                    android:textSize="14sp"
+                    tools:text="30 days" />
+
+            </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>

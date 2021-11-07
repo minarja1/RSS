@@ -69,4 +69,9 @@
     <string name="developer_email">space.news.application@gmail.com</string>
     <string name="app_description">What\'s up in the Universe?!</string>
     <string name="share_the_love">Share the love</string>
+    <string name="settings_delete_articles_older_than">Automatically delete articles older than</string>
+    <string name="two_weeks">Two weeks</string>
+    <string name="one_month">One month</string>
+    <string name="two_months">Two months</string>
+    <string name="three_months">Three months</string>
 </resources>

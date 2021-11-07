@@ -3,13 +3,11 @@ package cz.minarik.nasapp.data.datastore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import cz.minarik.base.common.extensions.*
-import cz.minarik.base.common.prefs.PrefManager
 import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleFilterType
-import cz.minarik.nasapp.utils.*
+import cz.minarik.nasapp.data.domain.DbCleanupItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -30,6 +28,7 @@ object DataStoreManager {
     private const val INITIAL_ARTICLE_LOAD_FINISHED = "INITIAL_ARTICLE_LOAD_FINISHED"
     private const val NEW_ARTICLES_FOUND_IDS = "NEW_ARTICLES_FOUND_IDS"
     private const val LAST_SOURCE_UPDATE = "LAST_SOURCE_UPDATE"
+    private const val ARTICLE_PUB_DATE_LIMIT = "ARTICLE_PUB_DATE_LIMIT"
 
     fun getUseExternalBrowser(): Flow<Boolean> {
         return context.dataStore.getBooleanData(EXTERNAL_BROWSER, false)
@@ -85,6 +84,17 @@ object DataStoreManager {
 
     suspend fun setLastSourcesUpdate(data: Long) {
         context.dataStore.setLongData(LAST_SOURCE_UPDATE, data)
+    }
+
+
+    fun getDbCleanupSettingsItem(): Flow<DbCleanupItem> {
+        return context.dataStore.getIntData(ARTICLE_PUB_DATE_LIMIT).map {
+            DbCleanupItem.fromDaysValue(it)
+        }
+    }
+
+    suspend fun setDbCleanupSettingsItem(data: DbCleanupItem) {
+        context.dataStore.setIntData(ARTICLE_PUB_DATE_LIMIT, data.daysValue)
     }
 
     fun getArticleFilter(): Flow<ArticleFilterType> {

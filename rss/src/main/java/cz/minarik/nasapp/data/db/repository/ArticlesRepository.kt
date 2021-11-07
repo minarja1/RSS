@@ -14,9 +14,10 @@ import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.domain.Article
-import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.utils.Constants
+import cz.minarik.nasapp.utils.addDays
 import cz.minarik.nasapp.utils.createCall
 import cz.minarik.nasapp.utils.toSyncFeed
 import kotlinx.coroutines.*
@@ -69,6 +70,7 @@ class ArticlesRepository(
             Timber.i("flushing cache for url: $url")
             parser.flushCache(url)
             val source = sourceDao.getByUrl(url)
+            val maxDate = Date().addDays(DataStoreManager.getDbCleanupSettingsItem().first().daysValue)
             source?.let { source ->
                 if (source.isAtom) {
                     okHttpClient.createCall(source.url).execute().use { response ->
@@ -77,14 +79,13 @@ class ArticlesRepository(
                             synchronized(this) {
                                 result.addAll(articles.map {
                                     Article.fromLibrary(it, source.url, source.title)
-                                }.filter { it.isValid }
+                                }.filter { it.isValid(maxDate) }
                                 )
                             }
                         }
                     }
                 } else {
                     val articles = parser.getChannel(source.url).articles
-                    //todo take n? to optimize
                     articles.forEach {
                         it.sourceUrl = source.url
                         it.sourceName = source.title
@@ -92,7 +93,7 @@ class ArticlesRepository(
                     synchronized(this) {
                         result.addAll(articles.map {
                             Article.fromLibrary(it)
-                        }.filter { it.isValid }
+                        }.filter { it.isValid(maxDate) }
                         )
                     }
                 }

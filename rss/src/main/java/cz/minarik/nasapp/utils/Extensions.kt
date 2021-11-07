@@ -1,5 +1,6 @@
 package cz.minarik.nasapp.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
@@ -7,11 +8,14 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.chimbori.crux.articles.Article
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rometools.rome.feed.synd.SyndEntry
 import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
@@ -270,4 +274,20 @@ fun Date.add(field: Int, amount: Int): Date {
 
 fun String.removeImagesFromHtml(): String {
     return replace(Regex("<img .*?>"), "");
+}
+
+@SuppressLint("unused")
+fun Context.showAlertDialog(dialogBuilder: AlertDialog.Builder.() -> Unit) {
+    val builder = MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+    builder.dialogBuilder()
+    val dialog = builder.create()
+    dialog.show()
+}
+
+@SuppressLint("unused")
+fun Fragment.showAlertDialog(dialogBuilder: AlertDialog.Builder.() -> Unit) {
+    val builder = MaterialAlertDialogBuilder(requireActivity(), R.style.AlertDialogTheme)
+    builder.dialogBuilder()
+    val dialog = builder.create()
+    dialog.show()
 }

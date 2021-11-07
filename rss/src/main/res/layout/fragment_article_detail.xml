@@ -65,8 +65,10 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="32dp"
                     android:maxLines="5"
-                    android:textAppearance="?textAppearanceHeadline5"
-                    tools:text="Ldlkf jsladkj faslkdj falskdj flasdjk falsdkj flasdkj flaksjdf laksdjf lakjfd laksdjflj " />
+                    android:textSize="24dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                    tools:text="Ldlkf jsladkj faslkdj falskdj flasdjk falsdkj flasdkj flaksjdf laksdjf lakjfd laksdjflj "
+                    tools:ignore="SpUsage" />
             </FrameLayout>
 
             <com.google.android.material.appbar.MaterialToolbar
