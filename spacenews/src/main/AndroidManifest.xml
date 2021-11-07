@@ -22,12 +22,12 @@
         <activity
             android:name="cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivity"
             android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/AppTheme.NoActionBar.Launcher">
+            android:theme="@style/AppTheme.NoActionBar.Launcher"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

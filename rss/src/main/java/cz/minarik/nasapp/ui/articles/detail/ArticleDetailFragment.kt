@@ -100,6 +100,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     private fun updateArticleStarred() {
         starImageButton.setImageDrawable(
             ContextCompat.getDrawable(
+
                 requireContext(),
                 if (articleDTO.starred) R.drawable.ic_baseline_star_24 else R.drawable.ic_baseline_star_outline_24
             )
@@ -232,7 +233,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     private fun prepareWebView() {
-        webView.setOnTouchListener { v, event ->
+        webView.setOnTouchListener { _, _ ->
             userInteracted = true
             false
         }

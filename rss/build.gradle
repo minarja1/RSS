@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    api 'com.github.minarja1:Base:v1.0.9'
+    api 'com.github.minarja1:Base:v1.0.10'
     implementation 'com.prof18.rssparser:rssparser:3.1.2'
 
     api platform('com.google.firebase:firebase-bom:26.4.0')
