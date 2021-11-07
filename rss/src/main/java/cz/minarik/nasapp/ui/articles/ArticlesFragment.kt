@@ -15,7 +15,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*

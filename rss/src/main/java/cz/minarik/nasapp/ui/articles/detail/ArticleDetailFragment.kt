@@ -31,7 +31,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.base.BaseActivity
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*

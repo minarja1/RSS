@@ -3,7 +3,7 @@ package cz.minarik.nasapp.data.db.entity
 import androidx.room.Entity
 import androidx.room.Index
 import cz.minarik.nasapp.data.domain.Article
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import java.util.*
 
 @Entity(primaryKeys = ["guid", "date"],
@@ -20,6 +20,7 @@ data class ArticleEntity(
     var image: String? = null,
     var link: String? = null,
     var description: String? = null,
+    @Deprecated("do not use")
     var content: String? = null,
     var audio: String? = null,
     var video: String? = null,
@@ -39,7 +40,6 @@ data class ArticleEntity(
                 date = article.date ?: Date(),
                 link = article.link,
                 description = article.description.toString(),
-                content = article.content,
                 audio = article.audio,
                 video = article.video,
                 categories = article.categories,
@@ -58,7 +58,6 @@ data class ArticleEntity(
                 date = article.formattedDate ?: Date(),
                 link = article.link,
                 description = article.description,
-                content = article.content,
                 audio = article.audio,
                 video = article.video,
                 categories = article.categories,

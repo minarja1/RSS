@@ -44,7 +44,7 @@ import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivity
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_articles.*

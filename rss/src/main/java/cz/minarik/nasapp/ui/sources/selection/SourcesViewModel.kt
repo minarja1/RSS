@@ -3,7 +3,6 @@ package cz.minarik.nasapp.ui.sources.selection
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import cz.minarik.base.di.base.BaseViewModel
-import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
@@ -25,7 +24,7 @@ class SourcesViewModel(
 
     val selectedSourceChanged = MutableLiveData<Boolean>()
     val selectedSourceName = MutableLiveData<String?>()
-    val selectedSourceImage = MutableLiveData<String>()
+    val selectedSourceImage = MutableLiveData<String?>()
 
     init {
         sourceRepository.updateRSSSourcesFromRealtimeDB {
@@ -80,16 +79,6 @@ class SourcesViewModel(
                 selectedSourceFound = true
             }
 
-            //"all articles" on top
-            //selected when nothing in DB is actually selected
-            allLists.add(
-                0,
-                RSSSourceRepository.createFakeListItem(
-                    context.getString(R.string.all_articles),
-                    allSources.map { it.URLs[0] },
-                    !selectedSourceFound
-                )
-            )
             if (!selectedSourceFound) {
                 selectedSourceName.postValue(null)
                 selectedSourceImage.postValue("")
@@ -100,28 +89,7 @@ class SourcesViewModel(
         }
     }
 
-    fun onSourceSelected(sourceSelection: RSSSource) {
-        launch {
-            when {
-                sourceSelection.isFake -> {
-                    sourceRepository.unSelectAll()
-                }
-                sourceSelection.isList -> {
-                    sourceSelection.listId?.let {
-                        sourceRepository.setSelectedList(it)
-                    }
-                }
-                else -> {
-                    sourceRepository.setSelected(sourceSelection.URLs.firstOrNull())
-                }
-            }
-            selectedSourceChanged.postValue(true)
-            updateSourcesSelection()
-        }
-    }
-
-
-    fun markAsBlocked(source: RSSSource, blocked: Boolean) {
+    fun markAsBlocked(source: RSSSource, blocked: Boolean, onFinished: (() -> Unit)? = null) {
         launch {
             source.URLs.firstOrNull()?.let {
                 val entity = sourceDao.getByUrl(it)
@@ -130,6 +98,7 @@ class SourcesViewModel(
                     entity.isSelected = false
                     sourceDao.update(entity)
                     updateSourcesSelection()
+                    onFinished?.invoke()
                 }
             }
         }

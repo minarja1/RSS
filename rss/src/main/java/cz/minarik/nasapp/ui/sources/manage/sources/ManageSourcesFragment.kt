@@ -45,7 +45,8 @@ class ManageSourcesFragment : BaseFragment(R.layout.fragment_recycler) {
                 val blocked = !source.isHidden
                 source.isHidden = blocked
                 manageSourcesAdapter.notifyItemChanged(position)
-                viewModel.markAsBlocked(source, blocked)
+                viewModel.markAsBlocked(source, blocked){
+                }
             },
         )
 

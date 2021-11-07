@@ -15,7 +15,7 @@ import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.domain.Article
 import cz.minarik.nasapp.data.domain.RSSSource
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
 import cz.minarik.nasapp.utils.createCall
 import cz.minarik.nasapp.utils.toSyncFeed
@@ -184,8 +184,8 @@ class ArticlesRepository(
     }
 
 
-    private suspend fun getAllForSourceConcurrently(source: RSSSource): MutableList<ArticleEntity> {
-        val fromDB: MutableList<ArticleEntity> = mutableListOf()
+    private suspend fun getAllForSourceConcurrently(source: RSSSource): MutableList<ArticleEntity?> {
+        val fromDB: MutableList<ArticleEntity?> = mutableListOf()
 
         coroutineScope { // limits the scope of concurrency
             (source.URLs).map { url ->
@@ -206,18 +206,18 @@ class ArticlesRepository(
             val fromDB = getAllForSourceConcurrently(selectedSource)
 
             val duration = System.currentTimeMillis() - startTime
-            Timber.i("${javaClass.name} fetching ${fromDB.size} articles in $duration ms")
+            Timber.i("${javaClass.name}timer fetching ${fromDB.size} articles in $duration ms")
 
             val mappingStartTime = System.currentTimeMillis()
 
-            val result = fromDB.map { entity ->
+            val result = fromDB.filterNotNull().map { entity ->
                 ArticleDTO.fromDb(entity).apply {
                     showSource = selectedSource.isList
                 }
             }
 
             val mappingDuration = System.currentTimeMillis() - mappingStartTime
-            Timber.i("${javaClass.name} mapping ${fromDB.size} articles in $mappingDuration ms")
+            Timber.i("${javaClass.name}timer mapping ${fromDB.size} articles in $mappingDuration ms")
 
             return result
         }

@@ -25,8 +25,12 @@
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/include_toolbar_with_subtitle.xml" value="0.15806159420289856" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/layout_appbar_toolbar.xml" value="0.3880208333333333" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/row_article_item.xml" value="0.3880208333333333" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/row_article_source_button.xml" value="0.3111413043478261" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/row_source_item.xml" value="0.3111413043478261" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/scroll_to_top_menu_item_with_badge_layout.xml" value="0.23641304347826086" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/source_selection_list_item.xml" value="0.3111413043478261" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/menu/menu_articles_fragment.xml" value="0.25" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/menu/menu_rss_source.xml" value="0.3875" />
       </map>
     </option>
   </component>

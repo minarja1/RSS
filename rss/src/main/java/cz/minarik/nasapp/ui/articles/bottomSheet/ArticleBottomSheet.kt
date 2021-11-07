@@ -8,7 +8,7 @@ import coil.load
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.base.BaseBottomSheet
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
 import kotlinx.android.synthetic.main.bottom_sheet_article.*
 import java.net.MalformedURLException

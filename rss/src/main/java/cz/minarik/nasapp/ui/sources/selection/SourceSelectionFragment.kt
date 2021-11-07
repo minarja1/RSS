@@ -4,17 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.datastore.DataStoreManager
-import cz.minarik.nasapp.data.domain.ArticleSourceButton
+import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.ui.MainActivity
-import cz.minarik.nasapp.ui.articles.ArticlesFragmentDirections
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.startCircularReveal
@@ -32,9 +29,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
     private lateinit var concatAdapter: ConcatAdapter
     private lateinit var sourcesAdapter: ArticleSourceAdapter
     private lateinit var sourceListAdapter: ArticleSourceAdapter
-
-    private var listsVisible = true
-    private var sourcesVisible = true
 
     override var referencedViewPosX: Int = 0
     override var referencedViewPosY: Int = 0
@@ -83,32 +77,24 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         articleSourcesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
-        val manageSourcesAdapter = ArticleSourceButtonAdapter(
-            listOf(
-                ArticleSourceButton(
-                    getString(R.string.manage_sources),
-                    R.drawable.ic_baseline_tap_and_play_24
-                )
-            ), onItemClicked = {
-                try {
-                    val action = ArticlesFragmentDirections.actionArticlesToSourceManagement()
-                    findNavController().navigate(action)
-                } catch (e: Exception) {
-                }
-            })
-
         sourceListAdapter = ArticleSourceAdapter(
-            onItemClicked = { if (!it.selected) viewModel.onSourceSelected(it) },
+            onItemClicked = { rssSource ->
+                if (!rssSource.selected) {
+                    rssSource.URLs.firstOrNull()?.let { onSourceSelected(rssSource) }
+                }
+            },
             showPopupMenu = false
         )
 
         sourcesAdapter = ArticleSourceAdapter(
-            onItemClicked = { if (!it.selected) viewModel.onSourceSelected(it) },
+            onItemClicked = { rssSource ->
+                if (!rssSource.selected) {
+                    rssSource.URLs.firstOrNull()?.let { onSourceSelected(rssSource) }
+                }
+            },
             onItemBlocked = {
-                viewModel.markAsBlocked(it, !it.isHidden)
-                articlesViewModel.loadArticles()
-                articleSourcesRecyclerView.post {
-                    articleSourcesRecyclerView.smoothScrollToPosition(getTotalItemCount())
+                viewModel.markAsBlocked(it, !it.isHidden) {
+                    articlesViewModel.loadArticles()
                 }
             },
             onItemInfo = {
@@ -116,43 +102,24 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
             },
         )
 
-        val allowSourceManagement = RSSApp.sharedInstance.allowSourceManagement
         concatAdapter = ConcatAdapter()
 
-        if (allowSourceManagement) {
-            concatAdapter.addAdapter(manageSourcesAdapter)
-            concatAdapter.addAdapter(
-                TitleAdapter(listOf(getString(R.string.lists)), onItemClicked = {
-                    listsVisible = if (listsVisible) {
-                        concatAdapter.removeAdapter(sourceListAdapter)
-                        false
-                    } else {
-                        concatAdapter.addAdapter(2, sourceListAdapter)
-                        true
-                    }
-                }),
-            )
-        }
+
         concatAdapter.addAdapter(sourceListAdapter)
-        if (allowSourceManagement) {
-            concatAdapter.addAdapter(
-                TitleAdapter(listOf(getString(R.string.sources)), onItemClicked = {
-                    sourcesVisible = if (sourcesVisible) {
-                        concatAdapter.removeAdapter(sourcesAdapter)
-                        false
-                    } else {
-                        concatAdapter.addAdapter(concatAdapter.adapters.size, sourcesAdapter)
-                        true
-                    }
-                })
-            )
-        }
         concatAdapter.addAdapter(sourcesAdapter)
 
         articleSourcesRecyclerView.adapter = concatAdapter
 
         backgroundView.setOnClickListener {
             (requireActivity() as MainActivity).showHideSourceSelection(false)
+        }
+    }
+
+    private fun onSourceSelected(source: RSSSource) {
+        if (!source.isList) {
+            source.URLs.firstOrNull()?.let {
+                (requireActivity() as MainActivity).navigateToSimpleArticles(it)
+            }
         }
     }
 

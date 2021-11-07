@@ -12,7 +12,7 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.articles.GenericArticlesFragment
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*

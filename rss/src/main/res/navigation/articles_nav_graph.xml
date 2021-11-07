@@ -87,7 +87,7 @@
         android:name="cz.minarik.nasapp.ui.articles.detail.ArticleDetailFragment">
         <argument
             android:name="article"
-            app:argType="cz.minarik.nasapp.ui.custom.ArticleDTO" />
+            app:argType="cz.minarik.nasapp.data.domain.ArticleDTO" />
 
         <action
             android:id="@+id/action_article_detail_to_source_detail"

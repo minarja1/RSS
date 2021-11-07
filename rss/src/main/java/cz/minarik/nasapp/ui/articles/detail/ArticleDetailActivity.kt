@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.ui.base.BaseActivity
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.utils.Constants
 
 class ArticleDetailActivity : BaseActivity() {

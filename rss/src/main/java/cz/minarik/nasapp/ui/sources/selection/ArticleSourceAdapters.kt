@@ -1,25 +1,15 @@
 package cz.minarik.nasapp.ui.sources.selection
 
-import android.view.Gravity
-import android.view.MenuItem
 import android.view.View
 import android.view.animation.LinearInterpolator
-import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
-import coil.load
-import cz.minarik.base.common.extensions.iconizeMenu
 import cz.minarik.base.ui.base.BaseAdapter
 import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.data.datastore.DataStoreManager
-import cz.minarik.nasapp.data.domain.ArticleSourceButton
 import cz.minarik.nasapp.data.domain.RSSSource
 import kotlinx.android.synthetic.main.item_product_section_title.view.*
-import kotlinx.android.synthetic.main.row_article_source_button.view.*
 import kotlinx.android.synthetic.main.row_source_item.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.android.synthetic.main.source_selection_list_item.view.*
 
 class TitleAdapter(
     items: List<String> = emptyList(),
@@ -77,65 +67,18 @@ class ArticleSourceAdapter(
         itemView.run {
             sourceSelectionView.set(item)
             sourceSelectionView.setOnClickListener {
-                onItemClicked?.invoke(item)
+                if (item.isHidden && showPopupMenu) {
+                    sourceSelectionView.showPopUp(onItemBlocked, onItemInfo)
+                } else {
+                    onItemClicked?.invoke(item)
+                }
             }
             if (showPopupMenu) {
                 sourceSelectionView.setOnLongClickListener {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        DataStoreManager.setShouldShowLongPressHint(false)
-                    }
-                    val popup = PopupMenu(context, this)
-                    popup.menuInflater.inflate(R.menu.menu_rss_source, popup.menu)
-
-                    popup.setOnMenuItemClickListener { menuItem: MenuItem ->
-                        when (menuItem.itemId) {
-                            R.id.unblockAction, R.id.blockAction -> {
-                                onItemBlocked?.invoke(item)
-                            }
-                            R.id.infoAction -> {
-                                onItemInfo?.invoke(item)
-                            }
-                        }
-                        true
-                    }
-
-                    popup.iconizeMenu(resources)
-
-                    popup.gravity = Gravity.END
-
-                    popup.menu.findItem(R.id.blockAction).isVisible = !item.isHidden
-                    popup.menu.findItem(R.id.unblockAction).isVisible = item.isHidden
-
-                    popup.show()
+                    sourceSelectionView.showPopUp(onItemBlocked, onItemInfo)
                     true
                 }
             }
-        }
-    }
-}
-
-class ArticleSourceButtonAdapter(
-    buttons: List<ArticleSourceButton>,
-    private var onItemClicked: (() -> Unit)?
-) : BaseAdapter<ArticleSourceButton>(
-    R.layout.row_article_source_button,
-    buttons
-) {
-
-    override fun bind(
-        itemView: View,
-        item: ArticleSourceButton,
-        position: Int,
-        viewHolder: BaseViewHolderImp
-    ) {
-        itemView.run {
-            sourceButtonBackground.setOnClickListener {
-                onItemClicked?.invoke()
-            }
-            item.imageRes?.let {
-                sourceButtonImageView.load(item.imageRes)
-            }
-            sourceButtonTextView.text = item.title
         }
     }
 }

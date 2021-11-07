@@ -20,7 +20,7 @@ import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -266,4 +266,8 @@ fun Date.add(field: Int, amount: Int): Date {
     cal.clear()
 
     return this
+}
+
+fun String.removeImagesFromHtml(): String {
+    return replace(Regex("<img .*?>"), "");
 }

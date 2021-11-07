@@ -31,4 +31,4 @@
 
 -keep class cz.minarik.nasapp.data.** { *; }
 -keep class cz.minarik.nasapp.base.network.** { *; }
--keep class cz.minarik.nasapp.ui.custom.ArticleDTO.** { *; }
+-keep class cz.minarik.nasapp.data.domain.ArticleDTO.** { *; }

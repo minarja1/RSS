@@ -18,7 +18,7 @@ import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first

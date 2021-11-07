@@ -6,7 +6,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.custom.ArticleDTO
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.custom.ArticleListItemView
 import kotlinx.android.synthetic.main.article_list_item.view.*
 

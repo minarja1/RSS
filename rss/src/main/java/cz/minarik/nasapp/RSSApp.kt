@@ -21,8 +21,6 @@ abstract class RSSApp : Application() {
         sharedInstance = this
     }
 
-    open val allowSourceManagement = true
-
     companion object {
         lateinit var sharedInstance: RSSApp
             private set
