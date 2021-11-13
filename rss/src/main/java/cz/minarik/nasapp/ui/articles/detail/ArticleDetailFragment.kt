@@ -18,9 +18,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
-import coil.Coil
 import coil.load
-import coil.request.ImageRequest
 import com.chimbori.crux.articles.Article
 import com.google.android.material.appbar.AppBarLayout
 import cz.minarik.base.common.extensions.*
@@ -29,9 +27,9 @@ import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.base.BaseActivity
-import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_article_detail.*
@@ -197,23 +195,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
         fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
 
         toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
-        val builder = ImageRequest.Builder(requireContext())
-        val request = builder
-            .data(articleDTO.image)
-            .target(
-                onError = {
-                    requireActivity().startPostponedEnterTransition()
-                },
-                onSuccess = {
-                    toolbarExpandedImage.setImageDrawable(it)
-                    requireActivity().startPostponedEnterTransition()
-                }
-            )
-            .build()
-        Coil.enqueue(request)
-
+        toolbarExpandedImage.load(articleDTO.image)
+        requireActivity().startPostponedEnterTransition()
         toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT)
-
         try {
             val url = URL(articleDTO.sourceUrl)
             sourceImageView.load(url.getFavIcon())
@@ -345,11 +329,13 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     fun handleError(code: Int) {
         if (code == -2) {
             //other errors ignored because sometimes webView will just throw an error but the page is actually loaded
-            if (!requireContext().isInternetAvailable) {
-                stateView?.noInternet(true) {
-                    if (requireContext().isInternetAvailable) {
-                        stateView.loading(false)
-                        loadArticleWebView()
+            context?.let {
+                if (!it.isInternetAvailable) {
+                    stateView?.noInternet(true) {
+                        if (it.isInternetAvailable) {
+                            stateView.loading(false)
+                            loadArticleWebView()
+                        }
                     }
                 }
             }
