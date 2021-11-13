@@ -70,7 +70,8 @@ class ArticlesRepository(
             Timber.i("flushing cache for url: $url")
             parser.flushCache(url)
             val source = sourceDao.getByUrl(url)
-            val maxDate = Date().addDays(DataStoreManager.getDbCleanupSettingsItem().first().daysValue)
+            val maxDate =
+                Date().addDays(DataStoreManager.getDbCleanupSettingsItem().first().daysValue)
             source?.let { source ->
                 if (source.isAtom) {
                     okHttpClient.createCall(source.url).execute().use { response ->
@@ -142,7 +143,7 @@ class ArticlesRepository(
                             description = "this is more fake than fakeFile.txt",
                             publicationDate = Date(),
                             guid = System.currentTimeMillis().toString(),
-                            sourceUrl = sourceDao.getALl().first().url
+                            sourceUrl = sourceDao.getALl().first().firstOrNull()?.url
                         )
                     )
                 }

@@ -6,11 +6,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import cz.minarik.nasapp.data.db.RSSDatabase
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
-import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailViewModel
-import cz.minarik.nasapp.ui.sources.manage.source_detail.SourceListDetailViewModel
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import me.toptas.rssconverter.RssConverterFactory
 import org.koin.android.ext.koin.androidApplication
@@ -27,21 +25,14 @@ val appModule = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
 
     viewModel {
         SourcesViewModel(
-            androidContext(),
-            get(),
             get(),
             get(),
         )
-    }
-
-    viewModel { (source: RSSSource) ->
-        SourceListDetailViewModel(source)
     }
 
     viewModel { (sourceUrl: String) ->
@@ -49,7 +40,7 @@ val appModule = module {
     }
 
     single {
-        RSSSourceRepository(androidContext(), get(), get())
+        RSSSourceRepository(androidContext(), get())
     }
     single {
         ArticlesRepository(get(), get())
@@ -81,7 +72,6 @@ val dbModule = module {
 
     // Dao
     single { get<RSSDatabase>().rssSourceDao() }
-    single { get<RSSDatabase>().rssSourceListDao() }
     single { get<RSSDatabase>().starredArticleDao() }
 }
 

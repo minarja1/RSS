@@ -13,9 +13,9 @@ import cz.minarik.base.common.extensions.isScrolledToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
-import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
 import kotlinx.android.synthetic.main.fragment_articles.*
@@ -100,16 +100,10 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override fun initObserve() {
         super.initObserve()
-        sourcesViewModel.selectedSourceChanged.toFreshLiveData().observe {
-            viewModel.loadArticles(scrollToTop = true)
-            (requireActivity() as MainActivity).showHideSourceSelection(false)
-        }
-        sourcesViewModel.selectedSourceName.observe {
-            toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
-            toolbarSubtitle.text = it
-        }
-        sourcesViewModel.selectedSourceImage.observe {
-            toolbarImageView.load(it)
+        sourcesViewModel.selectedSource.collectWhenStarted {
+            toolbarSubtitleContainer.isVisible = !it?.title.isNullOrEmpty()
+            toolbarSubtitle.text = it?.title
+            toolbarImageView.load(it?.imageUrl)
         }
 
         sourcesViewModel.sourceRepository.sourcesChanged.toFreshLiveData().observe {
@@ -126,6 +120,9 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                         .first() != ArticleFilterType.Starred
                 newPostsTV.text = resources.getQuantityString(R.plurals.new_articles, it, it)
             }
+        }
+        viewModel.sourceDao.getAllUnblockedFlow().collectWhenStarted {
+            viewModel.loadArticles()
         }
     }
 

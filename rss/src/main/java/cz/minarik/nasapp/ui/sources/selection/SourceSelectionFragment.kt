@@ -28,7 +28,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
 
     private lateinit var concatAdapter: ConcatAdapter
     private lateinit var sourcesAdapter: ArticleSourceAdapter
-    private lateinit var sourceListAdapter: ArticleSourceAdapter
 
     override var referencedViewPosX: Int = 0
     override var referencedViewPosY: Int = 0
@@ -55,10 +54,7 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
     }
 
     private fun initObserve() {
-        viewModel.sourceSelectionsListsData.observe { sources ->
-            sourceListAdapter.submitList(sources)
-        }
-        viewModel.sourcesSelectionData.observe { sources ->
+        viewModel.allSources.collectWhenStarted { sources ->
             sourcesAdapter.submitList(sources)
         }
 
@@ -77,15 +73,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         articleSourcesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
-        sourceListAdapter = ArticleSourceAdapter(
-            onItemClicked = { rssSource ->
-                if (!rssSource.selected) {
-                    rssSource.URLs.firstOrNull()?.let { onSourceSelected(rssSource) }
-                }
-            },
-            showPopupMenu = false
-        )
-
         sourcesAdapter = ArticleSourceAdapter(
             onItemClicked = { rssSource ->
                 if (!rssSource.selected) {
@@ -93,9 +80,7 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                 }
             },
             onItemBlocked = {
-                viewModel.markAsBlocked(it, !it.isHidden) {
-                    articlesViewModel.loadArticles()
-                }
+                viewModel.markAsBlocked(it, !it.isHidden)
             },
             onItemInfo = {
                 (requireActivity() as MainActivity).navigateToSourceDetail(it.URLs[0])
@@ -104,8 +89,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
 
         concatAdapter = ConcatAdapter()
 
-
-        concatAdapter.addAdapter(sourceListAdapter)
         concatAdapter.addAdapter(sourcesAdapter)
 
         articleSourcesRecyclerView.adapter = concatAdapter
@@ -121,10 +104,6 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
                 (requireActivity() as MainActivity).navigateToSimpleArticles(it)
             }
         }
-    }
-
-    private fun getTotalItemCount(): Int {
-        return sourceListAdapter.itemCount + sourcesAdapter.itemCount
     }
 
 }

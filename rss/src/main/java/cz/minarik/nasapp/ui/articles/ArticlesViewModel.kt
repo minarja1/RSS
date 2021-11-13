@@ -11,14 +11,14 @@ import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
-import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
-import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.utils.RemoteConfigHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -31,7 +31,6 @@ class ArticlesViewModel(
     val articlesRepository: ArticlesRepository,
     private val articleDao: ArticleDao,
     val sourceDao: RSSSourceDao,
-    private val sourceListDao: RSSSourceListDao,
 ) : BaseViewModel() {
 
     private var currentLoadingJob: Job? = null
@@ -79,6 +78,16 @@ class ArticlesViewModel(
                 ) {
                     if (reloadAfter) loadArticles()
                 }
+            }
+        }
+    }
+
+    fun loadArticlesOrSources() {
+        launch {
+            if (DataStoreManager.getInitialArticleLoadFinished().first()) {
+                loadArticles()
+            } else {
+                RemoteConfigHelper.updateDB()
             }
         }
     }
@@ -300,8 +309,6 @@ class ArticlesViewModel(
 
     suspend fun getSource(): RSSSource {
         return sourceDao.getSelected()?.let {
-            RSSSource.fromEntity(it)
-        } ?: sourceListDao.getSelected()?.let {
             RSSSource.fromEntity(it)
         } ?: RSSSourceRepository.createFakeListItem(
             RSSApp.applicationContext.getString(R.string.all_articles),

@@ -27,7 +27,6 @@ object DataStoreManager {
     private const val INITIAL_SYNC_FINISHED = "INITIAL_SYNC_FINISHED"
     private const val INITIAL_ARTICLE_LOAD_FINISHED = "INITIAL_ARTICLE_LOAD_FINISHED"
     private const val NEW_ARTICLES_FOUND_IDS = "NEW_ARTICLES_FOUND_IDS"
-    private const val LAST_SOURCE_UPDATE = "LAST_SOURCE_UPDATE"
     private const val ARTICLE_PUB_DATE_LIMIT = "ARTICLE_PUB_DATE_LIMIT"
 
     fun getUseExternalBrowser(): Flow<Boolean> {
@@ -77,15 +76,6 @@ object DataStoreManager {
     suspend fun setInitialArticleLoadFinished(data: Boolean) {
         context.dataStore.setBooleanData(INITIAL_ARTICLE_LOAD_FINISHED, data)
     }
-
-    fun getLastSourcesUpdate(): Flow<Long> {
-        return context.dataStore.getLongData(LAST_SOURCE_UPDATE)
-    }
-
-    suspend fun setLastSourcesUpdate(data: Long) {
-        context.dataStore.setLongData(LAST_SOURCE_UPDATE, data)
-    }
-
 
     fun getDbCleanupSettingsItem(): Flow<DbCleanupItem> {
         return context.dataStore.getIntData(ARTICLE_PUB_DATE_LIMIT).map {

@@ -1,95 +1,25 @@
 package cz.minarik.nasapp.ui.sources.selection
 
-import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
-import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.domain.RSSSource
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 
 class SourcesViewModel(
-    private val context: Context,
     val sourceRepository: RSSSourceRepository,
     private val sourceDao: RSSSourceDao,
-    private val sourceListDao: RSSSourceListDao,
 ) : BaseViewModel() {
 
-    val sourcesSelectionData = MutableLiveData<MutableList<RSSSource>>()
-    val sourceSelectionsListsData = MutableLiveData<MutableList<RSSSource>>()
+    val selectedSource = sourceDao.getSelectedFlow()
 
-    val sourcesManagementData = MutableLiveData<MutableList<RSSSource>>()
-    val sourceManagementListsData = MutableLiveData<MutableList<RSSSource>>()
-
-    val selectedSourceChanged = MutableLiveData<Boolean>()
-    val selectedSourceName = MutableLiveData<String?>()
-    val selectedSourceImage = MutableLiveData<String?>()
-
-    init {
-        sourceRepository.updateRSSSourcesFromRealtimeDB {
-            updateAll()
-        }
-        updateAll()
-    }
-
-    private fun updateAll() {
-        updateSourcesSelection()
-        updateSourcesManagement()
-    }
-
-    private fun updateSourcesManagement() {
-        defaultScope.launch {
-            val allSources: MutableList<RSSSource> = mutableListOf()
-            allSources.addAll(sourceDao.getALl().map {
-                RSSSource.fromEntity(it)
-            })
-
-            val allLists: MutableList<RSSSource> = mutableListOf()
-            allLists.addAll(sourceListDao.getAll().map {
-                RSSSource.fromEntity(it)
-            })
-
-            sourcesManagementData.postValue(allSources)
-            sourceManagementListsData.postValue(allLists)
+    val allSources = sourceDao.getALl().map { allSources ->
+        allSources.map {
+            RSSSource.fromEntity(it)
         }
     }
 
-
-    private fun updateSourcesSelection() {
-        defaultScope.launch {
-            val allSources: MutableList<RSSSource> = mutableListOf()
-            var selectedSourceFound = false
-            allSources.addAll(sourceDao.getALl().map {
-                RSSSource.fromEntity(it)
-            })
-            allSources.firstOrNull { it.selected }?.let {
-                selectedSourceName.postValue(it.title)
-                selectedSourceImage.postValue(it.imageUrl)
-                selectedSourceFound = true
-            }
-
-            val allLists: MutableList<RSSSource> = mutableListOf()
-            allLists.addAll(sourceListDao.getAll().map {
-                RSSSource.fromEntity(it)
-            })
-            allLists.firstOrNull { it.selected }?.let {
-                selectedSourceName.postValue(it.title)
-                selectedSourceImage.postValue("")
-                selectedSourceFound = true
-            }
-
-            if (!selectedSourceFound) {
-                selectedSourceName.postValue(null)
-                selectedSourceImage.postValue("")
-            }
-
-            sourcesSelectionData.postValue(allSources)
-            sourceSelectionsListsData.postValue(allLists)
-        }
-    }
-
-    fun markAsBlocked(source: RSSSource, blocked: Boolean, onFinished: (() -> Unit)? = null) {
+    fun markAsBlocked(source: RSSSource, blocked: Boolean) {
         launch {
             source.URLs.firstOrNull()?.let {
                 val entity = sourceDao.getByUrl(it)
@@ -97,8 +27,6 @@ class SourcesViewModel(
                     entity.isHidden = blocked
                     entity.isSelected = false
                     sourceDao.update(entity)
-                    updateSourcesSelection()
-                    onFinished?.invoke()
                 }
             }
         }

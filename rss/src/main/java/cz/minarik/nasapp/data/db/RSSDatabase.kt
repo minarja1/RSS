@@ -7,12 +7,11 @@ import androidx.room.TypeConverters
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
 import cz.minarik.base.common.extensions.moshi
-import cz.minarik.nasapp.data.db.dao.RSSSourceDao
-import cz.minarik.nasapp.data.db.dao.RSSSourceListDao
 import cz.minarik.nasapp.data.db.dao.ArticleDao
+import cz.minarik.nasapp.data.db.dao.RSSSourceDao
+import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.db.entity.RSSSourceListEntity
-import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import java.util.*
 
 @Database(
@@ -33,7 +32,6 @@ abstract class RSSDatabase : RoomDatabase() {
     }
 
     abstract fun rssSourceDao(): RSSSourceDao
-    abstract fun rssSourceListDao(): RSSSourceListDao
     abstract fun starredArticleDao(): ArticleDao
 }
 

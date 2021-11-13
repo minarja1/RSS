@@ -507,7 +507,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 } else {
                     stateView.noInternet(true) {
                         if (requireContext().isInternetAvailable) {
-                            viewModel.loadArticles()
+                            viewModel.loadArticlesOrSources()
                         }
                     }
                 }
@@ -516,7 +516,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
             if (articlesEmpty) {
                 //full-screen error
                 stateView.error(show = true, message = loadingMessage) {
-                    viewModel.loadArticles()
+                    viewModel.loadArticlesOrSources()
                 }
             } else {
                 showToast(
