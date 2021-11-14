@@ -1,13 +1,17 @@
 package cz.minarik.nasapp
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import coil.Coil
 import coil.ImageLoader
 import coil.util.CoilUtils
 import com.google.android.gms.security.ProviderInstaller
 import cz.minarik.nasapp.di.allModules
 import cz.minarik.nasapp.utils.AppStarter
+import cz.minarik.nasapp.utils.Constants.Companion.notificationChannelId
 import cz.minarik.nasapp.utils.TimberReleaseTree
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
@@ -39,7 +43,26 @@ abstract class RSSApp : Application() {
         initCoilImageLoader()
         initTimber()
         AppStarter.run()
+        createNotificationChannel()
     }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notification_channel_name)
+            val descriptionText = getString(R.string.notification_channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(notificationChannelId, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
 
     private fun initTimber() {
         if (BuildConfig.DEBUG) {

@@ -1,6 +1,5 @@
 package cz.minarik.nasapp.utils
 
-import cz.minarik.nasapp.BuildConfig
 import java.util.concurrent.TimeUnit
 
 class Constants {
@@ -13,5 +12,7 @@ class Constants {
         val listItemExpandDuration: Long get() = 300L
         val circularRevealDuration: Long get() = 300L
 
+        const val notificationChannelId = "articles_nitfication_channel"
+        const val notificationId = 69
     }
 }

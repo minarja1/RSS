@@ -72,12 +72,11 @@ class ArticlesViewModel(
         launch {
             if (RSSApp.applicationContext.isInternetAvailable) {
                 articlesRepository.updateArticles(
-                    selectedSource = getSource(),
+                    sourceUrls = getSource().URLs,
                     notifyNewArticles = !reloadAfter,
-                    coroutineScope = defaultScope
-                ) {
-                    if (reloadAfter) loadArticles()
-                }
+                    coroutineScope = defaultScope,
+                    onFinished = { if (reloadAfter) loadArticles() }
+                )
             }
         }
     }

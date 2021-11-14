@@ -15,6 +15,9 @@ interface ArticleDao : BaseDao<ArticleEntity> {
     @Query("Select * From ArticleEntity order by date desc limit 1")
     suspend fun getNewest(): List<ArticleEntity>
 
+    @Query("Select * From ArticleEntity order by date desc limit :count")
+    suspend fun getNewestCount(count: Int): List<ArticleEntity>
+
     @Query("Select * From ArticleEntity Where guid = :guid and date = :date order by date desc")
     suspend fun getByGuidAndDate(guid: String, date: Date): ArticleEntity?
 

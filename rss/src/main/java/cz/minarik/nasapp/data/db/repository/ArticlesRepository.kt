@@ -35,6 +35,9 @@ class ArticlesRepository(
     //for debug purposes
     private val fakeNewArticle = false
 
+    //for debug purposes
+    private val fakeNewArticleForNotification = true
+
     /**
      * number of new articles fetched from server and previously not present in DB
      */
@@ -108,15 +111,16 @@ class ArticlesRepository(
     /**
      * Loads articles from server and updates DB
      *
-     * [selectedSource] the source for which articles will be updated
+     * [sourceUrls] the source for which articles will be updated
      * [notifyNewArticles] whether to notify that new posts have been found
      * [onFinished] callback to when update is finished
      */
-    suspend fun updateArticles(
-        selectedSource: RSSSource?,
+    fun updateArticles(
+        sourceUrls: List<String>,
         notifyNewArticles: Boolean = false,
         coroutineScope: CoroutineScope,
         onFinished: (() -> Unit)? = null,
+        handleNewArticles: ((List<ArticleEntity>) -> Unit)? = null,
     ) {
         coroutineScope.launch {
             state.postValue(Loading)
@@ -127,13 +131,13 @@ class ArticlesRepository(
 
             val allArticleList = mutableListOf<Article>()
 
-            (selectedSource?.URLs?.indices)?.map {
+            (sourceUrls.indices).map {
                 async(Dispatchers.IO) {
-                    loadArticlesFromUrl(selectedSource.URLs[it], allArticleList)
+                    loadArticlesFromUrl(sourceUrls[it], allArticleList)
                 }
-            }?.awaitAll()
+            }.awaitAll()
 
-            val newArticlesFound = mutableListOf<String>()
+            val newArticlesFound = mutableListOf<ArticleEntity>()
 
             if (fakeNewArticle && BuildConfig.DEBUG) {
                 for (i in 0 until counter) {
@@ -159,7 +163,7 @@ class ArticlesRepository(
 
                             currentNewest?.let {
                                 if (newEntity.date.after(currentNewest)) newArticlesFound.add(
-                                    newEntity.guid
+                                    newEntity
                                 )
                             }
                         }
@@ -173,10 +177,17 @@ class ArticlesRepository(
             Timber.i("Repository: fetching articles finished in $duration ms")
 
             if (notifyNewArticles) notifyNewArticles(newArticlesFound)
+
+            if (fakeNewArticleForNotification) {
+                newArticlesFound.addAll(
+                    dao.getNewestCount(3)
+                )
+            }
+            handleNewArticles?.invoke(newArticlesFound)
         }
     }
 
-    private suspend fun notifyNewArticles(newArticles: List<String>) {
+    private suspend fun notifyNewArticles(newArticles: List<ArticleEntity>) {
         val initialArticleLoadFinished = DataStoreManager.getInitialArticleLoadFinished().first()
         if (initialArticleLoadFinished) {
             newArticlesCount.postValue(newArticles.count())

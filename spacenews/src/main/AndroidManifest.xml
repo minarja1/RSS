@@ -25,7 +25,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".SplashActivity"
+            android:name="cz.minarik.nasapp.ui.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

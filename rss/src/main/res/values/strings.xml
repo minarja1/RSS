@@ -74,4 +74,6 @@
     <string name="one_month">One month</string>
     <string name="two_months">Two months</string>
     <string name="three_months">Three months</string>
+    <string name="notification_channel_name">Articles</string>
+    <string name="notification_channel_description">Get notified about new articles</string>
 </resources>
