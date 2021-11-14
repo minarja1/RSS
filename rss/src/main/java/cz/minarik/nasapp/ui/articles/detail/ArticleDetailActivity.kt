@@ -1,10 +1,12 @@
 package cz.minarik.nasapp.ui.articles.detail
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.ui.base.BaseActivity
 import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.ui.base.BaseActivity
 import cz.minarik.nasapp.utils.Constants
 
 class ArticleDetailActivity : BaseActivity() {
@@ -25,5 +27,14 @@ class ArticleDetailActivity : BaseActivity() {
             .replace(R.id.container, fragment, fragmentTag)
             .setPrimaryNavigationFragment(fragment)
             .commitNowAllowingStateLoss()
+    }
+
+    override fun onBackPressed() {
+        if (isTaskRoot) {//opened from notification
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        } else {
+            super.onBackPressed()
+        }
     }
 }

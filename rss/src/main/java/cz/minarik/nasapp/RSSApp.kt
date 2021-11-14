@@ -42,8 +42,8 @@ abstract class RSSApp : Application() {
         }
         initCoilImageLoader()
         initTimber()
-        AppStarter.run()
         createNotificationChannel()
+        AppStarter.run(applicationContext)
     }
 
     private fun createNotificationChannel() {

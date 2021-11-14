@@ -6,6 +6,7 @@ import androidx.work.*
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
@@ -42,10 +43,12 @@ class UpdateArticlesWorker(appContext: Context, workerParams: WorkerParameters) 
             sourceUrls = sourceDao.getAllUnblocked().map { it.url },
             coroutineScope = this,
             handleNewArticles = {
-                NotificationHelper.showNotification(
-                    it,
-                    this@UpdateArticlesWorker.applicationContext
-                )
+                this.launch {
+                    NotificationHelper.showNotifications(
+                        it,
+                        this@UpdateArticlesWorker.applicationContext
+                    )
+                }
             }
         )
         //we don't care about result

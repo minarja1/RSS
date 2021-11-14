@@ -12,7 +12,9 @@ class Constants {
         val listItemExpandDuration: Long get() = 300L
         val circularRevealDuration: Long get() = 300L
 
+
         const val notificationChannelId = "articles_nitfication_channel"
-        const val notificationId = 69
+        const val notificationDescriptionMaxLength = 100
+
     }
 }

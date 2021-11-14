@@ -10,6 +10,7 @@ import android.net.Uri
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -290,4 +291,15 @@ fun Fragment.showAlertDialog(dialogBuilder: AlertDialog.Builder.() -> Unit) {
     builder.dialogBuilder()
     val dialog = builder.create()
     dialog.show()
+}
+
+fun String.removeHtml(): String {
+    return HtmlCompat.fromHtml(this, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+}
+
+fun String.ellipsize(where: Int): String {
+    if (this.length > where) {
+        return "${this.take(where)}${Typography.ellipsis}"
+    }
+    return this
 }

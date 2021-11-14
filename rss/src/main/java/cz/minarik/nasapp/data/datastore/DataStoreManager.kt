@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.squareup.moshi.JsonAdapter
 import cz.minarik.base.common.extensions.*
 import cz.minarik.nasapp.RSSApp
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.data.domain.DbCleanupItem
+import cz.minarik.nasapp.utils.NotificationSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -21,6 +23,7 @@ object DataStoreManager {
 
     private const val SHOULD_SHOW_LP_HINT = "SHOULD_SHOW_LP_HINT"
     private const val EXPAND_ALL_CARDS = "EXPAND_ALL_CARDS"
+    private const val NOTIFICATION_SETTINGS = "NOTIFICATION_SETTINGS"
     private const val OPEN_ARTICLES_BROWSER = "OPEN_ARTICLES_BROWSER"
     private const val EXTERNAL_BROWSER = "EXTERNAL_BROWSER"
     private const val ARTICLE_FILTER = "ARTICLE_FILTER"
@@ -28,6 +31,9 @@ object DataStoreManager {
     private const val INITIAL_ARTICLE_LOAD_FINISHED = "INITIAL_ARTICLE_LOAD_FINISHED"
     private const val NEW_ARTICLES_FOUND_IDS = "NEW_ARTICLES_FOUND_IDS"
     private const val ARTICLE_PUB_DATE_LIMIT = "ARTICLE_PUB_DATE_LIMIT"
+
+    private val notificationSettingsAdapter: JsonAdapter<NotificationSettings> =
+        moshi().adapter(NotificationSettings::class.java)
 
     fun getUseExternalBrowser(): Flow<Boolean> {
         return context.dataStore.getBooleanData(EXTERNAL_BROWSER, false)
@@ -51,6 +57,23 @@ object DataStoreManager {
 
     suspend fun setExpandAllCards(data: Boolean) {
         context.dataStore.setBooleanData(EXPAND_ALL_CARDS, data)
+    }
+
+    fun getNotificationSettings(): Flow<NotificationSettings> {
+        return context.dataStore.getStringData(NOTIFICATION_SETTINGS).map {
+            if(it.isEmpty()){
+                NotificationSettings()
+            } else {
+                notificationSettingsAdapter.fromJson(it) ?: NotificationSettings()
+            }
+        }
+    }
+
+    suspend fun setNotificationSettings(data: NotificationSettings) {
+        context.dataStore.setStringData(
+            NOTIFICATION_SETTINGS,
+            notificationSettingsAdapter.toJson(data)
+        )
     }
 
     fun getShouldShowLongPressHint(): Flow<Boolean> {

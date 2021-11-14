@@ -76,4 +76,6 @@
     <string name="three_months">Three months</string>
     <string name="notification_channel_name">Articles</string>
     <string name="notification_channel_description">Get notified about new articles</string>
+    <string name="notify_all_articles">All new articles</string>
+    <string name="get_notified_about">Get notified about</string>
 </resources>
