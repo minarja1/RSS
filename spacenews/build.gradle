@@ -26,7 +26,7 @@ android {
         def versionMajor = 0
         def versionMinor = 0
         def versionPatch = 0
-        def versionBuild = 16
+        def versionBuild = 17
 
         versionCode = versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName = "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}"
@@ -40,7 +40,7 @@ android {
             debuggable false
             minifyEnabled true
             shrinkResources true
-            manifestPlaceholders = [crashlyticsCollectionEnabled:"true"]
+            manifestPlaceholders = [crashlyticsCollectionEnabled: "true"]
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
@@ -49,7 +49,7 @@ android {
             minifyEnabled false
             shrinkResources false
             ext.enableCrashlytics = false
-            manifestPlaceholders = [crashlyticsCollectionEnabled:"false"]
+            manifestPlaceholders = [crashlyticsCollectionEnabled: "false"]
         }
 
     }
