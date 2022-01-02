@@ -20,6 +20,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
@@ -89,7 +90,7 @@ class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
 
     @Composable
     fun SourceItem(source: RSSSource) {
-        Row {
+        Row (verticalAlignment = Alignment.CenterVertically){
             Image(
                 painter = rememberImagePainter(source.imageUrl),
                 contentDescription = null,
@@ -112,14 +113,15 @@ class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
         }
     }
 
-}
 
-class RSSSourcesPreviewProvider : PreviewParameterProvider<RSSSource> {
-    private val fakeSources = listOf(
-        RSSSource(title = "NASA.com"),
-        RSSSource(title = "ESA.com"),
-        RSSSource(title = "KAK.com"),
-    )
+    class RSSSourcesPreviewProvider : PreviewParameterProvider<RSSSource> {
+        private val fakeSources = listOf(
+            RSSSource(title = "NASA.com"),
+            RSSSource(title = "ESA.com"),
+            RSSSource(title = "KAK.com"),
+        )
 
-    override val values = fakeSources.asSequence()
+        override val values = fakeSources.asSequence()
+    }
+
 }
