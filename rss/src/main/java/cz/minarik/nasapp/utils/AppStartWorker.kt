@@ -19,8 +19,6 @@ class AppStartWorker(appContext: Context, workerParams: WorkerParameters) :
     companion object {
         fun run(context: Context): LiveData<WorkInfo> {
             val constraints: Constraints = Constraints.Builder()
-                //know-how
-//                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
             val work = OneTimeWorkRequestBuilder<AppStartWorker>()

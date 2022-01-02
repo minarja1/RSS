@@ -21,4 +21,7 @@
     <dimen name="menu_item_size">48dp</dimen>
     <dimen name="menu_badge_offset">32dp</dimen>
     <dimen name="menu_item_ripple_size">48dp</dimen>
+
+    <dimen name="keywords_item_padding">4dp</dimen>
+    <dimen name="keywords_item_padding_negative">-4dp</dimen>
 </resources>

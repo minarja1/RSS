@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -302,4 +303,15 @@ fun String.ellipsize(where: Int): String {
         return "${this.take(where)}${Typography.ellipsis}"
     }
     return this
+}
+
+fun EditText.onImeOption(imeOption: Int, action: (() -> Unit)) {
+    setOnEditorActionListener { _, actionId, _ ->
+        if (actionId == imeOption) {
+            action.invoke()
+            true
+        } else {
+            false
+        }
+    }
 }

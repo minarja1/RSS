@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
@@ -8,33 +9,113 @@
 
     <include layout="@layout/layout_appbar_toolbar" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:background="@color/colorBackground">
 
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:drawablePadding="8dp"
-            android:text="@string/get_notified_about"
-            android:textAppearance="@style/TextAppearance.RSS.SettingsSection"
-            app:drawableStartCompat="@drawable/ic_baseline_notifications_24"
-            app:drawableTint="@color/textColorSecondary" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/notifyAll"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:minHeight="56dp"
-            android:text="@string/notify_all_articles"
-            android:textSize="16sp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:text="@string/get_notified_about"
+                android:textAppearance="@style/TextAppearance.RSS.SettingsSection"
+                android:textSize="18sp"
+                app:drawableStartCompat="@drawable/ic_baseline_notifications_24"
+                app:drawableTint="@color/textColorSecondary" />
 
-    </LinearLayout>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/notifyAll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:minHeight="56dp"
+                android:text="@string/notify_all_articles"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:text="@string/keywords"
+                android:textAppearance="@style/TextAppearance.RSS.SettingsSection" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/keywordsTIL"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="0dp"
+                android:hint="@string/add_keyword"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/keywordsEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:minHeight="56dp"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/keywordsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/keywords_item_padding_negative"
+                android:layout_marginEnd="@dimen/keywords_item_padding_negative"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/view_notification_keyword" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="8dp"
+                    android:text="@string/sources"
+                    android:textAppearance="@style/TextAppearance.RSS.SettingsSection" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addSourceButton"
+                    style="@style/OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_source"
+                    app:icon="@drawable/ic_baseline_add_24" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/sourcesRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/keywords_item_padding_negative"
+                android:layout_marginEnd="@dimen/keywords_item_padding_negative"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/view_notification_keyword" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

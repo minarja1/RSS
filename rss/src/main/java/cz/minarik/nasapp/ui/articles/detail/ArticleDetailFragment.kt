@@ -55,35 +55,43 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             }
     }
 
-    private val articleDTO by lazy {
-        arguments?.getSerializable(Constants.argArticleDTO) as ArticleDTO
-    }
+    private lateinit var articleDTO: ArticleDTO
 
     private var userInteracted = false
 
     private var urlsBeingLoaded = mutableListOf<String>()
 
-    val viewModel by inject<ArticlesViewModel>()
+    private val viewModel by inject<ArticlesViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState == null) {
-            viewModel.loadArticleDetail(articleDTO)
-        }
-        initViews()
+        loadArticle()
         initObserve()
+        initViews()
+        updateViews()
+    }
+
+    fun loadArticle(article: ArticleDTO? = null) {
+        articleDTO = article ?: arguments?.getSerializable(Constants.argArticleDTO) as ArticleDTO
+        viewModel.loadArticleDetail(articleDTO)
+        viewModel.markArticleAsReadOrUnread(articleDTO, true)
+        updateViews()
+    }
+
+    private fun updateViews() {
+        loadArticleWebView()
+        sourceNameTextView.text = articleDTO.sourceName
+        dateTextView.text = articleDTO.date?.toTimeElapsed()
+        requireContext().warmUpBrowser(articleDTO.link?.toUri())
+        updateArticleStarred()
+        updateToolbar()
     }
 
     private fun initViews() {
         initToolbar()
         prepareWebView()
-        loadArticleWebView()
-        sourceNameTextView.text = articleDTO.sourceName
-        dateTextView.text = articleDTO.date?.toTimeElapsed()
         stateView.attacheContentView(contentContainer)
-        requireContext().warmUpBrowser(articleDTO.link?.toUri())
         initArticleStarred()
-        updateArticleStarred()
         sourceInfoBackground.setOnClickListener {
             articleDTO.sourceUrl?.let {
                 (requireActivity() as BaseActivity).replaceFragment(
@@ -190,7 +198,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
                 toolbarLayout.title = " "
             }
         })
+    }
 
+    private fun updateToolbar(){
         fakeTitleTextView.text = articleDTO.title
         fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
 

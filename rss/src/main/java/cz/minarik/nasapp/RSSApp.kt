@@ -12,6 +12,7 @@ import com.google.android.gms.security.ProviderInstaller
 import cz.minarik.nasapp.di.allModules
 import cz.minarik.nasapp.utils.AppStarter
 import cz.minarik.nasapp.utils.Constants.Companion.notificationChannelId
+import cz.minarik.nasapp.utils.NotificationHelper
 import cz.minarik.nasapp.utils.TimberReleaseTree
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
@@ -55,6 +56,7 @@ abstract class RSSApp : Application() {
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(notificationChannelId, name, importance).apply {
                 description = descriptionText
+                vibrationPattern = NotificationHelper.vibrationPattern
             }
             // Register the channel with the system
             val notificationManager: NotificationManager =

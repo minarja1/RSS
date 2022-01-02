@@ -32,11 +32,13 @@ class ArticlesRepository(
     private val sourceDao: RSSSourceDao,
 ) : BaseRepository() {
 
-    //for debug purposes
-    private val fakeNewArticle = false
+    companion object {
+        //for debug purposes
+        const val fakeNewArticle = false
 
-    //for debug purposes
-    private val fakeNewArticleForNotification = true
+        //for debug purposes
+        const val fakeNewArticlesForNotification = false
+    }
 
     /**
      * number of new articles fetched from server and previously not present in DB
@@ -178,7 +180,7 @@ class ArticlesRepository(
 
             if (notifyNewArticles) notifyNewArticles(newArticlesFound)
 
-            if (fakeNewArticleForNotification) {
+            if (fakeNewArticlesForNotification && BuildConfig.DEBUG) {
                 newArticlesFound.addAll(
                     dao.getNewestCount(3)
                 )
@@ -243,6 +245,7 @@ class ArticlesRepository(
     }
 
     suspend fun dbCleanUp(date: Date) {
+        Timber.i("Cleaning database")
         dao.deleteNonStarredOlderThan(date)
     }
 

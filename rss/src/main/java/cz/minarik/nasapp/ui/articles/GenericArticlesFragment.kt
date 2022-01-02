@@ -39,12 +39,12 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.ViewModelState
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivity
-import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_articles.*
@@ -72,8 +72,9 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     var toolbarContentContainer: ViewGroup? = null
 
     private val articleDetailLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            updateVisibleItems()
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            //not necessary anymore because we're calling it in onResume()
+//            updateVisibleItems()
         }
 
     private val customTabsConnection = object : CustomTabsServiceConnection() {

@@ -17,9 +17,21 @@ class ArticleDetailActivity : BaseActivity() {
         postponeEnterTransition()
         if (savedInstanceState == null) {
             switchFragment(
-                ArticleDetailFragment.newInstance(intent.extras?.getSerializable(Constants.argArticleDTO) as ArticleDTO)
+                ArticleDetailFragment.newInstance(getArticleFromIntent())
             )
         }
+    }
+
+    private fun getArticleFromIntent(): ArticleDTO {
+        return intent.extras?.getSerializable(Constants.argArticleDTO) as ArticleDTO
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        (supportFragmentManager.primaryNavigationFragment as ArticleDetailFragment).loadArticle(
+            getArticleFromIntent()
+        )
     }
 
     private fun switchFragment(fragment: Fragment) {

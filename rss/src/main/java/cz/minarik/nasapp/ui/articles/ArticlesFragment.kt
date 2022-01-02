@@ -136,6 +136,10 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateVisibleItems()
+    }
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         if (!hidden) updateVisibleItems()

@@ -78,4 +78,7 @@
     <string name="notification_channel_description">Get notified about new articles</string>
     <string name="notify_all_articles">All new articles</string>
     <string name="get_notified_about">Get notified about</string>
+    <string name="keywords">Keywords</string>
+    <string name="add_keyword">Add keyword</string>
+    <string name="add_source">Add source</string>
 </resources>
