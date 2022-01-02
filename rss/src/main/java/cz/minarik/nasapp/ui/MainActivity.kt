@@ -11,6 +11,7 @@ import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.base.BaseActivity
 import cz.minarik.nasapp.ui.settings.NotificationSettingsFragment
 import cz.minarik.nasapp.ui.settings.SettingsFragment
+import cz.minarik.nasapp.ui.settings.sources.AddSourcesFragment
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.ui.sources.selection.SourceSelectionFragment
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
@@ -129,6 +130,10 @@ class MainActivity : BaseActivity() {
 
     fun navigateToNotificationSettings() {
         replaceFragment(NotificationSettingsFragment.newInstance())
+    }
+
+    fun navigateToAddSources() {
+        replaceFragment(AddSourcesFragment.newInstance())
     }
 
     fun navigateToAbout() {

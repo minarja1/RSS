@@ -14,9 +14,9 @@ import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.utils.NotificationSettings
 import cz.minarik.nasapp.utils.onImeOption
-import kotlinx.android.synthetic.main.bottom_sheet_article.*
 import kotlinx.android.synthetic.main.fragment_notification_settings.*
 import kotlinx.android.synthetic.main.view_notification_keyword.view.*
 import kotlinx.coroutines.launch
@@ -51,6 +51,8 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
     }
 
     private fun initViews(view: View) {
+        setHasOptionsMenu(true)
+
         (requireActivity() as AppCompatActivity).run {
             setSupportActionBar(view.findViewById(R.id.toolbar))
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -70,11 +72,11 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
     }
 
     private fun initSources() {
-        sourceButton.setOnClickListener { showSourcesDialog() }
+        addSourceButton.setOnClickListener { goToSources() }
     }
 
-    private fun showSourcesDialog() {
-
+    private fun goToSources() {
+        (requireActivity() as MainActivity).navigateToAddSources()
     }
 
     private fun insertKeyword() {
