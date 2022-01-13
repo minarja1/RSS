@@ -27,7 +27,7 @@ import java.util.*
 abstract class RSSDatabase : RoomDatabase() {
 
     companion object {
-        const val Version = 2
+        const val Version = 3
         const val Name = "RSSDatabase"
     }
 

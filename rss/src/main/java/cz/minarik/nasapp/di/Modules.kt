@@ -74,6 +74,7 @@ val dbModule = module {
                 RSSDatabase.Name
             )
             .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_2_3)
             .build()
     }
 
@@ -85,6 +86,12 @@ val dbModule = module {
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("ALTER TABLE RSSSourceEntity ADD COLUMN isAtom INTEGER DEFAULT 0 NOT NULL")
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE RSSSourceEntity ADD COLUMN isNotificationsEnabled INTEGER DEFAULT 0 NOT NULL")
     }
 }
 

@@ -8,6 +8,8 @@ import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
+import coil.Coil
+import coil.request.ImageRequest
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import cz.minarik.base.common.extensions.hideKeyboard
 import cz.minarik.base.ui.base.BaseFragment
@@ -29,7 +31,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
     }
 
     private lateinit var notificationSettings: NotificationSettings
-    private var keywordsAdapter: NotificationKeywordAdapter? = null
+    private var keywordsAdapter: ChipAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -103,7 +105,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
         }
 
         keywordsAdapter =
-            NotificationKeywordAdapter { item, position ->
+            ChipAdapter { item, position ->
                 notificationSettings.keyWords.remove(item)
                 lifecycleScope.launch { save() }
                 keywordsAdapter?.notifyItemRemoved(position)
@@ -123,7 +125,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
         keywordsRecycler.layoutManager = keywordsLayoutManager
     }
 
-    class NotificationKeywordAdapter(
+    class ChipAdapter(
         private var onItemDeleted: ((item: NotificationKeyword, position: Int) -> Unit)? = null
     ) : BaseListAdapter<NotificationKeyword>(
         R.layout.view_notification_keyword,
@@ -151,6 +153,18 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
         ) {
             itemView.apply {
                 keywordChip.text = item.value
+
+                val request = ImageRequest.Builder(context)
+                    .target(
+                        onSuccess = {
+                            keywordChip.chipIcon = it
+                        }
+                    )
+                    .data("https://ct24.ceskatelevize.cz/sites/default/files/styles/node-article_horizontal/public/images/2312363-nasa-logo-web-rgb.jpg")
+                    .build()
+
+                Coil.enqueue(request)
+
                 keywordChip.setOnCloseIconClickListener {
                     onItemDeleted?.invoke(item, viewHolder.absoluteAdapterPosition)
                 }

@@ -8,22 +8,22 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -80,7 +80,7 @@ class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
     fun Sources(@PreviewParameter(RSSSourcesPreviewProvider::class) sources: State<List<RSSSource>>) {
         LazyColumn(
             Modifier.background(colorResource(id = R.color.colorBackground)),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            contentPadding = PaddingValues(vertical = 8.dp)
         ) {
             items(sources.value) {
                 SourceItem(it)
@@ -90,16 +90,39 @@ class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
 
     @Composable
     fun SourceItem(source: RSSSource) {
-        Row (verticalAlignment = Alignment.CenterVertically){
+        var showIcon by remember {
+            mutableStateOf(source.isNotificationsEnabled)
+        }
+
+        Row(
+            modifier = Modifier
+                .clickable {
+                    viewModel.sourceSelected(source)
+                    showIcon = !showIcon
+                }
+                .height(48.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Image(
                 painter = rememberImagePainter(source.imageUrl),
                 contentDescription = null,
                 modifier = Modifier.size(32.dp)
             )
             Text(
-                modifier = Modifier.padding(start = 16.dp),
-                text = source.title ?: "", style = typography.h6
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .weight(1f),
+                text = source.title ?: "", style = typography.body1
             )
+            Image(
+                modifier = Modifier.alpha(if (showIcon) 1f else 0f),
+                painter = painterResource(id = R.drawable.ic_baseline_check_circle_outline_24),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(colorResource(id = R.color.colorAccent)),
+            )
+
         }
     }
 

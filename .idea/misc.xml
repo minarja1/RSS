@@ -9,7 +9,9 @@
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/divider_16dp_vertical.xml" value="0.1875" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/gradient_bottom.xml" value="0.36203703703703705" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/gradient_bottom_color_surface.xml" value="0.36203703703703705" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/ic_baseline_check_24.xml" value="0.4777777777777778" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/ic_baseline_content_copy_24.xml" value="0.36203703703703705" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/ic_baseline_star_24.xml" value="0.2828125" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/activity_article_detail.xml" value="0.23278985507246377" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/activity_main.xml" value="0.2203125" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/article_list_item.xml" value="0.3880208333333333" />
@@ -32,7 +34,7 @@
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/row_source_item.xml" value="0.3111413043478261" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/scroll_to_top_menu_item_with_badge_layout.xml" value="0.23641304347826086" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/source_selection_list_item.xml" value="0.75" />
-        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/view_notification_keyword.xml" value="0.3532608695652174" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/view_notification_keyword.xml" value="0.67" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/view_notification_tag.xml" value="0.37726449275362317" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/view_state_view.xml" value="0.2" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/menu/menu_articles_fragment.xml" value="0.25" />

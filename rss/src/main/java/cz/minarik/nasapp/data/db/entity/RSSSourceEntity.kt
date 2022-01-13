@@ -22,6 +22,7 @@ data class RSSSourceEntity(
     var isUserAdded: Boolean = false,
     var isSelected: Boolean = false,
     var isHidden: Boolean = false,
+    var isNotificationsEnabled: Boolean = false,
     var forceOpenExternally: Boolean = false,
     var isAtom: Boolean = false,
 

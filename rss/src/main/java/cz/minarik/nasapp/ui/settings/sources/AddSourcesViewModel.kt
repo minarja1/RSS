@@ -15,5 +15,13 @@ class AddSourcesViewModel(
         }
     }
 
+    fun sourceSelected(source: RSSSource) {
+        launch {
+            sourceDao.getByUrl(source.URLs.first())?.let {
+                it.isNotificationsEnabled = !it.isNotificationsEnabled
+                sourceDao.update(it)
+            }
+        }
+    }
 
 }

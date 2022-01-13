@@ -41,7 +41,7 @@ class UpdateArticlesWorker(appContext: Context, workerParams: WorkerParameters) 
                     work
                 )
             } else {
-                work = PeriodicWorkRequestBuilder<UpdateArticlesWorker>(15, TimeUnit.MINUTES)
+                work = PeriodicWorkRequestBuilder<UpdateArticlesWorker>(30, TimeUnit.MINUTES)
                     .setConstraints(constraints)
                     .build()
                 workManager.enqueueUniquePeriodicWork(
@@ -55,11 +55,11 @@ class UpdateArticlesWorker(appContext: Context, workerParams: WorkerParameters) 
         }
     }
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = coroutineScope {
         Timber.i("Working")
         repository.updateArticles(
             sourceUrls = sourceDao.getAllUnblocked().map { it.url },
-            coroutineScope = coroutineScope { this },
+            coroutineScope = this,
             handleNewArticles = {
                 NotificationHelper.showNotifications(
                     it,
@@ -68,7 +68,7 @@ class UpdateArticlesWorker(appContext: Context, workerParams: WorkerParameters) 
             }
         )
         //we don't care about result
-        return Result.success()
+        Result.success()
     }
 
 }

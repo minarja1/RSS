@@ -14,6 +14,7 @@ data class RSSSource(
     var isFake: Boolean = false,//"all articles"
     var isList: Boolean = false,
     var isHidden: Boolean = false,
+    var isNotificationsEnabled: Boolean = false,
     var openExternally: Boolean = false
 ) : Serializable {
 
@@ -28,6 +29,7 @@ data class RSSSource(
                 selected = entity.isSelected,
                 isList = false,
                 isHidden = entity.isHidden,
+                isNotificationsEnabled = entity.isNotificationsEnabled,
                 openExternally = entity.forceOpenExternally
             )
         }
