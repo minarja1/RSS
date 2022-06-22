@@ -555,7 +555,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     protected fun updateVisibleItems() {
-        //update visible items in adapter (changed might have been made in article detail OR SimpleAriclesFragment)
+        //update visible items in adapter (changed might have been made in article detail OR SimpleArticlesFragment)
         articlesAdapter.notifyItemRangeChanged(
             (articlesRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
             (articlesRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()

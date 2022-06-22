@@ -121,7 +121,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                 newPostsTV.text = resources.getQuantityString(R.plurals.new_articles, it, it)
             }
         }
-        viewModel.sourceDao.getAllUnblockedFlow().collectWhenStarted {
+        viewModel.sourceDao.getAllUnblockedLiveData().observe {
             viewModel.loadArticles()
         }
     }
