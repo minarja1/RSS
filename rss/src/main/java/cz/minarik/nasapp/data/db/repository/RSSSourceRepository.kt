@@ -12,7 +12,9 @@ import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
 import cz.minarik.nasapp.data.db.entity.RSSSourceEntity
 import cz.minarik.nasapp.data.domain.RSSSource
-import cz.minarik.nasapp.utils.*
+import cz.minarik.nasapp.utils.RssFeedDTO
+import cz.minarik.nasapp.utils.createCall
+import cz.minarik.nasapp.utils.toSyncFeed
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.net.URL
@@ -84,29 +86,13 @@ class RSSSourceRepository(
                         try {
                             var entity = sourceDao.getByUrl(feedUrl)
                             val url = URL(feedUrl)
-                            if (entity == null) {
-                                if (feed.atom) {
-                                    okHttpClient.createCall(feedUrl).execute().use { response ->
-                                        val channel = response.toSyncFeed()
-                                        entity = RSSSourceEntity(
-                                            url = feedUrl,
-                                            title = channel?.title,
-                                            description = channel?.description,
-                                            imageUrl = url.getFavIcon(),
-                                            homePage = feed.homePage,
-                                            contactUrl = feed.contact,
-                                            forceOpenExternally = feed.forceOpenExternal,
-                                            isAtom = feed.atom,
-                                            isHidden = entity?.isHidden ?: false,
-                                            isSelected = entity?.isSelected ?: false,
-                                        )
-                                    }
-                                } else {
-                                    val channel = parser.getChannel(feedUrl)
+                            if (feed.atom) {
+                                okHttpClient.createCall(feedUrl).execute().use { response ->
+                                    val channel = response.toSyncFeed()
                                     entity = RSSSourceEntity(
                                         url = feedUrl,
-                                        title = channel.title,
-                                        description = channel.description,
+                                        title = channel?.title,
+                                        description = channel?.description,
                                         imageUrl = url.getFavIcon(),
                                         homePage = feed.homePage,
                                         contactUrl = feed.contact,
@@ -116,6 +102,20 @@ class RSSSourceRepository(
                                         isSelected = entity?.isSelected ?: false,
                                     )
                                 }
+                            } else {
+                                val channel = parser.getChannel(feedUrl)
+                                entity = RSSSourceEntity(
+                                    url = feedUrl,
+                                    title = channel.title,
+                                    description = channel.description,
+                                    imageUrl = url.getFavIcon(),
+                                    homePage = feed.homePage,
+                                    contactUrl = feed.contact,
+                                    forceOpenExternally = feed.forceOpenExternal,
+                                    isAtom = feed.atom,
+                                    isHidden = entity?.isHidden ?: false,
+                                    isSelected = entity?.isSelected ?: false,
+                                )
                             }
 
                             entity?.let { sourceDao.insert(it) }
