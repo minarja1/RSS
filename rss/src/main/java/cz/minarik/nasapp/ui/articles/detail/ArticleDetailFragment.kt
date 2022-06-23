@@ -229,7 +229,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             allowContentAccess = true
             loadWithOverviewMode = true
             builtInZoomControls = true
-            builtInZoomControls = true
+            domStorageEnabled = true
         }
         webView.webViewClient = ArticleWebViewClient()
         webView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
