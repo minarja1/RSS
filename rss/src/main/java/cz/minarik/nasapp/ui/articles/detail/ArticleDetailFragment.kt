@@ -228,7 +228,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             cacheMode = WebSettings.LOAD_DEFAULT
             allowContentAccess = true
             loadWithOverviewMode = true
-            builtInZoomControls = true
+            builtInZoomControls = false
             domStorageEnabled = true
         }
         webView.webViewClient = ArticleWebViewClient()
@@ -268,8 +268,8 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
                 articleDTO.link?.let { link ->
                     val isAnotherArticle = request?.url?.toString()?.contains(link, true) == false
                     if (isAnotherArticle) {
-                        request?.url?.let {
-                            requireContext().openCustomTabs(it)
+                        request?.url?.let { uri ->
+                            context?.openCustomTabs(uri)
                         }
                     }
                     return isAnotherArticle
