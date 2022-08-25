@@ -92,7 +92,7 @@ class ArticleDetailSimpleFragmentTest : BaseFragment(R.layout.fragment_article_d
         prepareWebView()
         loadArticleWebView()
         requireContext().warmUpBrowser(articleDTO.link?.toUri())
-        initToolbar()   
+        initToolbar()
         webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             setMargins(0, 0, 0, requireContext().navigationBarHeight)
         }
