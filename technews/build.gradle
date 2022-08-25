@@ -19,14 +19,14 @@ android {
     }
 
     defaultConfig {
-        applicationId "cz.minarik.spacenews"
+        applicationId "cz.minarik.technews"
         minSdkVersion 21
         targetSdkVersion 30
 
         def versionMajor = 0
         def versionMinor = 0
         def versionPatch = 0
-        def versionBuild = 18
+        def versionBuild = 17
 
         versionCode = versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName = "${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}"
@@ -63,7 +63,7 @@ android {
     }
 
     buildFeatures {
-        // Enables Jetpack Compose for this module  
+        // Enables Jetpack Compose for this module
         compose true
     }
     composeOptions {

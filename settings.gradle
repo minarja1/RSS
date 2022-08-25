@@ -1,3 +1,4 @@
 include ':spacenews'
 include ':rss'
 rootProject.name = "RSS"
+include ':technews'

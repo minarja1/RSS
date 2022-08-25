@@ -10,11 +10,14 @@
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/gradient_bottom.xml" value="0.36203703703703705" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/gradient_bottom_color_surface.xml" value="0.36203703703703705" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/ic_baseline_content_copy_24.xml" value="0.36203703703703705" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/ic_baseline_star_24.xml" value="0.228" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/drawable/ic_baseline_star_outline_24.xml" value="0.228" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/activity_article_detail.xml" value="0.23278985507246377" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/activity_main.xml" value="0.2203125" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/article_list_item.xml" value="0.3880208333333333" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/fragment_about.xml" value="0.33" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/fragment_article_detail.xml" value="0.1887031408308004" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/fragment_article_detail_simple.xml" value="0.3546195652173913" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/fragment_articles.xml" value="0.17" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/fragment_manage_sources_parent.xml" value="0.14166666666666666" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/fragment_recycler.xml" value="0.3111413043478261" />
@@ -29,8 +32,11 @@
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/row_source_item.xml" value="0.3111413043478261" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/scroll_to_top_menu_item_with_badge_layout.xml" value="0.23641304347826086" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/layout/source_selection_list_item.xml" value="0.3111413043478261" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/menu/menu_article_detail.xml" value="0.45" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/menu/menu_article_detail_simple.xml" value="0.45" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/menu/menu_articles_fragment.xml" value="0.25" />
         <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/rss/src/main/res/menu/menu_rss_source.xml" value="0.3875" />
+        <entry key="..\:/Users/jakub/androidStudioProjects/NASApp/technews/src/main/res/drawable/splash_background.xml" value="0.1235" />
       </map>
     </option>
   </component>

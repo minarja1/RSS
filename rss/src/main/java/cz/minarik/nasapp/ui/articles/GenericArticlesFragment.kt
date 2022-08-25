@@ -39,12 +39,12 @@ import cz.minarik.nasapp.R
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.ViewModelState
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
-import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivity
-import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivitySimple
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
 import cz.minarik.nasapp.utils.*
 import kotlinx.android.synthetic.main.fragment_articles.*
@@ -213,16 +213,11 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         imageView: ImageView,
         textView: TextView,
     ) {
-        val intent = Intent(requireContext(), ArticleDetailActivity::class.java).apply {
+        val intent = Intent(requireContext(), ArticleDetailActivitySimple::class.java).apply {
             putExtra(Constants.argArticleDTO, articleDTO)
         }
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            requireActivity(),
-            Pair.create(imageView, articleDTO.guid.toImageSharedTransitionName()),
-            Pair.create(textView, articleDTO.guid.toTitleSharedTransitionName()),
-        )
 
-        articleDetailLauncher.launch(intent, options)
+        articleDetailLauncher.launch(intent)
     }
 
     protected val articlesAdapter by lazy {

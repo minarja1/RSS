@@ -242,4 +242,7 @@
         <item name="colorPrimary">@color/colorAccent</item>
     </style>
 
+    <style name="ArticleDetailTextStyle" parent="@style/Base.TextAppearance.AppCompat.Title">
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>
