@@ -6,7 +6,7 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     signingConfigs {
@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId "cz.minarik.technews"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
 
         def versionMajor = 0
         def versionMinor = 0

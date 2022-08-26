@@ -74,6 +74,10 @@ dependencies {
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
+    //WorkManager
+    def work_version = "2.7.1"
+    api "androidx.work:work-runtime-ktx:$work_version"
+
     api 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     implementation 'com.chimbori.crux:crux:3.0.0'
