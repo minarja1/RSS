@@ -6,16 +6,19 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.DbCleanupItem
+import cz.minarik.nasapp.databinding.FragmentSettingsBinding
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.utils.showAlertDialog
-import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class SettingsFragment : BaseFragment(R.layout.fragment_settings) {
+class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
+
+    override fun getViewBinding(): FragmentSettingsBinding =
+        FragmentSettingsBinding.inflate(layoutInflater)
 
     companion object {
         fun newInstance(): SettingsFragment = SettingsFragment()
@@ -32,55 +35,57 @@ class SettingsFragment : BaseFragment(R.layout.fragment_settings) {
     }
 
     private fun initViews(view: View) {
-        (requireActivity() as AppCompatActivity).run {
-            setSupportActionBar(view.findViewById(R.id.toolbar))
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.title = requireContext().getString(R.string.settings)
-        }
-
-        DataStoreManager.getExpandAllCards().collectWhenStarted {
-            expandAllCardsSwitch.isChecked = it
-        }
-        expandAllCardsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch {
-                DataStoreManager.setExpandAllCards(isChecked)
+        binding.run {
+            (requireActivity() as AppCompatActivity).run {
+                setSupportActionBar(view.findViewById(R.id.toolbar))
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                supportActionBar?.title = requireContext().getString(R.string.settings)
             }
-        }
 
-        DataStoreManager.getOpenArticlesInBrowser().collectWhenStarted {
-            openBrowserSwitch.isChecked = it
-        }
-        openBrowserSwitch.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch {
-                DataStoreManager.setOpenArticlesInBrowser(isChecked)
+            DataStoreManager.getExpandAllCards().collectWhenStarted {
+                expandAllCardsSwitch.isChecked = it
             }
-        }
-
-        DataStoreManager.getUseExternalBrowser().collectWhenStarted {
-            useExternalBrowserSwitch.isChecked = it
-        }
-        useExternalBrowserSwitch.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch {
-                DataStoreManager.setUseExternalBrowser(isChecked)
+            expandAllCardsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                lifecycleScope.launch {
+                    DataStoreManager.setExpandAllCards(isChecked)
+                }
             }
-        }
 
-        notificationsTextView.setOnClickListener {
-            Snackbar.make(
-                notificationsTextView,
-                R.string.notifications_coming_soon,
-                Snackbar.LENGTH_LONG
-            ).show()
-        }
+            DataStoreManager.getOpenArticlesInBrowser().collectWhenStarted {
+                openBrowserSwitch.isChecked = it
+            }
+            openBrowserSwitch.setOnCheckedChangeListener { _, isChecked ->
+                lifecycleScope.launch {
+                    DataStoreManager.setOpenArticlesInBrowser(isChecked)
+                }
+            }
 
-        initDbCleanupItem()
+            DataStoreManager.getUseExternalBrowser().collectWhenStarted {
+                useExternalBrowserSwitch.isChecked = it
+            }
+            useExternalBrowserSwitch.setOnCheckedChangeListener { _, isChecked ->
+                lifecycleScope.launch {
+                    DataStoreManager.setUseExternalBrowser(isChecked)
+                }
+            }
+
+            notificationsTextView.setOnClickListener {
+                Snackbar.make(
+                    notificationsTextView,
+                    R.string.notifications_coming_soon,
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+
+            initDbCleanupItem()
+        }
     }
 
     private fun initDbCleanupItem() {
         DataStoreManager.getDbCleanupSettingsItem().collectWhenStarted {
-            dbCleanupTextView.text = it.toString(requireContext())
+            binding.dbCleanupTextView.text = it.toString(requireContext())
         }
-        dbCleanupItem.setOnClickListener {
+        binding.dbCleanupItem.setOnClickListener {
             lifecycleScope.launch {
                 showDbCleanupChoiceDialog()
             }

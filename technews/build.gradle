@@ -1,12 +1,11 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
     signingConfigs {
@@ -20,8 +19,8 @@ android {
 
     defaultConfig {
         applicationId "cz.minarik.technews"
-        minSdkVersion 21
-        targetSdkVersion 31
+        minSdkVersion 22
+        targetSdkVersion 33
 
         def versionMajor = 0
         def versionMinor = 0
@@ -54,21 +53,22 @@ android {
 
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
-        useIR = true
+        jvmTarget = "11"
     }
 
     buildFeatures {
         // Enables Jetpack Compose for this module
         compose true
+        viewBinding true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.0.0-beta08'
+        kotlinCompilerExtensionVersion '1.4.3'
     }
+    namespace 'cz.minarik.technews'
 }
 
 dependencies {

@@ -15,16 +15,19 @@ import cz.minarik.base.common.extensions.copyToClipBoard
 import cz.minarik.base.common.extensions.getFavIcon
 import cz.minarik.base.common.extensions.openCustomTabs
 import cz.minarik.base.common.extensions.showToast
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.databinding.FragmentSourceDetailBinding
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.utils.Constants
-import kotlinx.android.synthetic.main.fragment_source_detail.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.net.URL
 
 
-class SourceDetailFragment : BaseFragment(R.layout.fragment_source_detail) {
+class SourceDetailFragment : BaseFragment<FragmentSourceDetailBinding>() {
+
+    override fun getViewBinding(): FragmentSourceDetailBinding =
+        FragmentSourceDetailBinding.inflate(layoutInflater)
 
     private lateinit var toolbarTitleTextView: TextView
     private lateinit var toolbarImageView: ImageView
@@ -54,31 +57,33 @@ class SourceDetailFragment : BaseFragment(R.layout.fragment_source_detail) {
     }
 
     private fun initObserve() {
-        viewModel.sourceLiveData.observe { rssSource ->
-            toolbarTitleTextView.text = rssSource.title
-            toolbarImageView.load(URL(sourceUrl).getFavIcon())
-            descriptionContainer.isVisible = rssSource.description != null
-            descriptionTextView.text = rssSource.description
+        binding.run {
+            viewModel.sourceLiveData.observe { rssSource ->
+                toolbarTitleTextView.text = rssSource.title
+                toolbarImageView.load(URL(sourceUrl).getFavIcon())
+                descriptionContainer.isVisible = rssSource.description != null
+                descriptionTextView.text = rssSource.description
 
-            feedUrlButton.setText(sourceUrl)
-            feedUrlButton.setOnClickListener {
-                requireContext().copyToClipBoard("source URL", sourceUrl)
-                showToast(requireContext(), getString(R.string.copied_to_clipboard))
-            }
-
-            val homePage = rssSource.homePage?.toUri()
-            homepageButton.isVisible = homePage != null
-            homepageButton.setOnClickListener {
-                homePage?.let {
-                    requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+                feedUrlButton.setText(sourceUrl)
+                feedUrlButton.setOnClickListener {
+                    requireContext().copyToClipBoard("source URL", sourceUrl)
+                    showToast(requireContext(), getString(R.string.copied_to_clipboard))
                 }
-            }
 
-            val contact = rssSource.contactUrl?.toUri()
-            contactInfoButton.isVisible = contact != null
-            contactInfoButton.setOnClickListener {
-                contact?.let {
-                    requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+                val homePage = rssSource.homePage?.toUri()
+                homepageButton.isVisible = homePage != null
+                homepageButton.setOnClickListener {
+                    homePage?.let {
+                        requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+                    }
+                }
+
+                val contact = rssSource.contactUrl?.toUri()
+                contactInfoButton.isVisible = contact != null
+                contactInfoButton.setOnClickListener {
+                    contact?.let {
+                        requireContext().openCustomTabs(it, CustomTabsIntent.Builder())
+                    }
                 }
             }
         }

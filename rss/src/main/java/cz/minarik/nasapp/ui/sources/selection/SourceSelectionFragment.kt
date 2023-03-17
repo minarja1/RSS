@@ -7,21 +7,22 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import cz.minarik.base.ui.base.BaseFragment
-import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.RSSSource
+import cz.minarik.nasapp.databinding.FragmentSourceSelectionBinding
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.startCircularReveal
-import kotlinx.android.synthetic.main.fragment_source_selection.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection),
-    ExitWithAnimation {
+class SourceSelectionFragment : BaseFragment<FragmentSourceSelectionBinding>(), ExitWithAnimation {
+
+    override fun getViewBinding(): FragmentSourceSelectionBinding =
+        FragmentSourceSelectionBinding.inflate(layoutInflater)
 
     val viewModel by sharedViewModel<SourcesViewModel>()
     private val articlesViewModel by inject<ArticlesViewModel>()
@@ -59,18 +60,18 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
         }
 
         DataStoreManager.getShouldShowLongPressHint().collectWhenStarted {
-            longPressHint.isVisible = it
+            binding.longPressHint.isVisible = it
         }
     }
 
     private fun initViews() {
-        longPressDismissButton.setOnClickListener {
+        binding.longPressDismissButton.setOnClickListener {
             lifecycleScope.launch {
                 DataStoreManager.setShouldShowLongPressHint(false)
             }
         }
 
-        articleSourcesRecyclerView.layoutManager =
+        binding.articleSourcesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         sourcesAdapter = ArticleSourceAdapter(
@@ -91,9 +92,9 @@ class SourceSelectionFragment : BaseFragment(R.layout.fragment_source_selection)
 
         concatAdapter.addAdapter(sourcesAdapter)
 
-        articleSourcesRecyclerView.adapter = concatAdapter
+        binding.articleSourcesRecyclerView.adapter = concatAdapter
 
-        backgroundView.setOnClickListener {
+        binding.backgroundView.setOnClickListener {
             (requireActivity() as MainActivity).showHideSourceSelection(false)
         }
     }

@@ -3,6 +3,7 @@ package cz.minarik.nasapp.ui.custom
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.LinearLayout
 import androidx.appcompat.widget.PopupMenu
@@ -14,7 +15,7 @@ import cz.minarik.base.common.extensions.tint
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.RSSSource
-import kotlinx.android.synthetic.main.source_selection_list_item.view.*
+import cz.minarik.nasapp.databinding.SourceSelectionListItemBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,44 +26,48 @@ class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
 
     var source: RSSSource? = null
 
+    private var binding: SourceSelectionListItemBinding
+
     init {
-        inflate(context, R.layout.source_selection_list_item, this)
+        binding = SourceSelectionListItemBinding.inflate(LayoutInflater.from(context), this, true)
     }
 
     fun set(source: RSSSource) {
         this.source = source
 
-        sourceNameTextView.text = source.title
+        binding.apply {
+            sourceNameTextView.text = source.title
 
-        when {
-            !source.imageUrl.isNullOrEmpty() -> {
-                sourceImageView.load(source.imageUrl) {
-                    fallback(R.drawable.ic_baseline_article_24)
+            when {
+                !source.imageUrl.isNullOrEmpty() -> {
+                    sourceImageView.load(source.imageUrl) {
+                        fallback(R.drawable.ic_baseline_article_24)
+                    }
+                }
+                source.isList -> {
+                    sourceImageView.load(R.drawable.ic_baseline_article_24)
+                }
+                else -> {
+                    val drawable = ContextCompat.getDrawable(context, R.drawable.comet_24px)
+                    drawable?.tint(context, R.color.textColorPrimary)
+                    sourceImageView.load(drawable)
                 }
             }
-            source.isList -> {
-                sourceImageView.load(R.drawable.ic_baseline_article_24)
-            }
-            else -> {
-                val drawable = ContextCompat.getDrawable(context, R.drawable.comet_24px)
-                drawable?.tint(context, R.color.textColorPrimary)
-                sourceImageView.load(drawable)
-            }
-        }
 
-        sourceImageView.alpha = if (source.isHidden) 0.5f else 1f
+            sourceImageView.alpha = if (source.isHidden) 0.5f else 1f
 
-        sourceNameTextView.setTextColor(
-            ContextCompat.getColor(
-                context,
-                if (source.isHidden) R.color.textColorSecondary else R.color.textColorPrimary
+            sourceNameTextView.setTextColor(
+                ContextCompat.getColor(
+                    context,
+                    if (source.isHidden) R.color.textColorSecondary else R.color.textColorPrimary
+                )
             )
-        )
 
-        hiddenImageView.isVisible = source.isHidden
+            hiddenImageView.isVisible = source.isHidden
 
-        invalidate()
-        requestLayout()
+            invalidate()
+            requestLayout()
+        }
     }
 
     fun showPopUp(
@@ -102,10 +107,10 @@ class SourceSelectionItemView(context: Context, attrs: AttributeSet? = null) :
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
-        sourceBackground.setOnClickListener(l)
+        binding.sourceBackground.setOnClickListener(l)
     }
 
     override fun setOnLongClickListener(l: OnLongClickListener?) {
-        sourceBackground.setOnLongClickListener(l)
+        binding.sourceBackground.setOnLongClickListener(l)
     }
 }

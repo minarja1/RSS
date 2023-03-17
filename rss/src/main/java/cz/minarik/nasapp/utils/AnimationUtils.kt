@@ -29,7 +29,7 @@ fun View.startCircularReveal(fromLeft: Boolean, onFinished: (() -> Unit)? = null
                 interpolator = DecelerateInterpolator(1f)
                 duration = circularRevealDuration
                 addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         onFinished?.invoke()
                         super.onAnimationEnd(animation)
                     }
@@ -56,7 +56,7 @@ fun View.exitCircularReveal(exitX: Int, exitY: Int, onFinished: () -> Unit) {
                 duration = circularRevealDuration
                 interpolator = DecelerateInterpolator(1f)
                 addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         onFinished()
                         super.onAnimationEnd(animation)
                     }

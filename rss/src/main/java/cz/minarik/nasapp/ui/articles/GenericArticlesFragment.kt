@@ -9,20 +9,18 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
-import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -30,11 +28,13 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewbinding.ViewBinding
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.ViewModelState
@@ -45,17 +45,17 @@ import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
 import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivitySimple
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
+import cz.minarik.nasapp.ui.custom.StateView
 import cz.minarik.nasapp.utils.*
-import kotlinx.android.synthetic.main.fragment_articles.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
-    BaseFragment(layoutId) {
+abstract class GenericArticlesFragment<Binding : ViewBinding> :
+    BaseFragment<Binding>() {
 
     abstract val viewModel: ArticlesViewModel
 
@@ -63,10 +63,19 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     open val backEnabled = false
 
+    abstract val articlesRecyclerView: RecyclerView
+    abstract val swipeRefreshLayout: SwipeRefreshLayout
+    abstract val appBarLayout: AppBarLayout
+    abstract val filterUnread: Chip
+    abstract val filterStarred: Chip
+    abstract val filterAll: Chip
+    abstract val stateView: StateView
+    abstract val shimmerLayout: LinearLayout
+    abstract val toolbar: Toolbar
+
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
 
-    var toolbar: Toolbar? = null
     var toolbarTitle: TextView? = null
     var searchView: MaterialSearchView? = null
     var toolbarContentContainer: ViewGroup? = null
@@ -109,7 +118,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     @CallSuper
     open fun initViews(view: View?) {
-        toolbar = view?.findViewById(R.id.toolbar)
         toolbarTitle = view?.findViewById(R.id.toolbarTitle)
         searchView = view?.findViewById(R.id.search_view)
         toolbarContentContainer = view?.findViewById(R.id.toolbarContentContainer)
@@ -436,7 +444,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     fun scrollToTop() {
         appBarLayout.setExpanded(true)
-        articlesRecyclerView?.scrollToTop()
+        articlesRecyclerView.scrollToTop()
         viewModel.shouldScrollToTop = false
     }
 

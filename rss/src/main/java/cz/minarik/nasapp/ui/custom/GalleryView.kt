@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -15,8 +16,8 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.interfaces.Imagable
+import cz.minarik.nasapp.databinding.GalleryViewBinding
 import cz.minarik.nasapp.utils.loadImageWithDefaultSettings
-import kotlinx.android.synthetic.main.gallery_view.view.*
 
 
 class GalleryView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
@@ -31,8 +32,10 @@ class GalleryView(context: Context, attrs: AttributeSet) : LinearLayout(context,
 
     private var listener: GalleryViewClickListener? = null
 
+    private var binding: GalleryViewBinding
+
     init {
-        inflate(context, R.layout.gallery_view, this)
+        binding = GalleryViewBinding.inflate(LayoutInflater.from(context), this, true)
         val radius = resources.getDimension(R.dimen.image_view_corner_radius)
 
         first = findViewById(R.id.first)
@@ -66,7 +69,7 @@ class GalleryView(context: Context, attrs: AttributeSet) : LinearLayout(context,
             val radius = resources.getDimension(R.dimen.image_view_corner_radius)
             if (images.size >= 3) {
                 secondSecondary.isVisible = false
-                fulLayout.isVisible = true
+                binding.fulLayout.isVisible = true
                 first.loadImageWithDefaultSettings(images[0].getImageUrl())
                 second.loadImageWithDefaultSettings(images[1].getImageUrl())
                 third.loadImageWithDefaultSettings(images[2].getImageUrl())
@@ -82,7 +85,7 @@ class GalleryView(context: Context, attrs: AttributeSet) : LinearLayout(context,
 
             if (images.size == 2) {
                 secondSecondary.isVisible = true
-                fulLayout.isVisible = false
+                binding.fulLayout.isVisible = false
                 first.loadImageWithDefaultSettings(images[0].getImageUrl())
                 first.shapeAppearanceModel =
                     first.shapeAppearanceModel.toBuilder()
@@ -95,7 +98,7 @@ class GalleryView(context: Context, attrs: AttributeSet) : LinearLayout(context,
             }
             if (images.size == 1) {
                 secondSecondary.isVisible = false
-                fulLayout.isVisible = false
+                binding.fulLayout.isVisible = false
                 first.loadImageWithDefaultSettings(images[0].getImageUrl())
                 first.shapeAppearanceModel =
                     first.shapeAppearanceModel.toBuilder()

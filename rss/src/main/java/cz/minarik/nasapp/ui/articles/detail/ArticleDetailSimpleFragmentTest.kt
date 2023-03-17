@@ -17,31 +17,31 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import cz.minarik.base.common.extensions.openCustomTabs
 import cz.minarik.base.common.extensions.warmUpBrowser
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.databinding.FragmentArticleDetailSimpleBinding
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.utils.Constants
 import cz.minarik.nasapp.utils.shareArticle
-import kotlinx.android.synthetic.main.fragment_article_detail_simple.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 
 
-class ArticleDetailSimpleFragmentTest : BaseFragment(R.layout.fragment_article_detail_simple) {
+class ArticleDetailSimpleFragmentTest : BaseFragment<FragmentArticleDetailSimpleBinding>() {
+
+    override fun getViewBinding(): FragmentArticleDetailSimpleBinding =
+        FragmentArticleDetailSimpleBinding.inflate(layoutInflater)
 
     companion object {
         fun newInstance(
@@ -93,13 +93,13 @@ class ArticleDetailSimpleFragmentTest : BaseFragment(R.layout.fragment_article_d
         loadArticleWebView()
         requireContext().warmUpBrowser(articleDTO.link?.toUri())
         initToolbar()
-        webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+        binding.webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             setMargins(0, 0, 0, requireContext().navigationBarHeight)
         }
     }
 
     private fun initToolbar() {
-        toolbar.let {
+        binding.toolbar.let {
             (requireActivity() as AppCompatActivity).run {
                 setSupportActionBar(it)
                 supportActionBar?.setDisplayShowTitleEnabled(true)
@@ -152,44 +152,50 @@ class ArticleDetailSimpleFragmentTest : BaseFragment(R.layout.fragment_article_d
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     private fun prepareWebView() {
-        webView.setOnTouchListener { _, _ ->
-            userInteracted = true
-            false
-        }
-
-        webView.settings.run {
-            javaScriptCanOpenWindowsAutomatically = true
-            javaScriptEnabled = true
-            cacheMode = WebSettings.LOAD_DEFAULT
-            allowContentAccess = true
-            loadWithOverviewMode = true
-            builtInZoomControls = false
-            domStorageEnabled = true
-        }
-        webView.webViewClient = ArticleWebViewClient()
-        webView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.action == MotionEvent.ACTION_UP
-                && webView.canGoBack()
-            ) {
-                webView.goBack()
-                return@OnKeyListener true
+        binding.run {
+            webView.setOnTouchListener { _, _ ->
+                userInteracted = true
+                false
             }
-            false
-        })
 
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            WebSettingsCompat.setForceDark(webView.settings, WebSettingsCompat.FORCE_DARK_ON)
-        }
+            webView.settings.run {
+                javaScriptCanOpenWindowsAutomatically = true
+                javaScriptEnabled = true
+                cacheMode = WebSettings.LOAD_DEFAULT
+                allowContentAccess = true
+                loadWithOverviewMode = true
+                builtInZoomControls = false
+                domStorageEnabled = true
+            }
+            webView.webViewClient = ArticleWebViewClient()
+            webView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+                if (keyCode == KeyEvent.KEYCODE_BACK
+                    && event.action == MotionEvent.ACTION_UP
+                    && webView.canGoBack()
+                ) {
+                    webView.goBack()
+                    return@OnKeyListener true
+                }
+                false
+            })
 
-        if (BuildConfig.DEBUG) {
-            WebView.setWebContentsDebuggingEnabled(true)
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                Timber.d("Force dark supported")
+                WebSettingsCompat.setAlgorithmicDarkeningAllowed(
+                    webView.settings,
+                    true,
+                )
+            }
+
+            if (BuildConfig.DEBUG) {
+                WebView.setWebContentsDebuggingEnabled(true)
+            }
         }
     }
 
     private fun loadArticleWebView() {
         articleDTO.link?.let {
-            webView.loadUrl(it)
+            binding.webView.loadUrl(it)
         }
     }
 

@@ -4,35 +4,62 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.widget.LinearLayout
 import androidx.activity.addCallback
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.load
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.isScrolledToTop
 import cz.minarik.base.common.extensions.showToast
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.data.domain.ArticleFilterType
+import cz.minarik.nasapp.databinding.FragmentArticlesBinding
 import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.ui.custom.StateView
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.toFreshLiveData
-import kotlinx.android.synthetic.main.fragment_articles.*
-import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
-class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
+class ArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>() {
 
     private val sourcesViewModel by sharedViewModel<SourcesViewModel>()
 
     override val viewModel by inject<ArticlesViewModel>()
 
+    override val articlesRecyclerView: RecyclerView
+        get() = binding.articlesRecyclerView
+    override val swipeRefreshLayout: SwipeRefreshLayout
+        get() = binding.swipeRefreshLayout
+    override val appBarLayout: AppBarLayout
+        get() = binding.appBarLayout
+    override val filterUnread: Chip
+        get() = binding.filterUnread
+    override val filterStarred: Chip
+        get() = binding.filterStarred
+    override val filterAll: Chip
+        get() = binding.filterAll
+    override val stateView: StateView
+        get() = binding.stateView
+    override val shimmerLayout: LinearLayout
+        get() = binding.shimmerLayout
+    override val toolbar: Toolbar
+        get() = binding.toolbarWithSubtitleContainer.toolbar
+
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articles
+
+    override fun getViewBinding() = FragmentArticlesBinding.inflate(layoutInflater)
 
     private var doubleBackToExitPressedOnce = false
 
@@ -53,7 +80,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
                     searchView?.isSearchOpen == true -> {
                         searchView?.closeSearch()
                     }
-                    articlesRecyclerView?.isScrolledToTop() == true -> {
+                    binding.articlesRecyclerView?.isScrolledToTop() == true -> {
                         when {
                             doubleBackToExitPressedOnce -> {
                                 requireActivity().finish()
@@ -89,21 +116,23 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
 
     override fun initViews(view: View?) {
         super.initViews(view)
-        articlesRecyclerView?.let {
-            stateView.attacheContentView(it)
-        }
-        toolbarPadding.isVisible = true
-        newPostsCardView.setOnClickListener {
-            viewModel.loadArticles(scrollToTop = true)
+        binding.run {
+            stateView.attacheContentView(articlesRecyclerView)
+            toolbarWithSubtitleContainer.toolbarPadding.isVisible = true
+            newPostsCardView.setOnClickListener {
+                viewModel.loadArticles(scrollToTop = true)
+            }
         }
     }
 
     override fun initObserve() {
         super.initObserve()
         sourcesViewModel.selectedSource.collectWhenStarted {
-            toolbarSubtitleContainer.isVisible = !it?.title.isNullOrEmpty()
-            toolbarSubtitle.text = it?.title
-            toolbarImageView.load(it?.imageUrl)
+            binding.toolbarWithSubtitleContainer.run {
+                toolbarSubtitleContainer.isVisible = !it?.title.isNullOrEmpty()
+                toolbarSubtitle.text = it?.title
+                toolbarImageView.load(it?.imageUrl)
+            }
         }
 
         sourcesViewModel.sourceRepository.sourcesChanged.toFreshLiveData().observe {
@@ -115,10 +144,11 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
         }
         viewModel.articlesRepository.newArticlesCount.observe {
             lifecycleScope.launch {
-                newPostsCardView.isVisible =
+                binding.newPostsCardView.isVisible =
                     it > 0 && DataStoreManager.getArticleFilter()
                         .first() != ArticleFilterType.Starred
-                newPostsTV.text = resources.getQuantityString(R.plurals.new_articles, it, it)
+                binding.newPostsTV.text =
+                    resources.getQuantityString(R.plurals.new_articles, it, it)
             }
         }
         viewModel.sourceDao.getAllUnblockedLiveData().observe {
@@ -127,7 +157,7 @@ class ArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
     }
 
     private fun initSwipeToRefresh() {
-        swipeRefreshLayout.setOnRefreshListener {
+        binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadArticles(
                 scrollToTop = false,
                 isFromSwipeRefresh = true

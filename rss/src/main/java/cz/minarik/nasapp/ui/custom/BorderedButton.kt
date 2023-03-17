@@ -3,16 +3,20 @@ package cz.minarik.nasapp.ui.custom
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import coil.load
 import cz.minarik.nasapp.R
-import kotlinx.android.synthetic.main.button_bordered.view.*
+import cz.minarik.nasapp.databinding.ButtonBorderedBinding
 
 
 class BorderedButton(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
+
+    private var binding: ButtonBorderedBinding
+
     init {
-        inflate(context, R.layout.button_bordered, this)
+        binding = ButtonBorderedBinding.inflate(LayoutInflater.from(context), this, true)
         context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.BorderedButton,
@@ -40,34 +44,34 @@ class BorderedButton(context: Context, attrs: AttributeSet) : ConstraintLayout(c
     }
 
     fun setText(text: String?) {
-        nameTextView.text = text
+        binding.nameTextView.text = text
     }
 
     fun setTitle(title: String? = null) {
-        titleTextViewCollapsed.isVisible = !title.isNullOrEmpty()
-        titleTextViewCollapsed.text = title
+        binding.titleTextViewCollapsed.isVisible = !title.isNullOrEmpty()
+        binding.titleTextViewCollapsed.text = title
     }
 
     fun setDescription(description: String? = null) {
-        descriptionTextView.isVisible = !description.isNullOrEmpty()
-        descriptionTextView.text = description
+        binding.descriptionTextView.isVisible = !description.isNullOrEmpty()
+        binding.descriptionTextView.text = description
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
-        cardView.setOnClickListener(l)
+        binding.cardView.setOnClickListener(l)
     }
 
     fun setImage(image: Drawable?) {
-        imageView.load(image)
+        binding.imageView.load(image)
     }
 
     fun setImage(image: Int) {
-        imageView.setImageResource(image)
+        binding.imageView.setImageResource(image)
     }
 
     override fun setClickable(clickable: Boolean) {
         super.setClickable(clickable)
-        cardView.isClickable = clickable
-        imageView.isVisible = clickable
+        binding.cardView.isClickable = clickable
+        binding.imageView.isVisible = clickable
     }
 }
