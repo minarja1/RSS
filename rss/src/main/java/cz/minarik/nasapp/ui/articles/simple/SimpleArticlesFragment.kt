@@ -110,7 +110,7 @@ class SimpleArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>(
     override fun initViews(view: View?) {
         super.initViews(view)
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadArticles()
+            viewModel.reloadArticles()
         }
     }
 

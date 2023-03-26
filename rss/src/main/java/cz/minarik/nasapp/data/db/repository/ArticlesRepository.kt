@@ -36,7 +36,7 @@ class ArticlesRepository(
     private val fakeNewArticle = false
 
     /**
-     * number of new articles fetched from server and previously not present in DB
+     * Number of new articles fetched from server and previously not present in DB.
      */
     val newArticlesCount = MutableLiveData(0)
 

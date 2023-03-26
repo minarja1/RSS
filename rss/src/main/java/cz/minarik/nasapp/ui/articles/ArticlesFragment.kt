@@ -120,7 +120,7 @@ class ArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>() {
             stateView.attacheContentView(articlesRecyclerView)
             toolbarWithSubtitleContainer.toolbarPadding.isVisible = true
             newPostsCardView.setOnClickListener {
-                viewModel.loadArticles(scrollToTop = true)
+                viewModel.reloadArticles(scrollToTop = true)
             }
         }
     }
@@ -151,14 +151,14 @@ class ArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>() {
                     resources.getQuantityString(R.plurals.new_articles, it, it)
             }
         }
-        viewModel.sourceDao.getAllUnblockedLiveData().observe {
-            viewModel.loadArticles()
+        viewModel.sourceDao.getAllUnblockedLiveData().toFreshLiveData().observe {
+            viewModel.reloadArticles()
         }
     }
 
     private fun initSwipeToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadArticles(
+            viewModel.reloadArticles(
                 scrollToTop = false,
                 isFromSwipeRefresh = true
             )

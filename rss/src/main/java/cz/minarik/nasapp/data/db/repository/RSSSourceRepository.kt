@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.data.db.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.prof.rssparser.Parser
 import cz.minarik.base.common.extensions.compareLists
@@ -45,8 +46,11 @@ class RSSSourceRepository(
         }
     }
 
-    val state = MutableLiveData<NetworkState>()
-    val sourcesChanged = MutableLiveData<Boolean>()
+    private val _state = MutableLiveData<NetworkState>()
+    val state: LiveData<NetworkState> = _state
+
+    private val _sourcesChanged = MutableLiveData<Boolean>()
+    val sourcesChanged: LiveData<Boolean> = _sourcesChanged
 
     private val okHttpClient by lazy {
         createOkHttpClient()
@@ -56,7 +60,7 @@ class RSSSourceRepository(
         allFromServer: List<RssFeedDTO?>,
         onSuccess: (() -> Unit)? = null,
     ) {
-        state.postValue(NetworkState.LOADING)
+        _state.postValue(NetworkState.LOADING)
         val parser = Parser.Builder()
             .context(context)
             .charset(Charset.forName("UTF-8"))
@@ -81,15 +85,14 @@ class RSSSourceRepository(
             //create or update existing
             allFromServer.map { feed ->
                 async {
-
                     feed?.url?.let { feedUrl ->
                         try {
-                            var entity = sourceDao.getByUrl(feedUrl)
+                            val alreadyPersistedEntity = sourceDao.getByUrl(feedUrl)
                             val url = URL(feedUrl)
-                            if (feed.atom) {
+                            val newEntity = if (feed.atom) {
                                 okHttpClient.createCall(feedUrl).execute().use { response ->
                                     val channel = response.toSyncFeed()
-                                    entity = RSSSourceEntity(
+                                    RSSSourceEntity(
                                         url = feedUrl,
                                         title = channel?.title,
                                         description = channel?.description,
@@ -98,13 +101,13 @@ class RSSSourceRepository(
                                         contactUrl = feed.contact,
                                         forceOpenExternally = feed.forceOpenExternal,
                                         isAtom = feed.atom,
-                                        isHidden = entity?.isHidden ?: false,
-                                        isSelected = entity?.isSelected ?: false,
+                                        isHidden = alreadyPersistedEntity?.isHidden ?: false,
+                                        isSelected = alreadyPersistedEntity?.isSelected ?: false,
                                     )
                                 }
                             } else {
                                 val channel = parser.getChannel(feedUrl)
-                                entity = RSSSourceEntity(
+                                RSSSourceEntity(
                                     url = feedUrl,
                                     title = channel.title,
                                     description = channel.description,
@@ -113,12 +116,14 @@ class RSSSourceRepository(
                                     contactUrl = feed.contact,
                                     forceOpenExternally = feed.forceOpenExternal,
                                     isAtom = feed.atom,
-                                    isHidden = entity?.isHidden ?: false,
-                                    isSelected = entity?.isSelected ?: false,
+                                    isHidden = alreadyPersistedEntity?.isHidden ?: false,
+                                    isSelected = alreadyPersistedEntity?.isSelected ?: false,
                                 )
                             }
 
-                            entity?.let { sourceDao.insert(it) }
+                            if (newEntity != alreadyPersistedEntity) {
+                                sourceDao.insert(newEntity)
+                            }
                         } catch (e: Exception) {
                             Timber.e(e)
                         }
@@ -128,9 +133,9 @@ class RSSSourceRepository(
 
             val newDb = sourceDao.getNonUserAdded()
             if (!compareLists(allDB, newDb)) {
-                sourcesChanged.postValue(true)
+                _sourcesChanged.postValue(true)
             }
-            state.postValue(NetworkState.SUCCESS)
+            _state.postValue(NetworkState.SUCCESS)
             DataStoreManager.setInitialSyncFinished(true)
             onSuccess?.invoke()
         }

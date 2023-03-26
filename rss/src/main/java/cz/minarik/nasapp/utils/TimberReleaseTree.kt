@@ -5,7 +5,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
 class TimberReleaseTree : Timber.Tree() {
-    override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
 
         val crashlytics = FirebaseCrashlytics.getInstance()
         if (priority == Log.ERROR) {
@@ -15,7 +15,7 @@ class TimberReleaseTree : Timber.Tree() {
             }
             crashlytics.setCustomKey(CRASHLYTICS_KEY_MESSAGE, message);
 
-            crashlytics.recordException(throwable ?: Exception(message).apply {
+            crashlytics.recordException(t ?: Exception(message).apply {
                 stackTrace = arrayOf(StackTraceElement(message, message, "", 69))
             })
 

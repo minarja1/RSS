@@ -19,9 +19,10 @@ import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.data.domain.RSSSource
 import cz.minarik.nasapp.data.domain.exception.GenericException
 import cz.minarik.nasapp.utils.RemoteConfigHelper
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
 import timber.log.Timber
@@ -58,12 +59,12 @@ class ArticlesViewModel(
     var isFromSwipeRefresh: Boolean = false
 
     init {
-        loadArticles(scrollToTop = false)
+        reloadArticles(scrollToTop = false)
         updateFromServer(false)
 
         launch {
             DataStoreManager.getExpandAllCards().collect {
-                if (currentLoadingJob?.isActive == false) loadArticles()
+                if (currentLoadingJob?.isActive == false) reloadArticles()
             }
         }
     }
@@ -76,7 +77,7 @@ class ArticlesViewModel(
                     notifyNewArticles = !reloadAfter,
                     coroutineScope = defaultScope
                 ) {
-                    if (reloadAfter) loadArticles()
+                    if (reloadAfter) reloadArticles()
                 }
             }
         }
@@ -85,20 +86,26 @@ class ArticlesViewModel(
     fun loadArticlesOrSources() {
         launch {
             if (DataStoreManager.getInitialArticleLoadFinished().first()) {
-                loadArticles()
+                reloadArticles()
             } else {
                 RemoteConfigHelper.updateDB()
             }
         }
     }
 
-    fun loadArticles(
+    /**
+     * Reloads articles from DB and updates liveData.
+     *
+     * @param scrollToTop whether to scroll to top after loading
+     * @param isFromSwipeRefresh whether the reload was triggered by swipe refresh
+     */
+    fun reloadArticles(
         scrollToTop: Boolean = false,
         isFromSwipeRefresh: Boolean = false,
     ) {
         state.postValue(NetworkState.LOADING)
 
-        Timber.i("loading articles")
+        Timber.i("ViewModel: loading articles... (isFromSwipeRefresh: $isFromSwipeRefresh)")
 
         currentLoadingJob?.cancel()
 
@@ -148,8 +155,6 @@ class ArticlesViewModel(
                 val duration = System.currentTimeMillis() - startTime
 
                 Timber.i("ViewModel: loading articles finished in $duration ms")
-
-                this@ArticlesViewModel.isFromSwipeRefresh = false
             } catch (e: IOException) {
                 Timber.e(e)
                 state.postValue(NetworkState.Companion.error(GenericException()))
@@ -325,7 +330,7 @@ class ArticlesViewModel(
 
     fun loadSelectedSource(sourceUrl: String) {
         this.sourceUrl = sourceUrl
-        loadArticles(scrollToTop = false)
+        reloadArticles(scrollToTop = false)
         updateFromServer()
         launch {
             selectedSource = sourceDao.getByUrl(sourceUrl)

@@ -498,6 +498,15 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
 
         val showLoadingSwipeRefresh =
             loadingArticles && !showShimmer && !isError && viewModel.isFromSwipeRefresh
+
+        Timber.i(
+            "updateViews: loadingArticles: $loadingArticles, loadingSources: " +
+                    "$loadingSources, loading: $loading, isError: $isError, articlesEmpty:" +
+                    " $articlesEmpty, loadingMessage: $loadingMessage, showShimmer: $showShimmer, " +
+                    "showLoadingSwipeRefresh: $showLoadingSwipeRefresh " +
+                    "isFromSwipeRefresh: ${viewModel.isFromSwipeRefresh}"
+        )
+
         swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
         swipeRefreshLayout.isEnabled = !showShimmer
 
