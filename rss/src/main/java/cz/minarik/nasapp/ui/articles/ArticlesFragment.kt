@@ -80,7 +80,7 @@ class ArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>() {
                     searchView?.isSearchOpen == true -> {
                         searchView?.closeSearch()
                     }
-                    binding.articlesRecyclerView?.isScrolledToTop() == true -> {
+                    binding.articlesRecyclerView.isScrolledToTop() -> {
                         when {
                             doubleBackToExitPressedOnce -> {
                                 requireActivity().finish()

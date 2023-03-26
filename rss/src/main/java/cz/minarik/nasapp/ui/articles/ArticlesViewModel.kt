@@ -220,8 +220,8 @@ class ArticlesViewModel(
             var result = articles.toMutableList()
             searchQuery?.let { query ->
                 result = result.filter {
-                    it.title?.contains(query, true) ?: true
-                            || it.description?.contains(query, true) ?: true
+                    it.title?.contains(query, true) == true ||
+                            it.description?.contains(query, true) == true
                 }.toMutableList()
             }
             return result
