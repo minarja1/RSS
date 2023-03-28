@@ -3,6 +3,8 @@ package cz.minarik.nasapp.di
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import cz.minarik.nasapp.base.logging.FirebaseAnalyticsLogger
+import cz.minarik.nasapp.base.logging.Logger
 import cz.minarik.nasapp.data.db.RSSDatabase
 import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
@@ -25,11 +27,17 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
         )
+    }
+
+    single<Logger> {
+        FirebaseAnalyticsLogger()
     }
 
     viewModel {
         SourcesViewModel(
+            get(),
             get(),
             get(),
         )

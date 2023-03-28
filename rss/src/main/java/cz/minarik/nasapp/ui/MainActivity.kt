@@ -27,7 +27,7 @@ class MainActivity : BaseActivity() {
         const val sourcesFragmentTag = "sourcesFragment"
     }
 
-    val sourcesViewModel by viewModel<SourcesViewModel>()
+    private val sourcesViewModel by viewModel<SourcesViewModel>()
     private var sourcesFragment: Fragment? = null
     private var initialSyncFinished: Boolean = false
     var sourcesFragmentShown: Boolean = false
@@ -59,6 +59,7 @@ class MainActivity : BaseActivity() {
     private fun initViews() {
         binding.fab.setOnClickListener {
             showHideSourceSelection(true)
+            sourcesViewModel.logSourcesSelectionOpened()
         }
         supportFragmentManager.addOnBackStackChangedListener {
             updateFabVisibility()

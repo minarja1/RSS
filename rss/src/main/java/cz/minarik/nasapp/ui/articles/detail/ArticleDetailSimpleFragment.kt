@@ -38,7 +38,7 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 
 
-class ArticleDetailSimpleFragmentTest : BaseFragment<FragmentArticleDetailSimpleBinding>() {
+class ArticleDetailSimpleFragment : BaseFragment<FragmentArticleDetailSimpleBinding>() {
 
     override fun getViewBinding(): FragmentArticleDetailSimpleBinding =
         FragmentArticleDetailSimpleBinding.inflate(layoutInflater)
@@ -46,8 +46,8 @@ class ArticleDetailSimpleFragmentTest : BaseFragment<FragmentArticleDetailSimple
     companion object {
         fun newInstance(
             articleDTO: ArticleDTO
-        ): ArticleDetailSimpleFragmentTest =
-            ArticleDetailSimpleFragmentTest().apply {
+        ): ArticleDetailSimpleFragment =
+            ArticleDetailSimpleFragment().apply {
                 arguments = bundleOf(
                     Constants.argArticleDTO to articleDTO,
                 )
@@ -132,9 +132,11 @@ class ArticleDetailSimpleFragmentTest : BaseFragment<FragmentArticleDetailSimple
         return when (item.itemId) {
             R.id.actionShareArticle -> {
                 shareArticle(articleDTO)
+                viewModel.logArticleShared(articleDTO)
                 true
             }
             R.id.actionOpenWeb -> {
+                viewModel.logArticleOpenedInBrowser(articleDTO)
                 openWebsite()
                 true
             }

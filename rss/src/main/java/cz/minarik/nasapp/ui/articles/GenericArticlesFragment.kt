@@ -160,6 +160,7 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
 
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     viewModel.filterBySearchQuery(query)
+                    viewModel.logFilterBySearchQuery(query)
                     hideKeyboard()
                     searchView?.let {
                         mSearchSrcTextView.clearFocus()
@@ -248,36 +249,26 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
         val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
         val article = adapter?.getItemAtPosition(position)
         article?.sourceUrl?.let {
+            // todo log
             (requireActivity() as MainActivity).navigateToSourceDetail(it)
         }
 
     }
 
     private fun filterBySource(sourceUrl: String) {
+        viewModel.logNavigateToSimpleArticles(sourceUrl)
         (requireActivity() as MainActivity).navigateToSimpleArticles(sourceUrl)
     }
 
     private fun onArticleExpanded(position: Int) {
-        //make sure bottom of item is on screen
-        (articlesRecyclerView?.layoutManager as? LinearLayoutManager)?.run {
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (findLastCompletelyVisibleItemPosition() < position) {
-                    val recyclerOffset =
-                        (articlesRecyclerView?.height ?: 0) //todo - appBarLayout.bottom
-                    val offset =
-                        recyclerOffset - (findViewByPosition(position)?.height ?: 0)
-                    scrollToPositionWithOffset(
-                        position,
-                        offset - 30
-                    )//add 30 px todo test on more devices
-                }
-            }, Constants.listItemExpandDuration)
-        }
+        viewModel.logArticleExpanded()
     }
 
     private fun onArticleLongClicked(position: Int) {
         val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
         val article = adapter?.getItemAtPosition(position)
+
+        viewModel.logArticleLongClicked(article)
 
         article?.run {
             val sheet = ArticleBottomSheet.newInstance(this)
@@ -296,6 +287,7 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
 
                 override fun onShare() {
                     shareArticle(article)
+                    viewModel.logArticleShared(article)
                 }
 
                 override fun onSource(sourceUrl: String) {
@@ -310,9 +302,13 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
     private fun onArticleClicked(imageView: ImageView, titleTextView: TextView, position: Int) {
         lifecycleScope.launch {
             val articlesAdapter = articlesRecyclerView?.adapter as? ArticlesAdapter
-            articlesAdapter?.getItemAtPosition(position)?.run {
+            articlesAdapter?.getItemAtPosition(position)?.apply {
+                viewModel.logArticleClick(this)
                 read = true
-                viewModel.markArticleAsReadOrUnread(this, true)
+                viewModel.markArticleAsReadOrUnread(
+                    article = this,
+                    forceRead = true
+                )
                 link?.toUri()?.let {
                     val openExternally =
                         viewModel.sourceDao.getByUrl(this.sourceUrl ?: "")?.forceOpenExternally
@@ -398,26 +394,23 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
     }
 
     private fun setupFilters(view: View?) {
-        //todo use Base extension
-        lifecycleScope.launchWhenStarted {
-            DataStoreManager.getArticleFilter().collect {
-                view?.findViewById<Chip>(it.chipId)?.isChecked = true
-            }
+        DataStoreManager.getArticleFilter().collectWhenStarted {
+            view?.findViewById<Chip>(it.chipId)?.isChecked = true
         }
 
-        filterAll?.setOnCheckedChangeListener { _, checked ->
+        filterAll.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                viewModel.filterArticles(ArticleFilterType.All)
+                viewModel.setArticlesFilter(ArticleFilterType.All)
             }
         }
-        filterStarred?.setOnCheckedChangeListener { _, checked ->
+        filterStarred.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                viewModel.filterArticles(ArticleFilterType.Starred)
+                viewModel.setArticlesFilter(ArticleFilterType.Starred)
             }
         }
-        filterUnread?.setOnCheckedChangeListener { _, checked ->
+        filterUnread.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                viewModel.filterArticles(ArticleFilterType.Unread)
+                viewModel.setArticlesFilter(ArticleFilterType.Unread)
             }
         }
     }
@@ -470,10 +463,12 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
                 true
             }
             R.id.settingsAction -> {
+                viewModel.logSettingsOpened()
                 (requireActivity() as MainActivity).navigateToSettings()
                 true
             }
             R.id.aboutAction -> {
+                viewModel.logAboutOpened()
                 (requireActivity() as MainActivity).navigateToAbout()
                 true
             }

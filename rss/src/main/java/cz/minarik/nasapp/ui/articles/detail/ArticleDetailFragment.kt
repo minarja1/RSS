@@ -164,6 +164,7 @@ class ArticleDetailFragment : BaseFragment<FragmentArticleDetailBinding>() {
         return when (item.itemId) {
             R.id.actionShareArticle -> {
                 shareArticle(articleDTO)
+                viewModel.logArticleShared(articleDTO)
                 true
             }
             R.id.actionOpenWeb -> {

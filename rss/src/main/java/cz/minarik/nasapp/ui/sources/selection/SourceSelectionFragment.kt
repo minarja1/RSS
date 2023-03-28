@@ -81,9 +81,12 @@ class SourceSelectionFragment : BaseFragment<FragmentSourceSelectionBinding>(), 
                 }
             },
             onItemBlocked = {
-                viewModel.markAsBlocked(it, !it.isHidden)
+                val hidden = !it.isHidden
+                viewModel.logSourceBlocked(it, hidden)
+                viewModel.markAsBlocked(it, hidden)
             },
             onItemInfo = {
+                viewModel.logSourceDetailOpened(it)
                 (requireActivity() as MainActivity).navigateToSourceDetail(it.URLs[0])
             },
         )
@@ -102,6 +105,7 @@ class SourceSelectionFragment : BaseFragment<FragmentSourceSelectionBinding>(), 
     private fun onSourceSelected(source: RSSSource) {
         if (!source.isList) {
             source.URLs.firstOrNull()?.let {
+                viewModel.logNavigateToSimpleArticles(it)
                 (requireActivity() as MainActivity).navigateToSimpleArticles(it)
             }
         }

@@ -8,6 +8,8 @@ import cz.minarik.base.data.NetworkState
 import cz.minarik.base.di.base.BaseViewModel
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.RSSApp
+import cz.minarik.nasapp.base.logging.Event
+import cz.minarik.nasapp.base.logging.Logger
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.db.dao.ArticleDao
 import cz.minarik.nasapp.data.db.dao.RSSSourceDao
@@ -22,6 +24,7 @@ import cz.minarik.nasapp.utils.RemoteConfigHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.jsoup.Jsoup
@@ -32,6 +35,7 @@ class ArticlesViewModel(
     val articlesRepository: ArticlesRepository,
     private val articleDao: ArticleDao,
     val sourceDao: RSSSourceDao,
+    val logger: Logger,
 ) : BaseViewModel() {
 
     private var currentLoadingJob: Job? = null
@@ -163,6 +167,7 @@ class ArticlesViewModel(
     }
 
     private suspend fun applyFilters(): MutableList<ArticleDTO> {
+        Timber.i("applyFilters")
         val result = applyArticleFilters(if (isInSimpleMode) allArticlesSimple else allArticles)
 
         result.sortByDescending {
@@ -189,6 +194,7 @@ class ArticlesViewModel(
      * creating copies of objects to ensure diffCallback never compares two same instances
      */
     private suspend fun applyArticleFilters(articles: MutableList<ArticleDTO>): MutableList<ArticleDTO> {
+        Timber.i("applyArticleFilters")
         var result = mutableListOf<ArticleDTO>()
         when (DataStoreManager.getArticleFilter().first()) {
             ArticleFilterType.Unread -> {
@@ -234,6 +240,14 @@ class ArticlesViewModel(
             val source = if (isInSimpleMode) allArticlesSimple else allArticles
             val articleToStar = source.find { (it.guid == article.guid && it.date == article.date) }
             val starred = !(articleToStar?.starred ?: true)
+
+            logger.logEvent(
+                Event.ArticleStarred(
+                    link = article.link,
+                    starred = starred,
+                )
+            )
+
             articleToStar?.starred = starred
             article.starred = starred
             article.guid?.let { guid ->
@@ -273,11 +287,24 @@ class ArticlesViewModel(
         }
     }
 
-    fun markArticleAsReadOrUnread(article: ArticleDTO, forceRead: Boolean = false) {
+    fun markArticleAsReadOrUnread(
+        article: ArticleDTO,
+        forceRead: Boolean = false,
+    ) {
         launch {
             val source = if (isInSimpleMode) allArticlesSimple else allArticles
             val articleToMark = source.find { it.guid == article.guid && it.date == article.date }
             val read = forceRead || !(articleToMark?.read ?: true)
+
+            if (!forceRead) {
+                logger.logEvent(
+                    Event.ArticleMarkedAsRead(
+                        link = article.link,
+                        read = read,
+                    )
+                )
+            }
+
             articleToMark?.read = read
             article.read = read
             article.guid?.let { guid ->
@@ -292,17 +319,36 @@ class ArticlesViewModel(
         }
     }
 
-    fun filterArticles(filterType: ArticleFilterType? = null) {
+    fun setArticlesFilter(
+        filterType: ArticleFilterType
+    ) {
+        Timber.i("setArticlesFilter")
         launch {
-            filterType?.let {
-                DataStoreManager.setArticleFilter(it)
+            val previousFilter = DataStoreManager.getArticleFilter().first()
+            Timber.i("previousFilter: $previousFilter, newFilter: $filterType")
+            if (previousFilter != filterType) {
+                DataStoreManager.setArticleFilter(filterType)
+                filterArticles()
+                logFilterApplied(filterType)
             }
+        }
+    }
+
+    private fun filterArticles() {
+        Timber.i("filterArticles")
+        launch {
             val result = applyFilters()
             if (isInSimpleMode) {
                 articlesSimple.postValue(result)
             } else {
                 articles.postValue(result)
             }
+        }
+    }
+
+    private fun logFilterApplied(filterType: ArticleFilterType?) {
+        filterType?.let {
+            logger.logEvent(Event.ArticleFilterApplied(filterType.toString()))
         }
     }
 
@@ -346,6 +392,14 @@ class ArticlesViewModel(
         }
     }
 
+    fun logArticleClick(articleDTO: ArticleDTO) {
+        logger.logEvent(
+            Event.ArticleClicked(
+                link = articleDTO.link,
+            )
+        )
+    }
+
     //ARTICLE DETAIL________________________________________________________________________________
     val articleLiveData: MutableLiveData<Article?> = MutableLiveData()
     val articleStarredLiveData: MutableLiveData<Boolean> = MutableLiveData()
@@ -365,6 +419,70 @@ class ArticlesViewModel(
                 articleLiveData.postValue(article)
             }
         }
+    }
+
+    fun logArticleLongClicked(article: ArticleDTO?) {
+        logger.logEvent(
+            Event.ArticleLongClicked(
+                link = article?.link,
+            )
+        )
+    }
+
+    fun logNavigateToSimpleArticles(sourceUrl: String) {
+        logger.logEvent(
+            Event.SimpleArticlesClicked(
+                sourceUrl = sourceUrl,
+            )
+        )
+    }
+
+    fun logArticleShared(article: ArticleDTO) {
+        logger.logEvent(
+            Event.ArticleShared(
+                link = article.link,
+            )
+        )
+    }
+
+    fun logSettingsOpened() {
+        logger.logEvent(
+            Event.SettingsOpened
+        )
+    }
+
+    fun logAboutOpened() {
+        logger.logEvent(
+            Event.AboutOpened
+        )
+    }
+
+    fun logArticleExpanded() {
+        logger.logEvent(
+            Event.ArticleExpanded
+        )
+    }
+
+    fun logNewPostsCardClicked() {
+        logger.logEvent(
+            Event.NewPostsCardClicked
+        )
+    }
+
+    fun logFilterBySearchQuery(query: String?) {
+        logger.logEvent(
+            Event.FilterBySearchQuery(
+                query = query,
+            )
+        )
+    }
+
+    fun logArticleOpenedInBrowser(articleDTO: ArticleDTO) {
+        logger.logEvent(
+            Event.ArticleOpenedInBrowser(
+                link = articleDTO.link,
+            )
+        )
     }
 }
 

@@ -14,7 +14,7 @@ class ArticleDetailActivitySimple : BaseActivity() {
         setContentView(R.layout.activity_article_detail)
         if (savedInstanceState == null) {
             switchFragment(
-                ArticleDetailSimpleFragmentTest.newInstance(intent.extras?.getSerializable(Constants.argArticleDTO) as ArticleDTO)
+                ArticleDetailSimpleFragment.newInstance(intent.extras?.getSerializable(Constants.argArticleDTO) as ArticleDTO)
             )
         }
     }

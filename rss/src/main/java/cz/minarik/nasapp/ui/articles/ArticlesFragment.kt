@@ -120,6 +120,7 @@ class ArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>() {
             stateView.attacheContentView(articlesRecyclerView)
             toolbarWithSubtitleContainer.toolbarPadding.isVisible = true
             newPostsCardView.setOnClickListener {
+                viewModel.logNewPostsCardClicked()
                 viewModel.reloadArticles(scrollToTop = true)
             }
         }
