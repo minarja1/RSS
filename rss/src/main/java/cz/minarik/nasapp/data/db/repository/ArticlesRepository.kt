@@ -232,6 +232,7 @@ class ArticlesRepository(
     }
 
     suspend fun dbCleanUp(date: Date) {
+        Timber.i("Cleaning up articles older than $date")
         dao.deleteNonStarredOlderThan(date)
     }
 

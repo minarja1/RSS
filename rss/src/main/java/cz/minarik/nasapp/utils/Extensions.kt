@@ -228,10 +228,11 @@ fun Response.toSyncFeed(): SyndFeed? {
 fun Context.sendFeedbackEmail() {
     try {
         val mail: Array<String> = arrayOf(getString(R.string.developer_email))
+        val subject = getString(R.string.feedback, getString(R.string.app_name))
         val mailIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, mail)
-            putExtra(Intent.EXTRA_SUBJECT, "SpaceNews feedback")
+            putExtra(Intent.EXTRA_SUBJECT, subject)
         }
         startActivity(mailIntent)
     } catch (e: Exception) {

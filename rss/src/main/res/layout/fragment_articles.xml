@@ -29,9 +29,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingTop="8dp"
-                android:scrollbarSize="3dp"
                 android:scrollbarThumbVertical="@color/colorPrimary"
-                android:scrollbars="vertical"
+                android:scrollbars="none"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 tools:listitem="@layout/article_list_item" />
 

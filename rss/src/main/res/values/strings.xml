@@ -24,7 +24,7 @@
     <string name="settings_title">Settings</string>
     <string name="search_hint">Filter by article title/description</string>
     <string name="share_article">Share article</string>
-    <string name="common_connection_timeout">Connection tiemed out</string>
+    <string name="common_connection_timeout">Connection timed out</string>
     <string name="article_detail_warning">The content above is just a preview. Swipe up to load full article.</string>
     <string name="mark_article_as_unread">Mark article as unread</string>
     <string name="mark_article_as_read">Mark article as read</string>
@@ -74,4 +74,5 @@
     <string name="one_month">One month</string>
     <string name="two_months">Two months</string>
     <string name="three_months">Three months</string>
+    <string name="feedback">%1$s feedback</string>
 </resources>
