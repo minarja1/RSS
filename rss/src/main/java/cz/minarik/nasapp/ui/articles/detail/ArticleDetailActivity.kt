@@ -29,9 +29,10 @@ class ArticleDetailActivity : BaseActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        (supportFragmentManager.primaryNavigationFragment as ArticleDetailFragment).loadArticle(
-            getArticleFromIntent()
-        )
+        // todo replace with simple
+//        (supportFragmentManager.primaryNavigationFragment as ArticleDetailFragment).loadArticle(
+//            getArticleFromIntent()
+//        )
     }
 
     private fun switchFragment(fragment: Fragment) {

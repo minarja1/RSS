@@ -32,8 +32,10 @@ object RemoteConfigHelper : KoinComponent {
                 repository.updateDB(getRSSFeeds())
                 Timber.i("${javaClass.name}, successfully fetched")
             } else {
-                Timber.i("${javaClass.name}, fetch failed")
+                Timber.e(task.exception)
             }
+        }.addOnFailureListener {
+            Timber.e(it)
         }
     }
 

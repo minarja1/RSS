@@ -3,23 +3,51 @@ package cz.minarik.nasapp.ui.articles.simple
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
+import android.widget.LinearLayout
 import androidx.activity.addCallback
+import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import coil.load
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.chip.Chip
 import cz.minarik.nasapp.R
+import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.databinding.FragmentArticlesBinding
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.articles.GenericArticlesFragment
-import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.ui.custom.StateView
 import cz.minarik.nasapp.utils.Constants
-import kotlinx.android.synthetic.main.fragment_articles.*
-import kotlinx.android.synthetic.main.include_toolbar_with_subtitle.*
 import org.koin.android.ext.android.inject
 
 
-class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_articles) {
+class SimpleArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>() {
+
+    override fun getViewBinding() = FragmentArticlesBinding.inflate(layoutInflater)
+
+    override val articlesRecyclerView: RecyclerView
+        get() = binding.articlesRecyclerView
+    override val swipeRefreshLayout: SwipeRefreshLayout
+        get() = binding.swipeRefreshLayout
+    override val appBarLayout: AppBarLayout
+        get() = binding.appBarLayout
+    override val filterUnread: Chip
+        get() = binding.filterUnread
+    override val filterStarred: Chip
+        get() = binding.filterStarred
+    override val filterAll: Chip
+        get() = binding.filterAll
+    override val stateView: StateView
+        get() = binding.stateView
+    override val shimmerLayout: LinearLayout
+        get() = binding.shimmerLayout
+    override val toolbar: Toolbar
+        get() = binding.toolbarWithSubtitleContainer.toolbar
+
 
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articlesSimple
 
@@ -82,7 +110,7 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
     override fun initViews(view: View?) {
         super.initViews(view)
         swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadArticles()
+            viewModel.reloadArticles()
         }
     }
 
@@ -96,11 +124,12 @@ class SimpleArticlesFragment : GenericArticlesFragment(R.layout.fragment_article
         super.initObserve()
 
         viewModel.selectedSourceName.observe {
-            toolbarSubtitleContainer.isVisible = !it.isNullOrEmpty()
-            toolbarSubtitle.text = it
+            binding.toolbarWithSubtitleContainer.toolbarSubtitleContainer.isVisible =
+                !it.isNullOrEmpty()
+            binding.toolbarWithSubtitleContainer.toolbarSubtitle.text = it
         }
         viewModel.selectedSourceImage.observe {
-            toolbarImageView.load(it)
+            binding.toolbarWithSubtitleContainer.toolbarImageView.load(it)
         }
 
     }

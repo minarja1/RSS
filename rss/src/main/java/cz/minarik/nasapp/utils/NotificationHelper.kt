@@ -9,7 +9,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import coil.Coil
 import coil.request.ImageRequest
-import coil.transform.CircleCropTransformation
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.db.entity.ArticleEntity
 import cz.minarik.nasapp.data.domain.ArticleDTO
@@ -29,8 +28,14 @@ object NotificationHelper {
             }
             val uniqueInt = (System.currentTimeMillis() and 0xfffffff).toInt()
 
+            val flag = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_IMMUTABLE
+            } else {
+                PendingIntent.FLAG_ONE_SHOT
+            }
+
             val pendingIntent: PendingIntent =
-                PendingIntent.getActivity(context, uniqueInt, intent, 0)
+                PendingIntent.getActivity(context, uniqueInt, intent, flag)
 
             val builder = NotificationCompat.Builder(context, notificationChannelId)
                 .setSmallIcon(R.drawable.notification_icon)

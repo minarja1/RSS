@@ -3,13 +3,14 @@ package cz.minarik.nasapp.ui.custom
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import cz.minarik.nasapp.R
-import kotlinx.android.synthetic.main.view_state_view.view.*
+import cz.minarik.nasapp.databinding.ViewStateViewBinding
 
 
 open class StateView @JvmOverloads constructor(
@@ -31,8 +32,10 @@ open class StateView @JvmOverloads constructor(
 
     protected var contentView: View? = null
 
+    private var binding: ViewStateViewBinding
+
     init {
-        inflate(context, R.layout.view_state_view, this)
+        binding = ViewStateViewBinding.inflate(LayoutInflater.from(context), this ,true)
         if (!isInEditMode) {
             attrs?.let { attr ->
                 context.obtainStyledAttributes(
@@ -45,10 +48,10 @@ open class StateView @JvmOverloads constructor(
                     } finally {
                         recycle()
                     }
-                    button.setOnClickListener {
+                    binding.button.setOnClickListener {
                         onClick?.invoke()
                     }
-                    secondButton.setOnClickListener {
+                    binding.secondButton.setOnClickListener {
                         onSecondClick?.invoke()
                     }
                 }
@@ -75,43 +78,45 @@ open class StateView @JvmOverloads constructor(
         this.contentView = view
     }
 
-    protected fun viewPrepare() {
-        titleTextViewCollapsed.apply {
-            isVisible = !title.isNullOrEmpty()
-            text = title
-        }
-        subtitleTextView.apply {
-            isVisible = !subtitle.isNullOrEmpty()
-            text = subtitle
-        }
-
-        button?.let {
-            it.text = buttonFirst
-            it.isInvisible = onClick == null
-            it.setOnClickListener {
-                onClick?.invoke()
+    private fun viewPrepare() {
+        binding.apply {
+            titleTextViewCollapsed.apply {
+                isVisible = !title.isNullOrEmpty()
+                text = title
             }
-        }
-        secondButton?.let {
-            it.text = buttonSecond
-            it.isInvisible = onSecondClick == null
-            it.setOnClickListener {
-                onSecondClick?.invoke()
+            subtitleTextView.apply {
+                isVisible = !subtitle.isNullOrEmpty()
+                text = subtitle
             }
-        }
 
-        loadingProgressBar.isVisible = showProgressBar
+            button.let {
+                it.text = buttonFirst
+                it.isInvisible = onClick == null
+                it.setOnClickListener {
+                    onClick?.invoke()
+                }
+            }
+            secondButton.let {
+                it.text = buttonSecond
+                it.isInvisible = onSecondClick == null
+                it.setOnClickListener {
+                    onSecondClick?.invoke()
+                }
+            }
 
-        imageView.apply {
-            isInvisible = imageDrawable == null
-            setImageDrawable(imageDrawable)
-        }
+            loadingProgressBar.isVisible = showProgressBar
 
-        //know-how just in case
+            imageView.apply {
+                isInvisible = imageDrawable == null
+                setImageDrawable(imageDrawable)
+            }
+
+            //know-how just in case
 //        animationView.isVisible = animateSuccess
 //        if (animateSuccess) {
 //            animationView.animateSuccess()
 //        }
+        }
     }
 
     fun loading(show: Boolean, message: String? = null) {

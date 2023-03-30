@@ -29,9 +29,8 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingTop="8dp"
-                android:scrollbarSize="5dp"
                 android:scrollbarThumbVertical="@color/colorPrimary"
-                android:scrollbars="vertical"
+                android:scrollbars="none"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 tools:listitem="@layout/article_list_item" />
 
@@ -159,7 +158,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <include layout="@layout/include_toolbar_with_subtitle" />
+                <include
+                    android:id="@+id/toolbarWithSubtitleContainer"
+                    layout="@layout/include_toolbar_with_subtitle" />
 
                 <cz.minarik.nasapp.ui.custom.MaterialSearchView
                     android:id="@+id/search_view"

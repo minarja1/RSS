@@ -37,11 +37,11 @@ class ArticlesRepository(
         const val fakeNewArticle = false
 
         //for debug purposes
-        const val fakeNewArticlesForNotification = false
+        const val fakeNewArticlesForNotification = true
     }
 
     /**
-     * number of new articles fetched from server and previously not present in DB
+     * Number of new articles fetched from server and previously not present in DB.
      */
     val newArticlesCount = MutableLiveData(0)
 
@@ -245,7 +245,7 @@ class ArticlesRepository(
     }
 
     suspend fun dbCleanUp(date: Date) {
-        Timber.i("Cleaning database")
+        Timber.i("Cleaning up articles older than $date")
         dao.deleteNonStarredOlderThan(date)
     }
 

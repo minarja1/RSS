@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="cz.minarik.spacenews">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:name=".SpaceNewsApp"
@@ -27,8 +26,14 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="cz.minarik.nasapp.ui.SplashActivity"
-            android:theme="@style/AppTheme.NoActionBar.Launcher">
+            android:name="cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivitySimple"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar.Launcher"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

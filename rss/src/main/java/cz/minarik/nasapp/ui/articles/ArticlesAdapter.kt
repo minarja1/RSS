@@ -8,7 +8,6 @@ import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.ArticleDTO
 import cz.minarik.nasapp.ui.custom.ArticleListItemView
-import kotlinx.android.synthetic.main.article_list_item.view.*
 
 class ArticlesAdapter(
     private var onArticleClicked: (imageView: ImageView, titleTextView: TextView, position: Int) -> Unit,
@@ -53,7 +52,11 @@ class ArticlesAdapter(
         articleItemView.setOnClickListener {
             onArticleClicked(
                 articleItemView.articleFullImageView,
-                if (articleItemView.expanded) articleItemView.titleTextViewExpanded else articleItemView.titleTextViewCollapsed,
+                if (articleItemView.expanded) {
+                    articleItemView.findViewById(R.id.titleTextViewExpanded)
+                } else {
+                    articleItemView.findViewById(R.id.titleTextViewCollapsed)
+                },
                 viewHolder.bindingAdapterPosition
             )
         }

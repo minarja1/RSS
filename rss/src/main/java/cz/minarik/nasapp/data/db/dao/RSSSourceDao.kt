@@ -1,5 +1,6 @@
 package cz.minarik.nasapp.data.db.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import cz.minarik.base.data.db.dao.BaseDao
@@ -13,7 +14,7 @@ interface RSSSourceDao : BaseDao<RSSSourceEntity> {
     suspend fun getAllUnblocked(): List<RSSSourceEntity>
 
     @Query("Select * From RSSSourceEntity where isHidden = 0 order by title")
-    fun getAllUnblockedFlow(): Flow<List<RSSSourceEntity>>
+    fun getAllUnblockedLiveData(): LiveData<List<RSSSourceEntity>>
 
     @Query("Select * From RSSSourceEntity order by title")
     fun getALl(): Flow<List<RSSSourceEntity>>

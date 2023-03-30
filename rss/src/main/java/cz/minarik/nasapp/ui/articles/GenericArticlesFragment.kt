@@ -9,20 +9,18 @@ import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
-import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -30,11 +28,13 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewbinding.ViewBinding
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.NetworkState
 import cz.minarik.base.data.Status
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.base.Loading
 import cz.minarik.nasapp.base.ViewModelState
@@ -44,18 +44,18 @@ import cz.minarik.nasapp.data.domain.ArticleFilterType
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheet
 import cz.minarik.nasapp.ui.articles.bottomSheet.ArticleBottomSheetListener
-import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivity
+import cz.minarik.nasapp.ui.articles.detail.ArticleDetailActivitySimple
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.ui.custom.MaterialSearchView
+import cz.minarik.nasapp.ui.custom.StateView
 import cz.minarik.nasapp.utils.*
-import kotlinx.android.synthetic.main.fragment_articles.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
-    BaseFragment(layoutId) {
+abstract class GenericArticlesFragment<Binding : ViewBinding> :
+    BaseFragment<Binding>() {
 
     abstract val viewModel: ArticlesViewModel
 
@@ -63,18 +63,26 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     open val backEnabled = false
 
+    abstract val articlesRecyclerView: RecyclerView
+    abstract val swipeRefreshLayout: SwipeRefreshLayout
+    abstract val appBarLayout: AppBarLayout
+    abstract val filterUnread: Chip
+    abstract val filterStarred: Chip
+    abstract val filterAll: Chip
+    abstract val stateView: StateView
+    abstract val shimmerLayout: LinearLayout
+    abstract val toolbar: Toolbar
+
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
 
-    var toolbar: Toolbar? = null
     var toolbarTitle: TextView? = null
     var searchView: MaterialSearchView? = null
     var toolbarContentContainer: ViewGroup? = null
 
     private val articleDetailLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-            //not necessary anymore because we're calling it in onResume()
-//            updateVisibleItems()
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            updateVisibleItems()
         }
 
     private val customTabsConnection = object : CustomTabsServiceConnection() {
@@ -110,7 +118,6 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     @CallSuper
     open fun initViews(view: View?) {
-        toolbar = view?.findViewById(R.id.toolbar)
         toolbarTitle = view?.findViewById(R.id.toolbarTitle)
         searchView = view?.findViewById(R.id.search_view)
         toolbarContentContainer = view?.findViewById(R.id.toolbarContentContainer)
@@ -153,6 +160,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     viewModel.filterBySearchQuery(query)
+                    viewModel.logFilterBySearchQuery(query)
                     hideKeyboard()
                     searchView?.let {
                         mSearchSrcTextView.clearFocus()
@@ -214,16 +222,11 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         imageView: ImageView,
         textView: TextView,
     ) {
-        val intent = Intent(requireContext(), ArticleDetailActivity::class.java).apply {
+        val intent = Intent(requireContext(), ArticleDetailActivitySimple::class.java).apply {
             putExtra(Constants.argArticleDTO, articleDTO)
         }
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            requireActivity(),
-            Pair.create(imageView, articleDTO.guid.toImageSharedTransitionName()),
-            Pair.create(textView, articleDTO.guid.toTitleSharedTransitionName()),
-        )
 
-        articleDetailLauncher.launch(intent, options)
+        articleDetailLauncher.launch(intent)
     }
 
     protected val articlesAdapter by lazy {
@@ -246,36 +249,26 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
         val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
         val article = adapter?.getItemAtPosition(position)
         article?.sourceUrl?.let {
+            // todo log
             (requireActivity() as MainActivity).navigateToSourceDetail(it)
         }
 
     }
 
     private fun filterBySource(sourceUrl: String) {
+        viewModel.logNavigateToSimpleArticles(sourceUrl)
         (requireActivity() as MainActivity).navigateToSimpleArticles(sourceUrl)
     }
 
     private fun onArticleExpanded(position: Int) {
-        //make sure bottom of item is on screen
-        (articlesRecyclerView?.layoutManager as? LinearLayoutManager)?.run {
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (findLastCompletelyVisibleItemPosition() < position) {
-                    val recyclerOffset =
-                        (articlesRecyclerView?.height ?: 0) //todo - appBarLayout.bottom
-                    val offset =
-                        recyclerOffset - (findViewByPosition(position)?.height ?: 0)
-                    scrollToPositionWithOffset(
-                        position,
-                        offset - 30
-                    )//add 30 px todo test on more devices
-                }
-            }, Constants.listItemExpandDuration)
-        }
+        viewModel.logArticleExpanded()
     }
 
     private fun onArticleLongClicked(position: Int) {
         val adapter = (articlesRecyclerView?.adapter as? ArticlesAdapter)
         val article = adapter?.getItemAtPosition(position)
+
+        viewModel.logArticleLongClicked(article)
 
         article?.run {
             val sheet = ArticleBottomSheet.newInstance(this)
@@ -294,6 +287,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
                 override fun onShare() {
                     shareArticle(article)
+                    viewModel.logArticleShared(article)
                 }
 
                 override fun onSource(sourceUrl: String) {
@@ -308,9 +302,13 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     private fun onArticleClicked(imageView: ImageView, titleTextView: TextView, position: Int) {
         lifecycleScope.launch {
             val articlesAdapter = articlesRecyclerView?.adapter as? ArticlesAdapter
-            articlesAdapter?.getItemAtPosition(position)?.run {
+            articlesAdapter?.getItemAtPosition(position)?.apply {
+                viewModel.logArticleClick(this)
                 read = true
-                viewModel.markArticleAsReadOrUnread(this, true)
+                viewModel.markArticleAsReadOrUnread(
+                    article = this,
+                    forceRead = true
+                )
                 link?.toUri()?.let {
                     val openExternally =
                         viewModel.sourceDao.getByUrl(this.sourceUrl ?: "")?.forceOpenExternally
@@ -396,26 +394,23 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     private fun setupFilters(view: View?) {
-        //todo use Base extension
-        lifecycleScope.launchWhenStarted {
-            DataStoreManager.getArticleFilter().collect {
-                view?.findViewById<Chip>(it.chipId)?.isChecked = true
-            }
+        DataStoreManager.getArticleFilter().collectWhenStarted {
+            view?.findViewById<Chip>(it.chipId)?.isChecked = true
         }
 
-        filterAll?.setOnCheckedChangeListener { _, checked ->
+        filterAll.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                viewModel.filterArticles(ArticleFilterType.All)
+                viewModel.setArticlesFilter(ArticleFilterType.All)
             }
         }
-        filterStarred?.setOnCheckedChangeListener { _, checked ->
+        filterStarred.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                viewModel.filterArticles(ArticleFilterType.Starred)
+                viewModel.setArticlesFilter(ArticleFilterType.Starred)
             }
         }
-        filterUnread?.setOnCheckedChangeListener { _, checked ->
+        filterUnread.setOnCheckedChangeListener { _, checked ->
             if (checked) {
-                viewModel.filterArticles(ArticleFilterType.Unread)
+                viewModel.setArticlesFilter(ArticleFilterType.Unread)
             }
         }
     }
@@ -442,7 +437,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
     fun scrollToTop() {
         appBarLayout.setExpanded(true)
-        articlesRecyclerView?.scrollToTop()
+        articlesRecyclerView.scrollToTop()
         viewModel.shouldScrollToTop = false
     }
 
@@ -468,10 +463,12 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
                 true
             }
             R.id.settingsAction -> {
+                viewModel.logSettingsOpened()
                 (requireActivity() as MainActivity).navigateToSettings()
                 true
             }
             R.id.aboutAction -> {
+                viewModel.logAboutOpened()
                 (requireActivity() as MainActivity).navigateToAbout()
                 true
             }
@@ -496,6 +493,15 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
 
         val showLoadingSwipeRefresh =
             loadingArticles && !showShimmer && !isError && viewModel.isFromSwipeRefresh
+
+        Timber.i(
+            "updateViews: loadingArticles: $loadingArticles, loadingSources: " +
+                    "$loadingSources, loading: $loading, isError: $isError, articlesEmpty:" +
+                    " $articlesEmpty, loadingMessage: $loadingMessage, showShimmer: $showShimmer, " +
+                    "showLoadingSwipeRefresh: $showLoadingSwipeRefresh " +
+                    "isFromSwipeRefresh: ${viewModel.isFromSwipeRefresh}"
+        )
+
         swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
         swipeRefreshLayout.isEnabled = !showShimmer
 
@@ -556,7 +562,7 @@ abstract class GenericArticlesFragment(@LayoutRes private val layoutId: Int) :
     }
 
     protected fun updateVisibleItems() {
-        //update visible items in adapter (changed might have been made in article detail OR SimpleAriclesFragment)
+        //update visible items in adapter (changed might have been made in article detail OR SimpleArticlesFragment)
         articlesAdapter.notifyItemRangeChanged(
             (articlesRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
             (articlesRecyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()

@@ -5,6 +5,7 @@ import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
@@ -12,26 +13,33 @@ import coil.Coil
 import coil.request.ImageRequest
 import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import cz.minarik.base.common.extensions.hideKeyboard
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.databinding.FragmentNotificationSettingsBinding
 import cz.minarik.nasapp.ui.MainActivity
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.utils.NotificationSettings
 import cz.minarik.nasapp.utils.onImeOption
-import kotlinx.android.synthetic.main.fragment_notification_settings.*
-import kotlinx.android.synthetic.main.view_notification_keyword.view.*
 import kotlinx.coroutines.launch
 
 
-class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification_settings) {
+class NotificationSettingsFragment : BaseFragment<FragmentNotificationSettingsBinding>() {
 
     companion object {
         fun newInstance() = NotificationSettingsFragment()
     }
 
+    private val pushNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        // todo handle result
+    }
+
     private lateinit var notificationSettings: NotificationSettings
     private var keywordsAdapter: ChipAdapter? = null
+    override fun getViewBinding(): FragmentNotificationSettingsBinding =
+        FragmentNotificationSettingsBinding.inflate(layoutInflater)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,7 +56,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
     private fun updateViews(it: NotificationSettings) {
         this.notificationSettings = it
 
-        notifyAll.isChecked = it.notifyAll
+        binding.notifyAll.isChecked = it.notifyAll
         keywordsAdapter?.submitList(it.keyWords)
     }
 
@@ -61,7 +69,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
             supportActionBar?.title = requireContext().getString(R.string.notification_settings)
         }
 
-        notifyAll.setOnCheckedChangeListener { _, isChecked ->
+        binding.notifyAll.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 notificationSettings.notifyAll = isChecked
                 save()
@@ -71,10 +79,13 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
         initKeywords()
 
         initSources()
+
+        // todo handle properly
+        pushNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
     }
 
     private fun initSources() {
-        addSourceButton.setOnClickListener { goToSources() }
+        binding.addSourceButton.setOnClickListener { goToSources() }
     }
 
     private fun goToSources() {
@@ -82,14 +93,14 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
     }
 
     private fun insertKeyword() {
-        keywordsEditText.text?.toString()?.let {
+        binding.keywordsEditText.text?.toString()?.let {
             if (it.isNotEmpty()) {
                 notificationSettings.keyWords.add(0, NotificationKeyword(it))
                 lifecycleScope.launch { save() }
                 keywordsAdapter?.notifyItemInserted(0)
 
-                keywordsEditText.setText("")
-                keywordsEditText.clearFocus()
+                binding.keywordsEditText.setText("")
+                binding.keywordsEditText.clearFocus()
                 hideKeyboard()
             }
         }
@@ -100,7 +111,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
     }
 
     private fun initKeywords() {
-        keywordsEditText.onImeOption(EditorInfo.IME_ACTION_DONE) {
+        binding.keywordsEditText.onImeOption(EditorInfo.IME_ACTION_DONE) {
             insertKeyword()
         }
 
@@ -111,7 +122,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
                 keywordsAdapter?.notifyItemRemoved(position)
             }
 
-        keywordsRecycler.adapter = keywordsAdapter
+        binding.keywordsRecycler.adapter = keywordsAdapter
 
         val keywordsLayoutManager =
             ChipsLayoutManager.newBuilder(requireContext())
@@ -122,7 +133,7 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
                 .withLastRow(true)
                 .build()
 
-        keywordsRecycler.layoutManager = keywordsLayoutManager
+        binding.keywordsRecycler.layoutManager = keywordsLayoutManager
     }
 
     class ChipAdapter(
@@ -152,6 +163,8 @@ class NotificationSettingsFragment : BaseFragment(R.layout.fragment_notification
             viewHolder: BaseViewHolderImp
         ) {
             itemView.apply {
+                val keywordChip =
+                    findViewById<com.google.android.material.chip.Chip>(R.id.keywordChip)
                 keywordChip.text = item.value
 
                 val request = ImageRequest.Builder(context)

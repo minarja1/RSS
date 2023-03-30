@@ -24,9 +24,9 @@ import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 import cz.minarik.base.common.extensions.dpToPx
 import cz.minarik.base.common.extensions.showToast
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.ui.base.BaseFragment
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -35,7 +35,7 @@ import org.jsoup.nodes.Document
 import timber.log.Timber
 import java.util.*
 
-fun BaseFragment.shareArticle(article: ArticleDTO) {
+fun BaseFragment<*>.shareArticle(article: ArticleDTO) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_TEXT, article.link)
@@ -230,10 +230,11 @@ fun Response.toSyncFeed(): SyndFeed? {
 fun Context.sendFeedbackEmail() {
     try {
         val mail: Array<String> = arrayOf(getString(R.string.developer_email))
+        val subject = getString(R.string.feedback, getString(R.string.app_name))
         val mailIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, mail)
-            putExtra(Intent.EXTRA_SUBJECT, "SpaceNews feedback")
+            putExtra(Intent.EXTRA_SUBJECT, subject)
         }
         startActivity(mailIntent)
     } catch (e: Exception) {

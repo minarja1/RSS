@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.databinding.ActivityMainBinding
 import cz.minarik.nasapp.ui.about.AboutFragment
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
@@ -18,24 +19,25 @@ import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
 import cz.minarik.nasapp.utils.ExitWithAnimation
 import cz.minarik.nasapp.utils.exitCircularReveal
 import cz.minarik.nasapp.utils.findLocationOfCenterOnTheScreen
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.flow.collect
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     companion object {
         const val sourcesFragmentTag = "sourcesFragment"
     }
 
-    val sourcesViewModel by viewModel<SourcesViewModel>()
+    private val sourcesViewModel by viewModel<SourcesViewModel>()
     private var sourcesFragment: Fragment? = null
     private var initialSyncFinished: Boolean = false
     var sourcesFragmentShown: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         sourcesViewModel //initialization
         if (savedInstanceState == null) {
             replaceFragment(ArticlesFragment())
@@ -62,8 +64,9 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initViews() {
-        fab.setOnClickListener {
+        binding.fab.setOnClickListener {
             showHideSourceSelection(true)
+            sourcesViewModel.logSourcesSelectionOpened()
         }
         supportFragmentManager.addOnBackStackChangedListener {
             updateFabVisibility()
@@ -79,7 +82,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun updateFabVisibility() {
-        if (supportFragmentManager.backStackEntryCount == 1 && !sourcesFragmentShown && initialSyncFinished) fab.show() else fab.hide()
+        if (supportFragmentManager.backStackEntryCount == 1 && !sourcesFragmentShown && initialSyncFinished) binding.fab.show() else binding.fab.hide()
     }
 
     fun showHideSourceSelection(show: Boolean) {
@@ -89,7 +92,7 @@ class MainActivity : BaseActivity() {
         if (show) {
             if (sourcesFragment == null) {
                 sourcesFragment =
-                    SourceSelectionFragment.newInstance(fab.findLocationOfCenterOnTheScreen())
+                    SourceSelectionFragment.newInstance(binding.fab.findLocationOfCenterOnTheScreen())
             }
             sourcesFragment?.let {
                 transaction.replace(

@@ -23,16 +23,16 @@ import com.chimbori.crux.articles.Article
 import com.google.android.material.appbar.AppBarLayout
 import cz.minarik.base.common.extensions.*
 import cz.minarik.base.data.Status
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.BuildConfig
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.datastore.DataStoreManager
 import cz.minarik.nasapp.data.domain.ArticleDTO
+import cz.minarik.nasapp.databinding.FragmentArticleDetailBinding
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
 import cz.minarik.nasapp.ui.base.BaseActivity
+import cz.minarik.nasapp.ui.base.BaseFragment
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment
 import cz.minarik.nasapp.utils.*
-import kotlinx.android.synthetic.main.fragment_article_detail.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -42,7 +42,10 @@ import java.net.URL
 import kotlin.math.abs
 
 
-class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
+class ArticleDetailFragment : BaseFragment<FragmentArticleDetailBinding>() {
+
+    override fun getViewBinding(): FragmentArticleDetailBinding =
+        FragmentArticleDetailBinding.inflate(layoutInflater)
 
     companion object {
         fun newInstance(
@@ -55,44 +58,36 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             }
     }
 
-    private lateinit var articleDTO: ArticleDTO
+    private val articleDTO by lazy {
+        arguments?.getSerializable(Constants.argArticleDTO) as ArticleDTO
+    }
 
     private var userInteracted = false
 
     private var urlsBeingLoaded = mutableListOf<String>()
 
-    private val viewModel by inject<ArticlesViewModel>()
+    val viewModel by inject<ArticlesViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadArticle()
-        initObserve()
+        if (savedInstanceState == null) {
+            viewModel.loadArticleDetail(articleDTO)
+        }
         initViews()
-        updateViews()
-    }
-
-    fun loadArticle(article: ArticleDTO? = null) {
-        articleDTO = article ?: arguments?.getSerializable(Constants.argArticleDTO) as ArticleDTO
-        viewModel.loadArticleDetail(articleDTO)
-        viewModel.markArticleAsReadOrUnread(articleDTO, true)
-        updateViews()
-    }
-
-    private fun updateViews() {
-        loadArticleWebView()
-        sourceNameTextView.text = articleDTO.sourceName
-        dateTextView.text = articleDTO.date?.toTimeElapsed()
-        requireContext().warmUpBrowser(articleDTO.link?.toUri())
-        updateArticleStarred()
-        updateToolbar()
+        initObserve()
     }
 
     private fun initViews() {
         initToolbar()
         prepareWebView()
-        stateView.attacheContentView(contentContainer)
+        loadArticleWebView()
+        binding.sourceNameTextView.text = articleDTO.sourceName
+        binding.dateTextView.text = articleDTO.date?.toTimeElapsed()
+        binding.stateView.attacheContentView(binding.contentContainer)
+        requireContext().warmUpBrowser(articleDTO.link?.toUri())
         initArticleStarred()
-        sourceInfoBackground.setOnClickListener {
+        updateArticleStarred()
+        binding.sourceInfoBackground.setOnClickListener {
             articleDTO.sourceUrl?.let {
                 (requireActivity() as BaseActivity).replaceFragment(
                     SourceDetailFragment.newInstance(
@@ -104,7 +99,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     }
 
     private fun updateArticleStarred() {
-        starImageButton.setImageDrawable(
+        binding.starImageButton.setImageDrawable(
             ContextCompat.getDrawable(
 
                 requireContext(),
@@ -114,7 +109,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     }
 
     private fun initArticleStarred() {
-        starImageButton.setOnClickListener {
+        binding.starImageButton.setOnClickListener {
             viewModel.markArticleAsStarred(articleDTO)
         }
     }
@@ -141,18 +136,21 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
         viewModel.state.observe {
             if (it.status == Status.FAILED) {
                 if (!requireContext().isInternetAvailable) {
-                    stateView.error(show = true, getString(R.string.no_internet_connection)) {
+                    binding.stateView.error(
+                        show = true,
+                        getString(R.string.no_internet_connection)
+                    ) {
                         if (requireContext().isInternetAvailable) {
                             viewModel.loadArticleDetail(articleDTO)
                         }
                     }
                 } else {
-                    stateView.error(show = true, it.message) {
+                    binding.stateView.error(show = true, it.message) {
                         viewModel.loadArticleDetail(articleDTO)
                     }
                 }
             } else {
-                stateView.loading(false)
+                binding.stateView.loading(false)
             }
         }
     }
@@ -166,6 +164,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
         return when (item.itemId) {
             R.id.actionShareArticle -> {
                 shareArticle(articleDTO)
+                viewModel.logArticleShared(articleDTO)
                 true
             }
             R.id.actionOpenWeb -> {
@@ -181,90 +180,96 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     }
 
     private fun initToolbar() {
-        toolbar.let {
-            (requireActivity() as AppCompatActivity).run {
-                setSupportActionBar(it)
-                supportActionBar?.setDisplayShowTitleEnabled(false)
-                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.run {
+            toolbar.let {
+                (requireActivity() as AppCompatActivity).run {
+                    setSupportActionBar(it)
+                    supportActionBar?.setDisplayShowTitleEnabled(false)
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                }
             }
-        }
 
-        appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            if (abs(verticalOffset) - appBarLayout.totalScrollRange == 0) {
-                // Collapsed
-                toolbarLayout.title = articleDTO.title
-            } else {
-                // Expanded
-                toolbarLayout.title = " "
+            appBarLayout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                if (abs(verticalOffset) - appBarLayout.totalScrollRange == 0) {
+                    // Collapsed
+                    toolbarLayout.title = articleDTO.title
+                } else {
+                    // Expanded
+                    toolbarLayout.title = " "
+                }
+            })
+
+            fakeTitleTextView.text = articleDTO.title
+            fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
+
+            toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
+            toolbarExpandedImage.load(articleDTO.image)
+            requireActivity().startPostponedEnterTransition()
+            toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT)
+            try {
+                val url = URL(articleDTO.sourceUrl)
+                sourceImageView.load(url.getFavIcon())
+            } catch (e: MalformedURLException) {
             }
-        })
-    }
-
-    private fun updateToolbar(){
-        fakeTitleTextView.text = articleDTO.title
-        fakeTitleTextView.transitionName = articleDTO.guid.toTitleSharedTransitionName()
-
-        toolbarExpandedImage.transitionName = articleDTO.guid.toImageSharedTransitionName()
-        toolbarExpandedImage.load(articleDTO.image)
-        requireActivity().startPostponedEnterTransition()
-        toolbarLayout.setExpandedTitleColor(Color.TRANSPARENT)
-        try {
-            val url = URL(articleDTO.sourceUrl)
-            sourceImageView.load(url.getFavIcon())
-        } catch (e: MalformedURLException) {
         }
     }
 
 
     private fun updateArticleViews(article: Article?) {
         article?.imgUrlSafe?.let {
-            toolbarExpandedImage.loadImageWithDefaultSettings(
+            binding.toolbarExpandedImage.loadImageWithDefaultSettings(
                 uri = it.replace("http://", "https://"),
-                placeholder = toolbarExpandedImage.drawable
+                placeholder = binding.toolbarExpandedImage.drawable
             )
         }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     private fun prepareWebView() {
-        webView.setOnTouchListener { _, _ ->
-            userInteracted = true
-            false
-        }
-
-        webView.settings.run {
-            javaScriptCanOpenWindowsAutomatically = true
-            javaScriptEnabled = true
-            cacheMode = WebSettings.LOAD_DEFAULT
-            allowContentAccess = true
-            loadWithOverviewMode = true
-            builtInZoomControls = true
-            builtInZoomControls = true
-        }
-        webView.webViewClient = ArticleWebViewClient()
-        webView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.action == MotionEvent.ACTION_UP
-                && webView.canGoBack()
-            ) {
-                webView.goBack()
-                return@OnKeyListener true
+        binding.run {
+            webView.setOnTouchListener { _, _ ->
+                userInteracted = true
+                false
             }
-            false
-        })
 
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
-            WebSettingsCompat.setForceDark(webView.settings, WebSettingsCompat.FORCE_DARK_ON)
-        }
+            webView.settings.run {
+                javaScriptCanOpenWindowsAutomatically = true
+                javaScriptEnabled = true
+                cacheMode = WebSettings.LOAD_DEFAULT
+                allowContentAccess = true
+                loadWithOverviewMode = true
+                builtInZoomControls = false
+                domStorageEnabled = true
+            }
+            webView.webViewClient = ArticleWebViewClient()
+            webView.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+                if (keyCode == KeyEvent.KEYCODE_BACK
+                    && event.action == MotionEvent.ACTION_UP
+                    && webView.canGoBack()
+                ) {
+                    webView.goBack()
+                    return@OnKeyListener true
+                }
+                false
+            })
 
-        if (BuildConfig.DEBUG) {
-            WebView.setWebContentsDebuggingEnabled(true)
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                Timber.d("Force dark supported")
+                WebSettingsCompat.setAlgorithmicDarkeningAllowed(
+                    webView.settings,
+                    true,
+                )
+            }
+
+            if (BuildConfig.DEBUG) {
+                WebView.setWebContentsDebuggingEnabled(true)
+            }
         }
     }
 
     private fun loadArticleWebView() {
         articleDTO.link?.let {
-            webView.loadUrl(it)
+            binding.webView.loadUrl(it)
         }
     }
 
@@ -278,8 +283,8 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
                 articleDTO.link?.let { link ->
                     val isAnotherArticle = request?.url?.toString()?.contains(link, true) == false
                     if (isAnotherArticle) {
-                        request?.url?.let {
-                            requireContext().openCustomTabs(it)
+                        request?.url?.let { uri ->
+                            context?.openCustomTabs(uri)
                         }
                     }
                     return isAnotherArticle
@@ -333,7 +338,7 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
     }
 
     private fun invalidateProgressBar() {
-        progressBar?.isVisible = urlsBeingLoaded.size > 0
+        binding.progressBar?.isVisible = urlsBeingLoaded.size > 0
     }
 
     fun handleError(code: Int) {
@@ -341,9 +346,9 @@ class ArticleDetailFragment : BaseFragment(R.layout.fragment_article_detail) {
             //other errors ignored because sometimes webView will just throw an error but the page is actually loaded
             context?.let {
                 if (!it.isInternetAvailable) {
-                    stateView?.noInternet(true) {
+                    binding.stateView.noInternet(true) {
                         if (it.isInternetAvailable) {
-                            stateView.loading(false)
+                            binding.stateView.loading(false)
                             loadArticleWebView()
                         }
                     }

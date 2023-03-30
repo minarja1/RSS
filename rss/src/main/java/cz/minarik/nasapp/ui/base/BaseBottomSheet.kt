@@ -5,20 +5,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-abstract class BaseBottomSheet : BottomSheetDialogFragment() {
-    @get:LayoutRes
-    abstract val layoutId: Int
+abstract class BaseBottomSheet<Binding : ViewBinding> : BottomSheetDialogFragment() {
 
-    lateinit var rootView: View
+    protected lateinit var binding: Binding
+    protected abstract fun getViewBinding(): Binding
+
+    private lateinit var rootView: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        rootView = inflater.inflate(layoutId, container, false)
+        binding = getViewBinding()
+        rootView = binding.root
         return rootView
     }
 
