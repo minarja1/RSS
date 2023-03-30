@@ -10,6 +10,7 @@ import cz.minarik.nasapp.data.db.repository.ArticlesRepository
 import cz.minarik.nasapp.data.db.repository.RSSSourceRepository
 import cz.minarik.nasapp.data.network.RssApiService
 import cz.minarik.nasapp.ui.articles.ArticlesViewModel
+import cz.minarik.nasapp.ui.settings.notifications.NotificationSettingsViewModel
 import cz.minarik.nasapp.ui.settings.sources.AddSourcesViewModel
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailViewModel
 import cz.minarik.nasapp.ui.sources.selection.SourcesViewModel
@@ -46,6 +47,12 @@ val appModule = module {
 
     viewModel {
         AddSourcesViewModel(
+            get(),
+        )
+    }
+
+    viewModel {
+        NotificationSettingsViewModel(
             get(),
         )
     }

@@ -1,8 +1,8 @@
 package cz.minarik.nasapp.utils
 
-import cz.minarik.nasapp.ui.settings.NotificationKeyword
+import cz.minarik.nasapp.data.domain.NotificationKeyword
 
 data class NotificationSettings(
-    var notifyAll: Boolean = true,
-    var keyWords: MutableList<NotificationKeyword> = mutableListOf(),
+    val notifyAll: Boolean = false,
+    val keyWords: List<NotificationKeyword> = mutableListOf(),
 )

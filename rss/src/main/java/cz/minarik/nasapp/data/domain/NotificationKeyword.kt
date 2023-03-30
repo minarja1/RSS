@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.ui.settings
+package cz.minarik.nasapp.data.domain
 
 data class NotificationKeyword(
     val value: String,

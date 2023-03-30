@@ -19,7 +19,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
@@ -29,14 +28,15 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
-import com.google.android.material.composethemeadapter.MdcTheme
-import cz.minarik.base.ui.base.BaseFragment
 import cz.minarik.nasapp.R
 import cz.minarik.nasapp.data.domain.RSSSource
+import cz.minarik.nasapp.data.domain.RSSSourceNotificationListItem
+import cz.minarik.nasapp.databinding.FragmentAddSourcesBinding
+import cz.minarik.nasapp.ui.base.BaseFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
+class AddSourcesFragment : BaseFragment<FragmentAddSourcesBinding>() {
 
     companion object {
         fun newInstance() = AddSourcesFragment()
@@ -59,17 +59,18 @@ class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
         }
     }
 
+    override fun getViewBinding(): FragmentAddSourcesBinding =
+        FragmentAddSourcesBinding.inflate(layoutInflater)
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        view?.findViewById<ComposeView>(R.id.composeView)?.setContent {
-            MdcTheme {
-                Scaffold {
-                    Sources(viewModel.allSources.collectAsState(emptyList()))
-                }
+        view?.findViewById<ComposeView>(R.id.composeView)?.setComposeContent {
+            Scaffold {
+                Sources(viewModel.allSources.collectAsState().value)
             }
         }
         return view
@@ -77,28 +78,26 @@ class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
 
     @Preview
     @Composable
-    fun Sources(@PreviewParameter(RSSSourcesPreviewProvider::class) sources: State<List<RSSSource>>) {
+    fun Sources(
+        @PreviewParameter(RSSSourcesPreviewProvider::class)
+        sources: List<RSSSourceNotificationListItem>
+    ) {
         LazyColumn(
             Modifier.background(colorResource(id = R.color.colorBackground)),
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
-            items(sources.value) {
+            items(sources) {
                 SourceItem(it)
             }
         }
     }
 
     @Composable
-    fun SourceItem(source: RSSSource) {
-        var showIcon by remember {
-            mutableStateOf(source.isNotificationsEnabled)
-        }
-
+    fun SourceItem(source: RSSSourceNotificationListItem) {
         Row(
             modifier = Modifier
                 .clickable {
                     viewModel.sourceSelected(source)
-                    showIcon = !showIcon
                 }
                 .height(48.dp)
                 .fillMaxWidth()
@@ -117,7 +116,7 @@ class AddSourcesFragment : BaseFragment(R.layout.fragment_add_sources) {
                 text = source.title ?: "", style = typography.body1
             )
             Image(
-                modifier = Modifier.alpha(if (showIcon) 1f else 0f),
+                modifier = Modifier.alpha(if (source.notificationsEnabled) 1f else 0f),
                 painter = painterResource(id = R.drawable.ic_baseline_check_circle_outline_24),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(colorResource(id = R.color.colorAccent)),

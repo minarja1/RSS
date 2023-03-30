@@ -10,7 +10,7 @@ import cz.minarik.nasapp.ui.about.AboutFragment
 import cz.minarik.nasapp.ui.articles.ArticlesFragment
 import cz.minarik.nasapp.ui.articles.simple.SimpleArticlesFragment
 import cz.minarik.nasapp.ui.base.BaseActivity
-import cz.minarik.nasapp.ui.settings.NotificationSettingsFragment
+import cz.minarik.nasapp.ui.settings.notifications.NotificationSettingsFragment
 import cz.minarik.nasapp.ui.settings.SettingsFragment
 import cz.minarik.nasapp.ui.settings.sources.AddSourcesFragment
 import cz.minarik.nasapp.ui.sources.detail.SourceDetailFragment

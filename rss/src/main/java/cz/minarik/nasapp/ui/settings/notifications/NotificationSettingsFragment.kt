@@ -1,4 +1,4 @@
-package cz.minarik.nasapp.ui.settings
+package cz.minarik.nasapp.ui.settings.notifications
 
 import android.os.Bundle
 import android.view.Gravity
@@ -15,13 +15,13 @@ import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import cz.minarik.base.common.extensions.hideKeyboard
 import cz.minarik.base.ui.base.BaseListAdapter
 import cz.minarik.nasapp.R
-import cz.minarik.nasapp.data.datastore.DataStoreManager
+import cz.minarik.nasapp.data.domain.NotificationKeyword
 import cz.minarik.nasapp.databinding.FragmentNotificationSettingsBinding
 import cz.minarik.nasapp.ui.MainActivity
 import cz.minarik.nasapp.ui.base.BaseFragment
-import cz.minarik.nasapp.utils.NotificationSettings
 import cz.minarik.nasapp.utils.onImeOption
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class NotificationSettingsFragment : BaseFragment<FragmentNotificationSettingsBinding>() {
@@ -30,13 +30,14 @@ class NotificationSettingsFragment : BaseFragment<FragmentNotificationSettingsBi
         fun newInstance() = NotificationSettingsFragment()
     }
 
+    val viewModel by viewModel<NotificationSettingsViewModel>()
+
     private val pushNotificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         // todo handle result
     }
 
-    private lateinit var notificationSettings: NotificationSettings
     private var keywordsAdapter: ChipAdapter? = null
     override fun getViewBinding(): FragmentNotificationSettingsBinding =
         FragmentNotificationSettingsBinding.inflate(layoutInflater)
@@ -48,16 +49,14 @@ class NotificationSettingsFragment : BaseFragment<FragmentNotificationSettingsBi
     }
 
     private fun initObserve() {
-        DataStoreManager.getNotificationSettings().collectWhenStarted {
+        viewModel.viewState.collectWhenStarted {
             updateViews(it)
         }
     }
 
-    private fun updateViews(it: NotificationSettings) {
-        this.notificationSettings = it
-
-        binding.notifyAll.isChecked = it.notifyAll
-        keywordsAdapter?.submitList(it.keyWords)
+    private fun updateViews(it: NotificationSettingsState) {
+        binding.notifyAll.isChecked = it.notificationSettings.notifyAll
+        keywordsAdapter?.submitList(it.notificationSettings.keyWords)
     }
 
     private fun initViews(view: View) {
@@ -71,8 +70,7 @@ class NotificationSettingsFragment : BaseFragment<FragmentNotificationSettingsBi
 
         binding.notifyAll.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
-                notificationSettings.notifyAll = isChecked
-                save()
+                viewModel.setNotifyAll(isChecked)
             }
         }
 
@@ -95,19 +93,12 @@ class NotificationSettingsFragment : BaseFragment<FragmentNotificationSettingsBi
     private fun insertKeyword() {
         binding.keywordsEditText.text?.toString()?.let {
             if (it.isNotEmpty()) {
-                notificationSettings.keyWords.add(0, NotificationKeyword(it))
-                lifecycleScope.launch { save() }
-                keywordsAdapter?.notifyItemInserted(0)
-
+                viewModel.addNotificationKeyword(NotificationKeyword(it))
                 binding.keywordsEditText.setText("")
                 binding.keywordsEditText.clearFocus()
                 hideKeyboard()
             }
         }
-    }
-
-    private suspend fun save() {
-        DataStoreManager.setNotificationSettings(notificationSettings)
     }
 
     private fun initKeywords() {
@@ -117,9 +108,7 @@ class NotificationSettingsFragment : BaseFragment<FragmentNotificationSettingsBi
 
         keywordsAdapter =
             ChipAdapter { item, position ->
-                notificationSettings.keyWords.remove(item)
-                lifecycleScope.launch { save() }
-                keywordsAdapter?.notifyItemRemoved(position)
+                viewModel.removeNotificationKeyword(item)
             }
 
         binding.keywordsRecycler.adapter = keywordsAdapter
