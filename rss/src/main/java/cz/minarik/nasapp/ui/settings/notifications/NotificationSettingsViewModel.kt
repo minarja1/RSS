@@ -27,13 +27,13 @@ class NotificationSettingsViewModel(
     ) { notifications, sources ->
         NotificationSettingsState(
             notificationSettings = notifications,
-            sources = sources,
+            sourcesWithNotificationsOn = sources,
         )
     }.stateIn(
         scope = ioScope,
         initialValue = NotificationSettingsState(
             notificationSettings = NotificationSettings(),
-            sources = listOf(),
+            sourcesWithNotificationsOn = listOf(),
         ),
         started = SharingStarted.Lazily
     )
