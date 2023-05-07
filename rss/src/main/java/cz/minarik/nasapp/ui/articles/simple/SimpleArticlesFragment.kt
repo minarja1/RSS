@@ -52,6 +52,9 @@ class SimpleArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>(
         get() = (requireActivity() as MainActivity).progressBar
 
 
+    override val shouldShowHorizontalProgressBar: Boolean
+        get() = false
+
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articlesSimple
 
     override fun onCreate(savedInstanceState: Bundle?) {

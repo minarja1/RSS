@@ -74,6 +74,7 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
     abstract val shimmerLayout: LinearLayout
     abstract val toolbar: Toolbar
     abstract val progressBar: ProgressBar
+    abstract val shouldShowHorizontalProgressBar: Boolean
 
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
@@ -497,7 +498,7 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
             loadingArticles && !showShimmer && !isError && viewModel.isFromSwipeRefresh
 
         val showHorizontalProgressBar =
-            loading && !articlesEmpty && !isError && !showLoadingSwipeRefresh
+            shouldShowHorizontalProgressBar && loading && !articlesEmpty && !isError && !showLoadingSwipeRefresh
 
         Timber.i(
             "updateViews: loadingArticles: $loadingArticles, loadingSources: " +

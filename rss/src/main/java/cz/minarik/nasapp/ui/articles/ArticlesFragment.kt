@@ -60,6 +60,9 @@ class ArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>() {
     override val progressBar: ProgressBar
         get() = (requireActivity() as MainActivity).progressBar
 
+    override val shouldShowHorizontalProgressBar: Boolean
+        get() = true
+
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articles
 
     override fun getViewBinding() = FragmentArticlesBinding.inflate(layoutInflater)
