@@ -30,4 +30,18 @@
         app:tint="@color/colorOnSurface"
         app:rippleColor="@color/color_ripple" />
 
+    <ProgressBar
+        android:id="@+id/horizontalProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_gravity="bottom"
+        android:progressTint="@color/colorPrimary"
+        android:secondaryProgressTint="@color/colorAccent"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

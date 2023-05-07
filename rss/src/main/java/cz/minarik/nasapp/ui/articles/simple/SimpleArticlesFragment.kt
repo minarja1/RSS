@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.activity.addCallback
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
@@ -47,6 +48,8 @@ class SimpleArticlesFragment : GenericArticlesFragment<FragmentArticlesBinding>(
         get() = binding.shimmerLayout
     override val toolbar: Toolbar
         get() = binding.toolbarWithSubtitleContainer.toolbar
+    override val progressBar: ProgressBar
+        get() = (requireActivity() as MainActivity).progressBar
 
 
     override fun getArticlesLiveData(): MutableLiveData<List<ArticleDTO>> = viewModel.articlesSimple

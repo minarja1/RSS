@@ -10,6 +10,7 @@ import android.os.Looper
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
@@ -72,6 +73,7 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
     abstract val stateView: StateView
     abstract val shimmerLayout: LinearLayout
     abstract val toolbar: Toolbar
+    abstract val progressBar: ProgressBar
 
     private var customTabsClient: CustomTabsClient? = null
     var customTabsSession: CustomTabsSession? = null
@@ -494,6 +496,9 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
         val showLoadingSwipeRefresh =
             loadingArticles && !showShimmer && !isError && viewModel.isFromSwipeRefresh
 
+        val showHorizontalProgressBar =
+            loading && !articlesEmpty && !isError && !showLoadingSwipeRefresh
+
         Timber.i(
             "updateViews: loadingArticles: $loadingArticles, loadingSources: " +
                     "$loadingSources, loading: $loading, isError: $isError, articlesEmpty:" +
@@ -504,6 +509,8 @@ abstract class GenericArticlesFragment<Binding : ViewBinding> :
 
         swipeRefreshLayout.isRefreshing = showLoadingSwipeRefresh
         swipeRefreshLayout.isEnabled = !showShimmer
+
+        progressBar.isVisible = showHorizontalProgressBar
 
         if (articlesEmpty && !isError && !loading) {
             if (filterStarred.isChecked) {

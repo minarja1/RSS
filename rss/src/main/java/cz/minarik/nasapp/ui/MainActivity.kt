@@ -1,6 +1,7 @@
 package cz.minarik.nasapp.ui
 
 import android.os.Bundle
+import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import cz.minarik.nasapp.R
@@ -31,6 +32,9 @@ class MainActivity : BaseActivity() {
     private var sourcesFragment: Fragment? = null
     private var initialSyncFinished: Boolean = false
     var sourcesFragmentShown: Boolean = false
+
+    val progressBar: ProgressBar
+        get() = binding.horizontalProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
